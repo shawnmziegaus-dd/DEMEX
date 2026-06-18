@@ -1,0 +1,38 @@
+# DEMEX email_ingestor.py dependencies
+#
+# The email pipeline itself (IMAP connection, body/metadata parsing, SQLite
+# storage, JSON export) runs on the Python STANDARD LIBRARY alone -- nothing
+# below is required just to ingest emails and save attachments.
+#
+# These packages are ONLY needed to read text out of downloaded bid PDFs so the
+# line-item parser can run. Without them, the script still ingests emails and
+# saves PDFs; it just skips line-item extraction (and logs a warning).
+#
+# Install with:  pip install -r requirements.txt
+
+# Preferred PDF text extractor (better at tabular bid sheets).
+pdfplumber>=0.11.0
+
+# Lightweight fallback the script uses automatically if pdfplumber is absent.
+# pdfplumber already pulls in pdfminer.six; pypdf is listed so the fallback
+# path works even in a minimal install.
+pypdf>=4.0.0
+
+# ---------------------------------------------------------------------------
+# takeoff_scalar.py (blueprint Computer-Vision takeoff engine) dependencies
+# ---------------------------------------------------------------------------
+# These are required ONLY for takeoff_scalar.py (scale calibration, area/linear
+# measurement, and symbol auto-counting). The email pipeline above does not use
+# them. takeoff_scalar.py reuses pdfplumber (listed above) for exact PDF vector
+# geometry.
+
+# Computer-vision core: contour detection, template matching, the interactive
+# drawing/selection window.
+opencv-python>=4.9.0
+
+# Array math behind the geometry and non-max-suppression.
+numpy>=1.26.0
+
+# PDF -> raster renderer. Pure Python wheels, no Ghostscript/poppler system
+# install needed (unlike some pdfplumber image backends).
+pypdfium2>=4.25.0

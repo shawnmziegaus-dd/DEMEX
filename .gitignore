@@ -1,0 +1,24 @@
+# --- DEMEX secrets & generated data (never commit) ---
+# Gmail App Password / credential files
+demex_credentials.json
+credentials.json
+*.cred
+.env
+.env.*
+
+# Local ingestion database & downloaded bid PDFs
+demex_records.db
+demex_records.db-journal
+demex_records.db-wal
+projects/
+
+# takeoff_scalar.py generated artifacts (per-sheet scale + count overlays)
+*.scale.json
+*_count_overlay.png
+
+# Python
+__pycache__/
+*.pyc
+
+# Migration/backup artifacts
+_backups_*/
