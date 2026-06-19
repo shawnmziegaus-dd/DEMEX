@@ -132,11 +132,48 @@ def _amount(p: dict):
     return a if a > 0 else None
 
 
-def price_bands(projects: list[dict]) -> dict:
+# --- segmentation: risk bands scale by project size and trade -------------- #
+# Size tiers are by bid $ (the only size signal present for every project --
+# history sqft is mostly 0). Tune the cut points here.
+SIZE_TIERS = [("small", 0.0, 10000.0),
+              ("mid", 10000.0, 25000.0),
+              ("large", 25000.0, float("inf"))]
+# A tier needs at least this many decided (won+lost) bids before we trust its
+# OWN bands; below that it falls back to the global bands (and says so).
+MIN_TIER_N = 4
+
+
+def size_tier_name(amount: float) -> str:
+    """Name of the size tier a $ amount falls in."""
+    try:
+        amount = float(amount)
+    except (TypeError, ValueError):
+        return SIZE_TIERS[0][0]
+    for name, lo, hi in SIZE_TIERS:
+        if lo <= amount < hi:
+            return name
+    return SIZE_TIERS[-1][0]
+
+
+def _trade(p: dict):
+    """Best-available trade/scope label for a project (None if unknown)."""
+    for k in ("trade", "category", "scope_type", "scope"):
+        v = p.get(k)
+        if v:
+            return str(v)
+    return None
+
+
+def price_bands(projects: list[dict], lo: float = 0.0,
+                hi: float = float("inf"), trade: Optional[str] = None) -> dict:
     """Win/loss price clustering -> a competitive band for the next bid.
 
     Builds the $-clusters of past wins vs losses so the cockpit can flag a
     candidate bid that is drifting into the 'priced ourselves out' zone.
+
+    Optionally restrict to a bid-size window [lo, hi) and/or a trade/scope whose
+    label contains `trade` (case-insensitive) -- this is what lets the risk
+    metrics scale by Project Size and Trade Category instead of one global band.
 
     Anchored on MEDIANS, not tail percentiles: won/lost $-distributions overlap
     heavily (a few high-$ wins would otherwise drag a p75 ceiling above the loss
@@ -146,8 +183,20 @@ def price_bands(projects: list[dict]) -> dict:
     resistance_line     = midpoint(won median, lost median) (market pushes back)
     danger_line         = LOST median (at/above here bids reliably lose)
     """
-    won = sorted(a for p in projects if _outcome_status(p) == WON and (a := _amount(p)))
-    lost = sorted(a for p in projects if _outcome_status(p) == LOST and (a := _amount(p)))
+    def keep(p):
+        a = _amount(p)
+        if a is None or not (lo <= a < hi):
+            return None
+        if trade:
+            t = _trade(p)
+            if not t or trade.lower() not in t.lower():
+                return None
+        return a
+
+    won = sorted(a for p in projects
+                 if _outcome_status(p) == WON and (a := keep(p)) is not None)
+    lost = sorted(a for p in projects
+                  if _outcome_status(p) == LOST and (a := keep(p)) is not None)
 
     def stats(v):
         if not v:
@@ -159,7 +208,8 @@ def price_bands(projects: list[dict]) -> dict:
             "p75": round(_pctile(v, .75), 2), "max": v[-1],
         }
 
-    bands = {"won": stats(won), "lost": stats(lost)}
+    bands = {"won": stats(won), "lost": stats(lost),
+             "n_decided": len(won) + len(lost)}
     if won and lost:
         wm, lm = _pctile(won, .5), _pctile(lost, .5)
         bands["competitive_ceiling"] = round(wm, 2)
@@ -167,6 +217,46 @@ def price_bands(projects: list[dict]) -> dict:
         bands["danger_line"] = round(lm, 2)
         bands["win_loss_separation"] = round(lm - wm, 2)
     return bands
+
+
+def tiered_bands(projects: list[dict], trade: Optional[str] = None) -> dict:
+    """Global bands + per-size-tier bands (the dynamic, size-scaled risk model).
+
+    A tier with fewer than MIN_TIER_N decided bids falls back to the global
+    bands so the cockpit never shows a confident colour off 1-2 data points.
+    """
+    glob = price_bands(projects, trade=trade)
+    by_size = {}
+    for name, lo, hi in SIZE_TIERS:
+        seg = price_bands(projects, lo, hi, trade=trade)
+        rng = [lo, None if hi == float("inf") else hi]
+        n = seg.get("n_decided", 0)
+        sep = seg.get("win_loss_separation")
+        # A tier is trustworthy only with enough decided bids AND a real
+        # win<loss separation (small samples can invert, e.g. a few pricey wins
+        # above the loss median -> meaningless colour). Otherwise fall back.
+        if n < MIN_TIER_N or "competitive_ceiling" not in seg:
+            reason = "thin"
+        elif sep is None or sep <= 0:
+            reason = "inverted"
+        else:
+            reason = None
+        if reason:
+            fb = dict(glob)
+            fb.update({"basis": "fallback-global", "fallback_reason": reason,
+                       "tier_n": n, "range": rng})
+            by_size[name] = fb
+        else:
+            seg.update({"basis": "segment", "tier_n": n, "range": rng})
+            by_size[name] = seg
+    return {
+        "global": glob,
+        "by_size": by_size,
+        "min_tier_n": MIN_TIER_N,
+        "tiers": [[n, lo, (None if hi == float("inf") else hi)]
+                  for n, lo, hi in SIZE_TIERS],
+        "trade": trade,
+    }
 
 
 def _outcome_status(p: dict) -> str:
@@ -181,6 +271,12 @@ def assess_candidate(amount: float, bands: dict) -> dict:
     if ceil is None:
         return {"candidate_amount": amount, "zone": "unknown",
                 "flag": "Not enough decided history to judge competitiveness."}
+    if not (ceil < danger):           # bands must increase; guard against inversion
+        return {"candidate_amount": round(float(amount), 2), "zone": "unknown",
+                "competitive_ceiling": ceil, "resistance_line": resist,
+                "danger_line": danger,
+                "flag": "Win/loss bands lack clean separation here; too little "
+                        "signal to colour this bid."}
     if amount <= ceil:
         zone, flag = "competitive", "At or below where we typically win. Hold."
     elif amount <= resist:
@@ -195,6 +291,27 @@ def assess_candidate(amount: float, bands: dict) -> dict:
     return {"candidate_amount": round(float(amount), 2), "zone": zone,
             "competitive_ceiling": ceil, "resistance_line": resist,
             "danger_line": danger, "flag": flag}
+
+
+def assess_in_context(amount: float, projects: list[dict],
+                      size_hint: Optional[float] = None,
+                      tier: Optional[str] = None,
+                      trade: Optional[str] = None) -> dict:
+    """Score a candidate bid against the bands for its size tier + trade.
+
+    The tier is chosen by (in order): an explicit `tier` name, a `size_hint`
+    ($ size of the job being estimated, independent of the amount being tested),
+    else the candidate amount itself.
+    """
+    tb = tiered_bands(projects, trade=trade)
+    pick = tier or size_tier_name(size_hint if size_hint is not None else amount)
+    bands = tb["by_size"].get(pick) or tb["global"]
+    res = assess_candidate(amount, bands)
+    res["size_tier"] = pick
+    res["band_basis"] = bands.get("basis", "global")
+    res["tier_n"] = bands.get("tier_n", bands.get("n_decided"))
+    res["trade"] = trade
+    return res
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -219,6 +336,14 @@ def build_parser() -> argparse.ArgumentParser:
                    help="Current target markup %% (to compute suggested markup).")
     p.add_argument("--candidate-amount", type=float, default=None,
                    help="A proposed bid $ to score against the win/loss bands.")
+    p.add_argument("--size-hint", type=float, default=None,
+                   help="Expected $ size of the job, used to pick the size tier "
+                        "for scoring (defaults to the candidate amount).")
+    p.add_argument("--size-tier", default=None,
+                   help="Force a size tier by name (small/mid/large) instead of "
+                        "inferring it.")
+    p.add_argument("--trade", default=None,
+                   help="Restrict bands to a trade/scope label (substring match).")
     p.add_argument("-v", "--verbose", action="store_true")
     return p
 
@@ -231,12 +356,14 @@ def run(args: argparse.Namespace) -> int:
     if args.project:
         result["project"] = args.project
 
-    # Win/loss price clustering -> competitive band (for cockpit accuracy checks)
-    bands = price_bands(projects)
-    result["price_bands"] = bands
+    # Win/loss price clustering -> competitive bands (for cockpit accuracy checks)
+    # price_bands = global (back-compat); tiered_bands = size/trade-scaled model.
+    result["price_bands"] = price_bands(projects, trade=args.trade)
+    result["tiered_bands"] = tiered_bands(projects, trade=args.trade)
     if args.candidate_amount is not None:
-        result["candidate_assessment"] = assess_candidate(args.candidate_amount,
-                                                           bands)
+        result["candidate_assessment"] = assess_in_context(
+            args.candidate_amount, projects, size_hint=args.size_hint,
+            tier=args.size_tier, trade=args.trade)
 
     log.info("Streak=%d  markup_delta=%+.1f pts  (%d decided bids)",
              result["losing_streak"], result["markup_delta_pct"],
