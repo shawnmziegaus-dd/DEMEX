@@ -1,10 +1,16 @@
 # --- DEMEX secrets & generated data (never commit) ---
 # Gmail App Password / credential files
 demex_credentials.json
+demex_config.json
 credentials.json
 *.cred
 .env
 .env.*
+!.env.example
+
+# Bridge temp artifacts (tmp*.json / tmp*.pdf written next to the scripts)
+tmp*.json
+tmp*.pdf
 
 # Local ingestion database & downloaded bid PDFs
 demex_records.db
@@ -22,3 +28,17 @@ __pycache__/
 
 # Migration/backup artifacts
 _backups_*/
+
+# Broader credential/token globs (added 2026-06-19)
+*credentials*.json
+*token*.json
+
+# Agent memory / local tooling
+.claude/
+
+# Sensitive business-data exports & generated analysis artifacts
+demex_full_history_import.json
+demex_itb_import_*.json
+demex_bidsheet_extract.json
+demex_rate_reference.json
+learning_state.json

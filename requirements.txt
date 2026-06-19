@@ -36,3 +36,12 @@ numpy>=1.26.0
 # PDF -> raster renderer. Pure Python wheels, no Ghostscript/poppler system
 # install needed (unlike some pdfplumber image backends).
 pypdfium2>=4.25.0
+
+# ---------------------------------------------------------------------------
+# proposal_pdf.py (corporate bid-proposal generator) dependency
+# ---------------------------------------------------------------------------
+# Pure-Python PDF builder used by the "Generate Proposal PDF" button (via
+# demex_bridge.py). No system libraries needed on Windows (unlike weasyprint's
+# GTK/Pango requirement). The bridge server (demex_bridge.py), pricing_engine.py
+# and learning_loop.py themselves use the standard library only.
+reportlab>=4.0.0

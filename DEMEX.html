@@ -1069,6 +1069,172 @@ const Btn = ({
     ...style
   }
 }, children);
+
+/* ════════ BRIDGE: backend Python hooks via demex_bridge.py ════════ */
+/* Buttons fetch same-origin /api/* endpoints served by the local bridge.    */
+/* Works only when the app is opened through http://localhost:8765/ (run the  */
+/* run_demex.bat launcher); on file:// the fetch fails and we say so clearly. */
+function bridgeErr(e) {
+  var m = e && e.message || 'Bridge error';
+  if (/Failed to fetch|NetworkError|Load failed|ERR_CONNECTION/i.test(m)) return 'Bridge offline — start run_demex.bat and open http://localhost:8765/DEMEX.html';
+  return m;
+}
+function bridgeCall(path, opts) {
+  opts = opts || {};
+  var init = { method: opts.method || 'GET', headers: {} };
+  if (opts.body !== undefined) {
+    init.method = 'POST';
+    init.headers['Content-Type'] = 'application/json';
+    init.body = JSON.stringify(opts.body);
+  }
+  return fetch('/api/' + path, init).then(function (r) {
+    if (opts.raw) {
+      if (!r.ok) return r.text().then(function (t) { throw new Error(t || 'HTTP ' + r.status); });
+      return r;
+    }
+    return r.json().then(function (d) {
+      if (!r.ok || d && d.ok === false) throw new Error(d && d.error || 'HTTP ' + r.status);
+      return d;
+    });
+  });
+}
+function bridgeSince(days) {
+  var d = new Date();
+  d.setDate(d.getDate() - (days || 30));
+  return d.toISOString().slice(0, 10);
+}
+function IngestInboxBtn() {
+  var st = React.useState(false), busy = st[0], setBusy = st[1];
+  function go() {
+    if (busy) return;
+    setBusy(true);
+    DX.toast('Ingesting inbox…', 'ok');
+    bridgeCall('ingest', { body: { since: bridgeSince(30) } }).then(function (d) {
+      var pl = d.payload || {}, DB = DX.get();
+      var haveP = {}; (DB.projects || []).forEach(function (p) { haveP[p.id] = 1; });
+      var haveC = {}; (DB.clients || []).forEach(function (c) { haveC[c.id] = 1; });
+      var newP = (pl.projects || []).filter(function (p) { return !haveP[p.id]; });
+      var newC = (pl.clients || []).filter(function (c) { return !haveC[c.id]; });
+      if (!newP.length) { DX.toast('No new ITBs found', 'ok'); setBusy(false); return; }
+      DX.commit({ type: 'merge', data: { clients: newC, projects: newP } });
+      DX.toast(newP.length + ' new ITB' + (newP.length > 1 ? 's' : '') + ' added', 'ok');
+      setBusy(false);
+    }).catch(function (e) { DX.toast(bridgeErr(e), 'err'); setBusy(false); });
+  }
+  return /*#__PURE__*/React.createElement(Btn, {
+    ghost: true, onClick: go, style: { marginLeft: 8, opacity: busy ? 0.6 : 1 }
+  }, busy ? 'Ingesting…' : 'Ingest Inbox');
+}
+function ProjectBridgeActions(props) {
+  var id = props.id, p = props.p;
+  var st = React.useState(''), busy = st[0], setBusy = st[1];
+  function fail(e) { DX.toast(bridgeErr(e), 'err'); setBusy(''); }
+  function runTakeoff() {
+    if (busy) return;
+    setBusy('takeoff');
+    DX.toast('Locating plan files…', 'ok');
+    bridgeCall('plans?project=' + encodeURIComponent(p.name)).then(function (d) {
+      var plans = d.payload && d.payload.plans || [];
+      if (!plans.length) throw new Error('No plan PDFs found. Ingest the ITB email or drop a PDF in the projects/ folder.');
+      DX.toast('Running visual takeoff…', 'ok');
+      return bridgeCall('takeoff', { body: { pdf: plans[0].path, project: p.name, scope_type: p.scope_type || 'demolition' } });
+    }).then(function (d) {
+      var projs = (d.payload || {}).projects || [];
+      var m = projs.filter(function (x) { return x.name === p.name; })[0] || projs[0];
+      var eq = m && m.estimated_quantities || [];
+      if (!eq.length) throw new Error('Takeoff returned no quantities for this plan.');
+      DX.commit({ type: 'updateProject', id: id, patch: { estimated_quantities: eq, estQty: eq, unit_rates: m && m.unit_rates || [] } });
+      DX.toast(eq.length + ' takeoff quantities loaded', 'ok');
+      setBusy('');
+    }).catch(fail);
+  }
+  function runPricing() {
+    if (busy) return;
+    setBusy('pricing');
+    DX.toast('Optimizing pricing…', 'ok');
+    var co = DX.get().company || {};
+    bridgeCall('pricing', { body: { project: p, history: DX.get().projects || [], overheadPct: co.overheadPct || 0, profitPct: co.profitPct || 0 } }).then(function (d) {
+      var out = d.payload || {};
+      var r = DX.commit({ type: 'saveEstimate', id: id, estimate: out.estimate, estQty: out.estQty || out.estimated_quantities, unit_rates: out.unit_rates, bulk_pricing_thresholds: out.bulk_pricing_thresholds });
+      if (r.ok) DX.toast(out.summary || 'Pricing optimized', 'ok');
+      setBusy('');
+    }).catch(fail);
+  }
+  function runProposal() {
+    if (busy) return;
+    setBusy('pdf');
+    DX.toast('Generating proposal PDF…', 'ok');
+    var co = DX.get().company || {};
+    bridgeCall('proposal', { raw: true, body: { project: p, company: co, client: DX.client(p.client_id) } }).then(function (r) { return r.blob(); }).then(function (blob) {
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (String(p.name).split(',')[0] || 'proposal').replace(/[^\w-]+/g, '_') + '_proposal.pdf';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 200);
+      DX.toast('Proposal PDF downloaded', 'ok');
+      setBusy('');
+    }).catch(fail);
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    style: { display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 14, paddingTop: 14, borderTop: '0.5px solid ' + C.line }
+  }, /*#__PURE__*/React.createElement(Btn, {
+    ghost: true, onClick: runTakeoff, style: { opacity: busy === 'takeoff' ? 0.6 : 1 }
+  }, busy === 'takeoff' ? 'Running…' : 'Run Visual Takeoff'), /*#__PURE__*/React.createElement(Btn, {
+    ghost: true, onClick: runPricing, style: { opacity: busy === 'pricing' ? 0.6 : 1 }
+  }, busy === 'pricing' ? 'Optimizing…' : 'Approve & Optimize Pricing'), /*#__PURE__*/React.createElement(Btn, {
+    primary: true, onClick: runProposal, style: { opacity: busy === 'pdf' ? 0.6 : 1 }
+  }, busy === 'pdf' ? 'Generating…' : 'Generate Proposal PDF'));
+}
+function RateAccuracyPanel(props) {
+  var p = props.p || {};
+  var bs = React.useState(null), bands = bs[0], setBands = bs[1];
+  var es = React.useState(''), err = es[0], setErr = es[1];
+  var seed = p.estimate && p.estimate.sell || p.bidAmount || 0;
+  var as = React.useState(seed ? String(Math.round(seed)) : ''), amt = as[0], setAmt = as[1];
+  React.useEffect(function () {
+    bridgeCall('rates').then(function (d) {
+      var pb = d.payload && d.payload.price_bands;
+      if (!pb || pb.competitive_ceiling == null) throw new Error('No price bands yet — needs decided (won/lost) bid history.');
+      setBands(pb);
+    }).catch(function (e) { setErr(bridgeErr(e)); });
+  }, []);
+  function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+  function zoneFor(v) {
+    if (!bands) return null;
+    var n = parseFloat(v);
+    if (!isFinite(n) || n <= 0) return null;
+    if (n <= bands.competitive_ceiling) return { color: C.green, label: 'COMPETITIVE', msg: 'At or below where we typically win. Hold.' };
+    if (n <= bands.resistance_line) return { color: C.gold, label: 'WATCH', msg: 'Above our usual winning range. Sharpen if this job is a priority.' };
+    if (n <= bands.danger_line) return { color: '#ff8a3d', label: 'STRETCH', msg: 'Past the market-resistance midpoint. Win odds drop sharply here.' };
+    return { color: C.red2, label: 'PRICED-OUT', msg: 'In the zone where bids consistently LOSE. Re-scope or cut markup before submitting.' };
+  }
+  var z = zoneFor(amt);
+  var body;
+  if (err) body = /*#__PURE__*/React.createElement("div", { style: { fontSize: 12, color: C.t3 } }, err);
+  else if (!bands) body = /*#__PURE__*/React.createElement("div", { style: { fontSize: 12, color: C.t3 } }, 'Loading win/loss bands…');
+  else body = /*#__PURE__*/React.createElement("div", null,
+    /*#__PURE__*/React.createElement("div", { style: { display: 'flex', gap: 8, alignItems: 'center' } },
+      /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 13, color: C.t3 } }, '$'),
+      /*#__PURE__*/React.createElement("input", {
+        type: 'number', value: amt, placeholder: 'Enter internal bid amount…',
+        onChange: function (e) { setAmt(e.target.value); },
+        style: { flex: 1, background: C.panel, border: '0.5px solid ' + (z ? z.color : C.line2), color: C.t1, borderRadius: 8, padding: '9px 11px', fontSize: 14, outline: 'none' }
+      })),
+    z ? /*#__PURE__*/React.createElement("div", { style: { marginTop: 10, borderRadius: 10, border: '0.5px solid ' + z.color, background: 'rgba(255,255,255,.03)', padding: '10px 12px', display: 'flex', gap: 10, alignItems: 'center' } },
+      /*#__PURE__*/React.createElement("div", { style: { width: 11, height: 11, borderRadius: '50%', background: z.color, flex: '0 0 auto', boxShadow: '0 0 10px ' + z.color } }),
+      /*#__PURE__*/React.createElement("div", null,
+        /*#__PURE__*/React.createElement("div", { className: "syne", style: { fontWeight: 800, fontSize: 13, color: z.color, letterSpacing: .5 } }, z.label),
+        /*#__PURE__*/React.createElement("div", { style: { fontSize: 11, color: C.t2, marginTop: 2 } }, z.msg)))
+      : /*#__PURE__*/React.createElement("div", { style: { marginTop: 8, fontSize: 11, color: C.t3 } }, 'Type an amount to score it against win/loss history.'),
+    /*#__PURE__*/React.createElement("div", { className: "mono", style: { display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 10, fontSize: 10, color: C.t3 } },
+      /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", { style: { color: C.green } }, '■ '), '≤' + fmt(bands.competitive_ceiling) + ' win'),
+      /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", { style: { color: C.gold } }, '■ '), '≤' + fmt(bands.resistance_line) + ' watch'),
+      /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", { style: { color: '#ff8a3d' } }, '■ '), '≤' + fmt(bands.danger_line) + ' stretch'),
+      /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", { style: { color: C.red2 } }, '■ '), '>' + fmt(bands.danger_line) + ' lose')));
+  return /*#__PURE__*/React.createElement("div", { style: { marginTop: 14, paddingTop: 14, borderTop: '0.5px solid ' + C.line } },
+    /*#__PURE__*/React.createElement(SectionLabel, { color: C.t3 }, 'BID ACCURACY CHECK'), body);
+}
 const Stat = ({
   v,
   l,
@@ -3315,7 +3481,12 @@ function ProjectModal({
       color: C.t2,
       lineHeight: 1.6
     }
-  }, p.notes)) : null, /*#__PURE__*/React.createElement("div", {
+  }, p.notes)) : null, /*#__PURE__*/React.createElement(ProjectBridgeActions, {
+    id: id,
+    p: p
+  }), /*#__PURE__*/React.createElement(RateAccuracyPanel, {
+    p: p
+  }), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       justifyContent: 'space-between',
@@ -5733,7 +5904,9 @@ function TopBar({
       padding: '6px 11px',
       cursor: 'pointer'
     }
-  }, "⌘K  command"));
+  }, "⌘K  command"), /*#__PURE__*/React.createElement(IngestInboxBtn, {
+    key: 'ingest'
+  }));
 }
 function EstimatingHero({
   onLaunch
