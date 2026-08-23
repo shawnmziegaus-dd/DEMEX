@@ -24,8 +24,20 @@ builds in DEMEX.html:
       "estimate": {lines, direct, oh, profit, sell, savedAt, source},
       "estQty":   [{svc, label, qty, unit, rate}],
       "unit_rates": [...], "bulk_pricing_thresholds": [...],
+      "unpriced_lines":  [{item, svc, qty, unit, reason}],   # NO rate resolved
+      "unpriced_count":  <int>,
+      "by_others_lines": [{item, svc, qty, unit, reason}],   # measured, priced by a sub
+      "by_others_count": <int>,
+      "warning": null | "...",   # set whenever unpriced_count > 0
       "summary": "human readable line for the toast"
     }
+
+Rate-resolution policy (v2): a line prices only when a rate actually resolves
+(explicit line rate -> project unit_rates override -> RATE_CARD). A line whose
+svc is in PRICED_BY_OTHERS (and carries no explicit/override rate) is measured
+and listed under `by_others_lines` but never priced by us. Any other line with
+no resolvable rate is EXCLUDED from the totals and reported in
+`unpriced_lines` -- it is never silently priced at 0.
 
 Standard library only.
 
@@ -60,6 +72,38 @@ RATE_CARD = {
     "asphalt": 1.375, "dumpster": 650.0, "count": 167.5,
     "mezzanine_demo": 5.5, "casework_demo": 15.0, "slab_cut_patch": 8.0,
     "door_window_infill": 375.0, "water_heater_demo": 300.0,
+    # --- rate-card gap closures (markup_legend.json rate_card_gaps) -------- #
+    # interior_strip_out: Harbor Freight Jax Beach bid DDD-2026/0811R1,
+    #   standards/takeoff/reference/harbor_freight_jax_beach/bid_sheet.json
+    #   derived_rates: $44,950 base bid / 11,885.24 SF measured lease space
+    #   = $3.782/SF, confidence "high" (n=1 job -- all-in retail strip-out).
+    "interior_strip_out": 3.78,
+    # slab_removal: no clean unit rate exists (Harbor Freight Alt 4 bundles
+    #   slab + trench at $14.85/SF, flagged "do not carry forward"), so this
+    #   mirrors the owner's existing equivalent: concrete_flat "Concrete slab
+    #   removal" (DEMEX.html RATE_DEFAULTS low 2 / high 5 -> midpoint 3.5).
+    "slab_removal": 3.5,
+    # NOT added (no defensible source in the owner's data -- these svcs will
+    # surface in `unpriced_lines` instead of pricing at a made-up number):
+    #   structure_demo -- markup standard: closest existing is exterior_demo,
+    #     "which prices a different operation"; no priced data point exists.
+    #   fence_demo     -- Master Reference Rate Sheet J: "blended only",
+    #     absorbed into lump site items; no unit rate recoverable.
+    #   utility_demo   -- markup standard: production swings with depth and
+    #     surface above, likely needs depth bands; no unit rate recoverable.
+}
+
+# Svcs that are measured and listed but never priced by this engine: the
+# markup standard (DEMEX_Takeoff_Markup_Standard.md) keeps regulated material
+# on its own colour precisely because abatement carries a different licence,
+# crew and liability -- it is priced by an abatement subcontractor, never at
+# a demo rate. An explicit line rate or project unit_rates override (e.g. a
+# sub quote entered by the estimator) still prices the line normally.
+PRICED_BY_OTHERS = {
+    "abate_containment": ("priced by abatement subcontractor -- regulated "
+                          "material, never priced at a demo rate"),
+    "abate_linear": ("priced by abatement subcontractor -- regulated "
+                     "material, never priced at a demo rate"),
 }
 
 
@@ -89,6 +133,7 @@ def price_project(project: dict,
     proj_scope = (project.get("scope_type") or "demolition").lower()
 
     lines, est_qty, new_unit_rates, bulk_rows = [], [], [], []
+    unpriced_lines, by_others_lines = [], []
     bulk_hits = 0
 
     for q in eq:
@@ -101,7 +146,28 @@ def price_project(project: dict,
         if base_rate is None:
             base_rate = overrides.get(svc)
         if base_rate is None:
-            base_rate = RATE_CARD.get(svc, 0.0)
+            if svc in PRICED_BY_OTHERS:
+                # Measured and listed so the scope is provable, but the price
+                # belongs to a specialist sub -- never rolled into our totals.
+                by_others_lines.append({
+                    "item": label, "svc": svc, "qty": qty, "unit": unit,
+                    "reason": PRICED_BY_OTHERS[svc],
+                })
+                continue
+            base_rate = RATE_CARD.get(svc)
+        if base_rate is None:
+            # No rate resolved anywhere: flag, don't silently price at 0.
+            if not svc:
+                reason = ("line carries no svc code (e.g. raw ingest scope "
+                          "item) -- no rate can resolve")
+            else:
+                reason = (f"no rate for svc '{svc}' (no line rate, no "
+                          f"project unit_rates entry, no RATE_CARD entry)")
+            unpriced_lines.append({
+                "item": label, "svc": svc, "qty": qty, "unit": unit,
+                "reason": reason,
+            })
+            continue
         base_rate = float(base_rate or 0)
 
         # line scope can override the project scope (mixed-scope jobs)
@@ -147,6 +213,15 @@ def price_project(project: dict,
     if markup_delta_pct:
         bits.append(f"markup {markup_delta_pct:+g} pts "
                     f"(profit {profit_pct:g}->{eff_profit_pct:g}%)")
+    if by_others_lines:
+        bits.append(f"{len(by_others_lines)} line(s) by others "
+                    f"(abatement sub) -- listed, not in totals")
+    warning = None
+    if unpriced_lines:
+        warning = (f"{len(unpriced_lines)} line(s) have no resolvable rate "
+                   f"and are EXCLUDED from the priced totals -- see "
+                   f"unpriced_lines")
+        bits.append(f"WARNING: {warning}")
     summary = "; ".join(bits)
 
     return {
@@ -154,6 +229,11 @@ def price_project(project: dict,
         "estQty": est_qty,
         "unit_rates": new_unit_rates,
         "bulk_pricing_thresholds": bulk_rows,
+        "unpriced_lines": unpriced_lines,
+        "unpriced_count": len(unpriced_lines),
+        "by_others_lines": by_others_lines,
+        "by_others_count": len(by_others_lines),
+        "warning": warning,
         "applied": {
             "overhead_pct": float(overhead_pct),
             "profit_pct": float(profit_pct),

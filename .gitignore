@@ -42,3 +42,4 @@ demex_itb_import_*.json
 demex_bidsheet_extract.json
 demex_rate_reference.json
 learning_state.json
+demex_seed.json

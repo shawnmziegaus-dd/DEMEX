@@ -147,6 +147,13 @@ SVC_CATALOG: dict[str, dict] = {
     "slab_cut_patch":    {"label": "Slab saw-cut, remove & patch prep",   "unit": "SF", "low": 4,   "high": 12},
     "door_window_infill":{"label": "Door / window remove & infill",       "unit": "EA", "low": 150, "high": 600},
     "water_heater_demo": {"label": "Water heater remove + cut/cap",       "unit": "EA", "low": 150, "high": 450},
+    # Rate-card gap closures -- midpoints match pricing_engine.RATE_CARD.
+    # interior_strip_out: Harbor Freight Jax Beach DDD-2026/0811R1 derived
+    # rate $3.782/SF (bid_sheet.json derived_rates) -> midpoint 3.78.
+    "interior_strip_out":{"label": "Tenant strip-out (full interior)",    "unit": "SF", "low": 2.56, "high": 5},
+    # slab_removal: mirrors existing concrete_flat band (midpoint 3.5); no
+    # clean owner unit rate exists yet (Harbor Freight Alt 4 is bundled).
+    "slab_removal":      {"label": "Interior slab / setting bed removal", "unit": "SF", "low": 2,   "high": 5},
 }
 
 # Defaults mirror DEMEX.html TakeoffWorkspace.defaultSvc() (line 4861).
