@@ -1,0 +1,832 @@
+{
+  "schema": "demex_takeoff_markup/v1",
+  "source_pdf": "HarborFreight_JaxBeach_D1.0_Demolition_MarkedUp.pdf",
+  "pages": 58,
+  "extracted_at": "2026-08-11T20:57:13+00:00",
+  "legend_version": "1.1",
+  "legend_profile": "interior",
+  "counts": {
+    "measurements": 33,
+    "area": 14,
+    "length": 4,
+    "count": 15,
+    "needs_review": 21,
+    "unmapped_colour": 0,
+    "unconfirmed_legend": 21
+  },
+  "skipped_annotations": {
+    "/Square": 3682
+  },
+  "rollup": [
+    {
+      "svc": "interior_strip_out",
+      "unit": "SF",
+      "scope": "Tenant strip-out footprint - floor finishes, lay-in ceiling, fixtures, abandoned MEP",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "qty": 11885.24,
+      "annotations": 1
+    },
+    {
+      "svc": "concrete_flat",
+      "unit": "SF",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "in_scope": true,
+      "confidence": "probable",
+      "qty": 3256.17,
+      "annotations": 6
+    },
+    {
+      "svc": "slab_removal",
+      "unit": "SF",
+      "scope": "Slab / quarry tile / setting bed removal inside the building",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "qty": 1357.1,
+      "annotations": 1
+    },
+    {
+      "svc": "count",
+      "unit": "EA",
+      "scope": "Door, frame and opening removal (count)",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "qty": 9.0,
+      "annotations": 9
+    },
+    {
+      "svc": null,
+      "unit": "SF",
+      "scope": "UNCONFIRMED yellow area - needs Shawn to name the scope",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "qty": 197.14,
+      "annotations": 5
+    },
+    {
+      "svc": null,
+      "unit": "SF",
+      "scope": "UNCONFIRMED rose area - needs Shawn to name the scope",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "qty": 160.52,
+      "annotations": 1
+    },
+    {
+      "svc": null,
+      "unit": "LF",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "in_scope": true,
+      "confidence": "probable",
+      "qty": 144.42,
+      "annotations": 4
+    },
+    {
+      "svc": null,
+      "unit": "EA",
+      "scope": "UNCONFIRMED teal count - needs Shawn to name the scope",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "qty": 4.0,
+      "annotations": 4
+    },
+    {
+      "svc": null,
+      "unit": "EA",
+      "scope": "UNCONFIRMED dark purple count - needs Shawn to name the scope",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "qty": 2.0,
+      "annotations": 2
+    }
+  ],
+  "measurements": [
+    {
+      "page": 4,
+      "kind": "area",
+      "qty": 96.0,
+      "unit": "SF",
+      "label": "96 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 4,
+      "kind": "area",
+      "qty": 310.52,
+      "unit": "SF",
+      "label": "310.52 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 4,
+      "kind": "area",
+      "qty": 11885.24,
+      "unit": "SF",
+      "label": "11,885.24 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "color_hex": "#0000FF",
+      "color_name": "Blue",
+      "scope": "Tenant strip-out footprint - floor finishes, lay-in ceiling, fixtures, abandoned MEP",
+      "svc": "interior_strip_out",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 4,
+      "kind": "area",
+      "qty": 1357.1,
+      "unit": "SF",
+      "label": "1,357.1 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        0.0,
+        0.502,
+        0.0
+      ],
+      "color_hex": "#008000",
+      "color_name": "Medium Green",
+      "scope": "Slab / quarry tile / setting bed removal inside the building",
+      "svc": "slab_removal",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 4,
+      "kind": "area",
+      "qty": 42.53,
+      "unit": "SF",
+      "label": "42.53 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "UNCONFIRMED yellow area - needs Shawn to name the scope",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "area",
+      "qty": 42.45,
+      "unit": "SF",
+      "label": "42.45 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "UNCONFIRMED yellow area - needs Shawn to name the scope",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "area",
+      "qty": 42.45,
+      "unit": "SF",
+      "label": "42.45 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "UNCONFIRMED yellow area - needs Shawn to name the scope",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "area",
+      "qty": 42.53,
+      "unit": "SF",
+      "label": "42.53 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "UNCONFIRMED yellow area - needs Shawn to name the scope",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "length",
+      "qty": 85.19,
+      "unit": "LF",
+      "label": "85'-2 1/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 4,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Door, frame and opening removal (count)",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Door, frame and opening removal (count)",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Door, frame and opening removal (count)",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Door, frame and opening removal (count)",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Door, frame and opening removal (count)",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Door, frame and opening removal (count)",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "area",
+      "qty": 258.14,
+      "unit": "SF",
+      "label": "258.14 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 4,
+      "kind": "area",
+      "qty": 379.08,
+      "unit": "SF",
+      "label": "379.08 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 4,
+      "kind": "area",
+      "qty": 1783.85,
+      "unit": "SF",
+      "label": "1,783.85 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 4,
+      "kind": "area",
+      "qty": 428.58,
+      "unit": "SF",
+      "label": "428.58 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 4,
+      "kind": "area",
+      "qty": 160.52,
+      "unit": "SF",
+      "label": "160.52 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.502
+      ],
+      "color_hex": "#FF0080",
+      "color_name": "Rose",
+      "scope": "UNCONFIRMED rose area - needs Shawn to name the scope",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        0.0,
+        0.502,
+        0.502
+      ],
+      "color_hex": "#008080",
+      "color_name": "Teal",
+      "scope": "UNCONFIRMED teal count - needs Shawn to name the scope",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        0.0,
+        0.502,
+        0.502
+      ],
+      "color_hex": "#008080",
+      "color_name": "Teal",
+      "scope": "UNCONFIRMED teal count - needs Shawn to name the scope",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        0.0,
+        0.502,
+        0.502
+      ],
+      "color_hex": "#008080",
+      "color_name": "Teal",
+      "scope": "UNCONFIRMED teal count - needs Shawn to name the scope",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "length",
+      "qty": 47.23,
+      "unit": "LF",
+      "label": "47'-2 3/4\"",
+      "measurement": "Length Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 4,
+      "kind": "length",
+      "qty": 6.0,
+      "unit": "LF",
+      "label": "6'-0\"",
+      "measurement": "Length Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 4,
+      "kind": "length",
+      "qty": 6.0,
+      "unit": "LF",
+      "label": "6'-0\"",
+      "measurement": "Length Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 4,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Door, frame and opening removal (count)",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Door, frame and opening removal (count)",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Door, frame and opening removal (count)",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        0.0,
+        0.502,
+        0.502
+      ],
+      "color_hex": "#008080",
+      "color_name": "Teal",
+      "scope": "UNCONFIRMED teal count - needs Shawn to name the scope",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        0.251,
+        0.0,
+        0.251
+      ],
+      "color_hex": "#400040",
+      "color_name": "Dark Purple",
+      "scope": "UNCONFIRMED dark purple count - needs Shawn to name the scope",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        0.251,
+        0.0,
+        0.251
+      ],
+      "color_hex": "#400040",
+      "color_name": "Dark Purple",
+      "scope": "UNCONFIRMED dark purple count - needs Shawn to name the scope",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "area",
+      "qty": 27.18,
+      "unit": "SF",
+      "label": "27.18 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "UNCONFIRMED yellow area - needs Shawn to name the scope",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    }
+  ],
+  "est_qty": [
+    {
+      "desc": "Tenant strip-out footprint - floor finishes, lay-in ceiling, fixtures, abandoned MEP",
+      "svc": "interior_strip_out",
+      "qty": 11885.24,
+      "unit": "SF",
+      "source": "HarborFreight_JaxBeach_D1.0_Demolition_MarkedUp.pdf",
+      "needs_review": 0
+    },
+    {
+      "desc": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "qty": 3256.17,
+      "unit": "SF",
+      "source": "HarborFreight_JaxBeach_D1.0_Demolition_MarkedUp.pdf",
+      "needs_review": 0
+    },
+    {
+      "desc": "Slab / quarry tile / setting bed removal inside the building",
+      "svc": "slab_removal",
+      "qty": 1357.1,
+      "unit": "SF",
+      "source": "HarborFreight_JaxBeach_D1.0_Demolition_MarkedUp.pdf",
+      "needs_review": 0
+    },
+    {
+      "desc": "Door, frame and opening removal (count)",
+      "svc": "count",
+      "qty": 9.0,
+      "unit": "EA",
+      "source": "HarborFreight_JaxBeach_D1.0_Demolition_MarkedUp.pdf",
+      "needs_review": 1
+    }
+  ]
+}

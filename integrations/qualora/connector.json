@@ -1,0 +1,47 @@
+{
+  "schema": "demex_connector/v1",
+  "key": "qualora",
+  "name": "Qualora",
+  "vendor": "UNVERIFIED",
+  "category": "unverified",
+  "status": "unverified",
+  "direction": "unknown",
+  "purpose": "PLACEHOLDER - Shawn named Qualora as an application DEMEX must tie into. No product could be identified from the codebase, the mail history or a web search, so nothing about it has been assumed. Fill in the fields below and this connector becomes real.",
+  "accounts": [],
+  "auth": {
+    "method": "TBD",
+    "secrets": [],
+    "notes": "TBD"
+  },
+  "access": {
+    "protocol": "TBD",
+    "senders": [],
+    "base": null
+  },
+  "entities": {
+    "reads": [],
+    "writes": []
+  },
+  "demex_mapping": {},
+  "code": [],
+  "trigger": {
+    "type": "TBD",
+    "detail": "TBD"
+  },
+  "known_limits": [
+    "Nothing has been implemented or inferred. Every field here is deliberately blank rather than guessed."
+  ],
+  "owner_action_required": [
+    "Confirm the vendor and product URL (spelling may differ).",
+    "State what DEMEX should read from it and what, if anything, DEMEX should write back.",
+    "Say whether access is API, portal export, or email.",
+    "Then this folder gets a real connector.json and a parser under tools/."
+  ],
+  "paths": {
+    "inbound": "integrations/qualora/inbound/",
+    "outbound": "integrations/qualora/outbound/",
+    "logs": "integrations/qualora/logs/",
+    "samples": "integrations/qualora/samples/"
+  },
+  "last_verified": "2026-08-11"
+}

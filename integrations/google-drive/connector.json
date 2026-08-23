@@ -1,0 +1,59 @@
+{
+  "schema": "demex_connector/v1",
+  "key": "google-drive",
+  "name": "Google Drive",
+  "vendor": "Google",
+  "category": "document_storage",
+  "status": "partial",
+  "direction": "bidirectional",
+  "purpose": "Long-term storage of plan sets, marked-up takeoffs, proposals and executed contracts, organised by project.",
+  "accounts": [
+    "Admin@disassembledynamics.com"
+  ],
+  "auth": {
+    "method": "Claude Google Drive connector",
+    "secrets": [],
+    "notes": "Historical bid sheets and pay applications were already mined from Drive - see demex_rate_reference.json provenance."
+  },
+  "access": {
+    "protocol": "Drive API via MCP",
+    "senders": [],
+    "base": null
+  },
+  "entities": {
+    "reads": [
+      "bid sheets",
+      "historical proposals",
+      "AIA pay applications",
+      "plan sets"
+    ],
+    "writes": [
+      "generated proposal PDF",
+      "marked-up takeoff PDF"
+    ]
+  },
+  "demex_mapping": {
+    "historical bid sheet": "demex_rate_reference.json derived_unit_rates",
+    "pay application": "actual_realized_costs"
+  },
+  "code": [
+    "proposal_pdf.py"
+  ],
+  "trigger": {
+    "type": "manual",
+    "detail": ""
+  },
+  "known_limits": [
+    "Folder naming is inconsistent across the history, so automated project matching is fuzzy."
+  ],
+  "owner_action_required": [
+    "Agree one Drive folder convention per project so DEMEX can file documents without guessing."
+  ],
+  "paths": {
+    "inbound": "integrations/google-drive/inbound/",
+    "outbound": "integrations/google-drive/outbound/",
+    "logs": "integrations/google-drive/logs/",
+    "samples": "integrations/google-drive/samples/"
+  },
+  "last_verified": "2026-08-11"
+}

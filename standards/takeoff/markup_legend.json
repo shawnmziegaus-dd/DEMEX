@@ -1,0 +1,199 @@
+{
+  "schema": "demex_markup_legend/v2",
+  "version": "1.1",
+  "adopted": "2026-08-11",
+  "authority": "Disassemble Dynamics, Inc. - standards/takeoff/DEMEX_Takeoff_Markup_Standard.md",
+  "principle": "Colour decides the scope bucket. Measurement type decides the unit. Nothing else in the markup is read by the machine, so nothing else may be relied on to carry meaning.",
+  "why_profiles": "v1.0 was inferred from a single site/civil sheet. The Harbor Freight interior sheet uses several of the same colours for different scopes - blue is concrete flatwork on a site plan and the tenant strip-out footprint on an interior plan. One flat legend cannot hold both without producing wrong quantities, so the legend is scoped by discipline and the extractor is told which profile to read.",
+  "default_profile": "site_civil",
+  "match": {
+    "method": "nearest legend colour by Euclidean RGB distance, within the selected profile",
+    "default_tolerance": 0.3,
+    "on_miss": "emit as UNMAPPED with needs_review=1 - never guess a bucket"
+  },
+  "units": {
+    "area": "SF - Bluebeam /Polygon with /IT /PolygonDimension",
+    "length": "LF - Bluebeam /PolyLine or /Line with a dimension intent",
+    "count": "EA - Bluebeam /Highlight, /Ink, /Circle or count /Stamp"
+  },
+  "confidence_levels": {
+    "confirmed": "Cross-checked against a priced bid line or an explicit plan note.",
+    "probable": "Consistent with the drawing and with the other profile, but not independently confirmed.",
+    "unconfirmed": "Observed in a real markup, meaning not yet established. Extracts with needs_review=1 until Shawn confirms it."
+  },
+  "profiles": {
+    "site_civil": {
+      "description": "Site and civil demolition - exterior hardscape, buried utilities, fencing, structures.",
+      "reference": "ref_takeoff_scps_lake_howell_c100",
+      "colors": [
+        {
+          "name": "Red", "rgb": [1, 0, 0], "hex": "#FF0000", "in_scope": true, "confidence": "confirmed",
+          "use_for": "Structures, enclosures and the limits of work",
+          "scope": {
+            "area": {"svc": "structure_demo", "rate_card": "proposed", "description": "Structure demolition / limits of work footprint"},
+            "length": {"svc": "fence_demo", "rate_card": "proposed", "description": "Fence, gate, guardrail and handrail removal"},
+            "count": null
+          }
+        },
+        {
+          "name": "Blue", "rgb": [0, 0, 1], "hex": "#0000FF", "in_scope": true, "confidence": "confirmed",
+          "use_for": "Concrete flatwork on grade",
+          "scope": {
+            "area": {"svc": "concrete_flat", "rate_card": "existing", "description": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons"},
+            "length": {"svc": "concrete_cut", "rate_card": "existing", "description": "Concrete sawcutting"},
+            "count": null
+          }
+        },
+        {
+          "name": "Dark Green", "rgb": [0, 0.25, 0], "hex": "#004000", "in_scope": true, "confidence": "confirmed",
+          "use_for": "Buried and concealed utility runs",
+          "scope": {
+            "area": null,
+            "length": {"svc": "utility_demo", "rate_card": "proposed", "description": "Utility line removal - electrical, water, storm, sanitary, gas"},
+            "count": null
+          }
+        },
+        {
+          "name": "Yellow", "rgb": [1, 1, 0], "hex": "#FFFF00", "in_scope": true, "confidence": "confirmed",
+          "use_for": "Discrete equipment and fixtures - anything counted rather than measured",
+          "scope": {
+            "area": null,
+            "length": null,
+            "count": {"svc": "count", "rate_card": "existing", "description": "Equipment / fixture removal - panels, transformers, generators, poles, inlets, hydrants"}
+          }
+        },
+        {
+          "name": "Purple", "rgb": [0.5, 0, 0.5], "hex": "#800080", "in_scope": true, "confidence": "probable",
+          "use_for": "Regulated material - always its own colour so it can never be bundled into demolition by accident",
+          "scope": {
+            "area": {"svc": "abate_containment", "rate_card": "proposed", "description": "Abatement containment area - ACM, PCB, lead, heavy metals"},
+            "length": {"svc": "abate_linear", "rate_card": "proposed", "description": "Abatement of linear material - pipe insulation, mastic runs, duct wrap"},
+            "count": null
+          }
+        },
+        {
+          "name": "Dark Red", "rgb": [0.5, 0, 0], "hex": "#800000", "in_scope": true, "confidence": "probable",
+          "use_for": "Structural concrete - separated from flatwork because the production rate is nothing like it",
+          "scope": {
+            "area": {"svc": "slab_cut_patch", "rate_card": "existing", "description": "Structural slab / foundation removal, saw-cut and patch prep"},
+            "length": {"svc": "concrete_cut", "rate_card": "existing", "description": "Structural sawcutting"},
+            "count": null
+          }
+        },
+        {
+          "name": "Gray - BY OTHERS", "rgb": [0.5, 0.5, 0.5], "hex": "#808080", "in_scope": false, "confidence": "probable",
+          "use_for": "Work shown on the plan that is explicitly not ours. Measured and recorded so the exclusion is provable, never priced.",
+          "scope": {
+            "area": {"svc": null, "rate_card": "n/a", "description": "BY OTHERS / NOT IN CONTRACT - area recorded for the exclusions list"},
+            "length": {"svc": null, "rate_card": "n/a", "description": "BY OTHERS / NOT IN CONTRACT - length recorded for the exclusions list"},
+            "count": {"svc": null, "rate_card": "n/a", "description": "BY OTHERS / NOT IN CONTRACT - count recorded for the exclusions list"}
+          }
+        },
+        {
+          "name": "Black - ANNOTATION", "rgb": [0, 0, 0], "hex": "#000000", "in_scope": false, "confidence": "probable",
+          "use_for": "Clarification notes, revision clouds, RFI callouts. Never a quantity.",
+          "scope": {
+            "area": {"svc": null, "rate_card": "n/a", "description": "Annotation only - not a quantity"},
+            "length": {"svc": null, "rate_card": "n/a", "description": "Annotation only - not a quantity"},
+            "count": {"svc": null, "rate_card": "n/a", "description": "Annotation only - not a quantity"}
+          }
+        }
+      ]
+    },
+    "interior": {
+      "description": "Interior / tenant demolition - retail, TI, selective interior. Derived from the Harbor Freight Jacksonville Beach D1.0 markup and cross-checked against bid DDD-2026/0811R1.",
+      "reference": "ref_takeoff_harbor_freight_d1_0",
+      "colors": [
+        {
+          "name": "Blue", "rgb": [0, 0, 1], "hex": "#0000FF", "in_scope": true, "confidence": "confirmed",
+          "use_for": "The tenant space itself - the footprint the base-bid strip-out is priced against",
+          "evidence": "11,885.24 SF blue polygon = the HFT lease space. Base bid DDD-2026/0811R1 covers fixtures, abandoned equipment, electrical, doors, lay-in ceiling, light fixtures and all floor finishes throughout that space.",
+          "scope": {
+            "area": {"svc": "interior_strip_out", "rate_card": "proposed", "description": "Tenant strip-out footprint - floor finishes, lay-in ceiling, fixtures, abandoned MEP"},
+            "length": null,
+            "count": null
+          }
+        },
+        {
+          "name": "Medium Green", "rgb": [0, 0.5019608, 0], "hex": "#008000", "in_scope": true, "confidence": "confirmed",
+          "use_for": "Slab and hard-set floor removal inside the building",
+          "evidence": "1,357.1 SF green polygon vs plan Note 228 'existing quarry tile, setting bed, and concrete slab in solid-hatched area (approx. 1,360 S.F.)' - a 0.2% delta.",
+          "scope": {
+            "area": {"svc": "slab_removal", "rate_card": "proposed", "description": "Slab / quarry tile / setting bed removal inside the building"},
+            "length": null,
+            "count": null
+          }
+        },
+        {
+          "name": "Red", "rgb": [1, 0, 0], "hex": "#FF0000", "in_scope": true, "confidence": "probable",
+          "use_for": "Exterior and structural concrete / asphalt removal outside the strip-out footprint",
+          "evidence": "Six red polygons totalling 3,256.17 SF sit on the exterior pads, dock, walk and trench areas driven by Notes 217, 224, 225 and 243, which are priced as Alternates 2 and 4 rather than in the base bid. Which polygon belongs to which note is NOT established.",
+          "scope": {
+            "area": {"svc": "concrete_flat", "rate_card": "existing", "description": "Exterior concrete / asphalt removal - pads, walk, dock, trench"},
+            "length": {"svc": null, "rate_card": "n/a", "description": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths"},
+            "count": null
+          }
+        },
+        {
+          "name": "Yellow", "rgb": [1, 1, 0], "hex": "#FFFF00", "in_scope": true, "confidence": "unconfirmed",
+          "use_for": "OBSERVED BUT NOT ESTABLISHED. Nine yellow ink marks sit on door and opening symbols, which matches yellow = count on the site profile. But five yellow AREA polygons also appear (4 x ~42.5 SF and 1 x 27.18 SF) and the site profile has no yellow area meaning.",
+          "scope": {
+            "area": {"svc": null, "rate_card": "n/a", "description": "UNCONFIRMED yellow area - needs Shawn to name the scope"},
+            "length": null,
+            "count": {"svc": "count", "rate_card": "existing", "description": "Door, frame and opening removal (count)"}
+          }
+        },
+        {
+          "name": "Rose", "rgb": [1, 0, 0.5019608], "hex": "#FF0080", "in_scope": true, "confidence": "unconfirmed",
+          "use_for": "OBSERVED BUT NOT ESTABLISHED. One 160.52 SF polygon on the exterior, adjacent to the Note 225 egress-ramp asphalt area.",
+          "scope": {
+            "area": {"svc": null, "rate_card": "n/a", "description": "UNCONFIRMED rose area - needs Shawn to name the scope"},
+            "length": null, "count": null
+          }
+        },
+        {
+          "name": "Teal", "rgb": [0, 0.5019608, 0.5019608], "hex": "#008080", "in_scope": true, "confidence": "unconfirmed",
+          "use_for": "OBSERVED BUT NOT ESTABLISHED. Four ink marks near the metal stair / canopy / dock equipment callouts (Notes 226, 230, 235).",
+          "scope": {
+            "area": null, "length": null,
+            "count": {"svc": null, "rate_card": "n/a", "description": "UNCONFIRMED teal count - needs Shawn to name the scope"}
+          }
+        },
+        {
+          "name": "Dark Purple", "rgb": [0.2509804, 0, 0.2509804], "hex": "#400040", "in_scope": true, "confidence": "unconfirmed",
+          "use_for": "OBSERVED BUT NOT ESTABLISHED. Two ink marks in the dock area. Note that #800080 purple means abatement on the site profile, and this is a different, darker purple - do not assume they are the same thing.",
+          "scope": {
+            "area": null, "length": null,
+            "count": {"svc": null, "rate_card": "n/a", "description": "UNCONFIRMED dark purple count - needs Shawn to name the scope"}
+          }
+        },
+        {
+          "name": "Gray - BY OTHERS", "rgb": [0.5, 0.5, 0.5], "hex": "#808080", "in_scope": false, "confidence": "probable",
+          "use_for": "Work shown but excluded. Measured so the exclusion is provable, never priced.",
+          "scope": {
+            "area": {"svc": null, "rate_card": "n/a", "description": "BY OTHERS / NOT IN CONTRACT"},
+            "length": {"svc": null, "rate_card": "n/a", "description": "BY OTHERS / NOT IN CONTRACT"},
+            "count": {"svc": null, "rate_card": "n/a", "description": "BY OTHERS / NOT IN CONTRACT"}
+          }
+        }
+      ]
+    }
+  },
+  "open_questions": [
+    "interior/Yellow area (4 x ~42.5 SF, 1 x 27.18 SF inside the sales floor) - what scope is this?",
+    "interior/Rose #FF0080 (160.52 SF, exterior) - what scope is this?",
+    "interior/Teal #008080 (4 ink counts near stair/canopy/dock) - what scope is this?",
+    "interior/Dark Purple #400040 (2 ink counts in the dock area) - what scope is this?",
+    "interior/Red linear (85'-2 1/4\", 47'-2 3/4\", 6'-0\" x2) - are these scope lengths or clear-opening dimension callouts?",
+    "Should Medium Green #008000 (interior slab) and Dark Green #004000 (site utility) be unified, or do they stay distinct per profile?"
+  ],
+  "rate_card_gaps": [
+    {"svc": "structure_demo", "unit": "SF", "note": "Structure footprint / limits-of-work demolition. Closest existing is exterior_demo (SF, wall and cladding), which prices a different operation."},
+    {"svc": "fence_demo", "unit": "LF", "note": "Chain link fence and gate removal. Currently absorbed into lump site items."},
+    {"svc": "utility_demo", "unit": "LF", "note": "Buried utility line removal / cap. Production varies hugely with depth and surface above - may need a depth band rather than one rate."},
+    {"svc": "abate_containment", "unit": "SF", "note": "Abatement containment. Must never be folded into a demolition rate - different licence, different crew, different liability."},
+    {"svc": "abate_linear", "unit": "LF", "note": "Linear abatement (pipe insulation, mastic, duct wrap)."},
+    {"svc": "interior_strip_out", "unit": "SF", "note": "Full tenant strip-out priced against lease-space SF. Harbor Freight gives a first real data point: $44,950 base bid over 11,885.24 SF = $3.78/SF for fixtures + abandoned equipment + electrical + doors + lay-in ceiling + light fixtures + all floor finishes."},
+    {"svc": "slab_removal", "unit": "SF", "note": "Interior slab / quarry tile / setting bed removal. Harbor Freight bundles 1,357.1 SF of this with 379 SF of trench sawcut at $25,912.50 combined, so the two cannot be separated from this bid alone."}
+  ]
+}

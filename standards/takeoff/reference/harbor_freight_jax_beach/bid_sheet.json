@@ -1,0 +1,183 @@
+{
+  "schema": "demex_bid_sheet/v1",
+  "bid_no": "DDD-2026/0811R1",
+  "bid_date": "2026-08-11",
+  "project_name": "Harbor Freight Tools, Jacksonville, Florida",
+  "address": "14333 Beach Blvd, Jacksonville, Florida 32250",
+  "project_type": "Open Shop",
+  "scope": "DEMOLITION",
+  "currency": "USD",
+  "base_bid": 44950.00,
+  "total": 130362.50,
+  "source_pdf": "DDD-2026-0811R1_Harbor_Freight_Jacksonville_Bid.pdf",
+  "linked_takeoff": "HarborFreight_JaxBeach_D1.0_Demolition_MarkedUp_takeoff.json",
+  "linked_sheet": "D1.0 DEMOLITION PLAN, scale 3/32\" = 1'-0\", ADA Architects, job 24363, dated 11/20/25",
+
+  "lines": [
+    {
+      "line": "base",
+      "label": "BASE BID",
+      "amount": 44950.00,
+      "plan_notes": [202, 203, 205, 208, 209, 210, 212, 215, 216, 219, 221, 223, 226, 227, 230, 231, 233, 235, 236, 237, 238, 240],
+      "scope_summary": "Full tenant strip-out - fixtures fixed and free-standing, abandoned equipment, abandoned electrical incl. junction boxes/conduit/wiring, doors and frames, gyp. bd. wall and furring, lay-in ceiling complete with diffusers/grilles/light fixtures, all floor finishes, cut out remaining outlets/drains/holes in slab, storefront doors and system plus portion of masonry wall, hollow metal doors and frames, double doors plus portion of interior masonry wall, O.H. door, signage, canopy and attachments, canopy lighting, metal stair and rail, downspout, bollard, dock bumpers and seals. Daily clean-up and C&D haul-off included.",
+      "matched_markup": {
+        "color": "Blue #0000FF",
+        "qty": 11885.24,
+        "unit": "SF",
+        "confidence": "confirmed",
+        "basis": "The blue polygon is the HFT lease space; the base-bid inclusion list is written 'throughout the space' / 'throughout HFT space'."
+      }
+    },
+    {
+      "line": "alt_1",
+      "label": "Alternate No. 1 - Grinding of concrete throughout existing space to leave a smooth and level surface ready to receive new flooring",
+      "amount": 16000.00,
+      "plan_notes": [],
+      "stated_qty": 16000,
+      "stated_unit": "SF",
+      "matched_markup": null,
+      "note": "Quantity is stated in the proposal (16,000 sqft), not taken off the markup. Note it exceeds the 11,885.24 SF blue lease-space polygon by 4,115 SF - worth reconciling which area the 16,000 refers to."
+    },
+    {
+      "line": "alt_2",
+      "label": "Alternate No. 2 - Remove existing concrete pads and portion of asphalt for new concrete pad and platform, forklift ramp and egress stair (Note 224); remove portion of asphalt for new concrete egress ramp (Note 225); sawcut and remove portion of existing concrete walk and excavate for new concrete frost slab centered on door opening (Note 243)",
+      "amount": 12400.00,
+      "plan_notes": [224, 225, 243],
+      "matched_markup": {
+        "color": "Red #FF0000 / Rose #FF0080",
+        "qty": null,
+        "unit": "SF",
+        "confidence": "unresolved",
+        "basis": "Six red polygons totalling 3,256.17 SF and one rose polygon of 160.52 SF sit in the exterior pad / walk / dock zone, but the bid bundles Notes 224, 225 and 243 into one number and the individual polygons are not labelled per note. Cannot be split from this bid alone."
+      }
+    },
+    {
+      "line": "alt_3",
+      "label": "Alternate No. 3 - Masonry openings: portion of masonry wall for new bi-parting door package, shore and salvage brick (Note 234); new opening for 3'-0\" x 7'-0\" H.M. door and lintel (Note 220); new opening for 8'-0\" x 10'-0\" O.H. door and lintel (Note 239); remove door and frame and expand opening for 8'-0\" x 8'-0\" O.H. door and lintel plus masonry infill and existing dock equipment (Note 218); remove portions of interior masonry walls, cut to two courses below slab (Notes 207, 238)",
+      "amount": 31100.00,
+      "plan_notes": [234, 220, 239, 218, 207, 238],
+      "matched_markup": {
+        "color": null,
+        "qty": null,
+        "unit": "EA",
+        "confidence": "unresolved",
+        "basis": "Five discrete masonry openings priced as one lump. The yellow, teal and dark-purple ink counts on the sheet (9, 4 and 2 marks) are the likely carriers but the colour meanings are not yet established."
+      }
+    },
+    {
+      "line": "alt_4",
+      "label": "Remove existing quarry tile, setting bed, and concrete slab in solid-hatched area, approx. 1,360 S.F. (Note 228); sawcut and remove portion of existing concrete slab for plumbing trench, approx. 385 S.F. (Note 217)",
+      "amount": 25912.50,
+      "plan_notes": [228, 217],
+      "matched_markup": {
+        "color": "Medium Green #008000 (Note 228)",
+        "qty": 1357.10,
+        "unit": "SF",
+        "confidence": "confirmed",
+        "basis": "1,357.10 SF measured vs 1,360 S.F. stated on Note 228 - a 0.2% delta. The Note 217 trench portion is one of the red polygons but which one is not established."
+      },
+      "note": "Unnumbered on the proposal - it follows Alternate No. 3 without its own alternate number. Worth numbering as Alternate No. 4 so the GC can accept it independently."
+    }
+  ],
+
+  "derived_rates": [
+    {
+      "svc": "interior_strip_out",
+      "unit": "SF",
+      "rate": 3.7820,
+      "qty": 11885.24,
+      "amount": 44950.00,
+      "confidence": "high",
+      "basis": "Base bid over the measured blue lease-space polygon. Covers fixtures, abandoned equipment, abandoned electrical, doors and frames, gyp wall and furring, full lay-in ceiling with MEP devices, all light fixtures, all floor finishes, slab penetration cut-outs, storefront, canopy, metal stair, dock equipment, daily clean-up and C&D disposal.",
+      "caveat": "This is an all-in retail strip-out rate on a single job. It is not a flooring rate or a ceiling rate and must not be decomposed into one."
+    },
+    {
+      "svc": "concrete_grinding",
+      "unit": "SF",
+      "rate": 1.0000,
+      "qty": 16000,
+      "amount": 16000.00,
+      "confidence": "high",
+      "basis": "Alternate No. 1, stated explicitly in the proposal - $16,000.00 over 16,000 sqft.",
+      "caveat": "Quantity is the proposal's stated figure, not a markup measurement."
+    },
+    {
+      "svc": "slab_removal + concrete_cut (bundled)",
+      "unit": "SF",
+      "rate": 14.8497,
+      "qty": 1745,
+      "amount": 25912.50,
+      "confidence": "medium",
+      "basis": "Alternate 4 over the plan's stated quantities: 1,360 S.F. quarry tile + setting bed + slab (Note 228) plus 385 S.F. plumbing trench sawcut (Note 217).",
+      "caveat": "Two different operations at very different production rates are bundled in one price. Do not carry 14.85/SF forward as either a slab-removal rate or a trench rate - it is only valid for this exact mix."
+    },
+    {
+      "svc": "mobilization_additional",
+      "unit": "per mob",
+      "rate": 3250.00,
+      "qty": 1,
+      "amount": 3250.00,
+      "confidence": "high",
+      "basis": "Stated in Special Notes: 'Based on (1) mobilization. Disassemble Dynamic will charge $3,250.00 for every additional mobilization.'",
+      "caveat": "demex_rate_reference.json carries an additional-mobilization benchmark with a low of $1,950. This bid is priced at $3,250 - the benchmark band should be refreshed."
+    }
+  ],
+
+  "exclusions": [
+    "Temporary power, lighting, water, site offices, sanitary facilities",
+    "Barricades, temporary enclosures, temporary protection, dust barriers, road closures",
+    "Patching, repair, welding, refurbishing by others",
+    "Concrete pour back and in-fill",
+    "Roof demolition; removal of main trunk lines and RTUs / AHUs",
+    "Furniture, equipment, safe, hood, appliances, workstations, artwork",
+    "Shelving, fixtures, cabinetry, lockers not shown in the drawings",
+    "Trash or debris left by previous tenant not shown in the drawings",
+    "Concrete x-ray / scanning by others; markings and layouts by G.C.",
+    "Asbestos abatement, asbestos survey, air monitoring, permit costs, sewer fee",
+    "Terminate cap and seal plumbing / sewer / gas lines; electrical make safe",
+    "Core drilling, saw-cut, trench and remove slab; excavation; shoring and bracing by G.C.",
+    "Refrigerant drainage by HVAC contractor prior to demolition",
+    "Grinding, sanding, bead blasting, chemicals / solvents / paints",
+    "Anything found above ceiling, under flooring or behind walls not shown - change order",
+    "Utility work / disconnects / re-routes; fire protection demolition and sprinkler work by others",
+    "Shop drawings, rebar / bar-bending schedule, core samples, mock-ups",
+    "Demolition / removal of hardwood flooring and ceramic tile"
+  ],
+
+  "commercial_terms": {
+    "payment": "Net 30 from completion",
+    "retainage": "Zero (0) retainage assumed",
+    "interest_on_late": "2.5% per month",
+    "lien_trigger_days": 45,
+    "taxes_included": false,
+    "bonding_included": false,
+    "offer_valid_days": 90,
+    "mobilizations_included": 1,
+    "additional_mobilization": 3250.00,
+    "dumpster_haul_distance_limit_yards": 150,
+    "night_work_included": false
+  },
+
+  "flags": [
+    {
+      "severity": "review",
+      "item": "Venue clause",
+      "detail": "The payment terms place any dispute in district court in BEXAR COUNTY, TEXAS. Disassemble Dynamics is a Lake City, Florida contractor and this project is in Jacksonville, Florida. This reads like leftover template text and it is being sent to GCs on live proposals. Worth a look before the next bid goes out - not legal advice, just a mismatch worth checking with counsel."
+    },
+    {
+      "severity": "review",
+      "item": "Alternate 4 is unnumbered",
+      "detail": "The quarry tile / trench line follows Alternate No. 3 with no alternate number, which makes it harder for a GC to accept or reject it independently."
+    },
+    {
+      "severity": "info",
+      "item": "Alternate 1 quantity vs measured area",
+      "detail": "Alternate 1 grinding is priced over 16,000 sqft; the marked-up lease space measures 11,885.24 SF. A 4,115 SF gap between the priced area and the measured area."
+    },
+    {
+      "severity": "info",
+      "item": "Exclusion vs alternate conflict",
+      "detail": "The exclusions list excludes 'Core drilling, Saw-cut, trench & remove slab', but Alternate 4 prices exactly that work (Note 217 plumbing trench sawcut). The alternate presumably overrides, but a GC could read the two as contradictory."
+    }
+  ]
+}

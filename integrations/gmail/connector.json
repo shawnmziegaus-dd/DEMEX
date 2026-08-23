@@ -1,0 +1,67 @@
+{
+  "schema": "demex_connector/v1",
+  "key": "gmail",
+  "name": "Gmail (estimating inboxes)",
+  "vendor": "Google",
+  "category": "email",
+  "status": "live",
+  "direction": "inbound",
+  "purpose": "Primary intake pipe. Every ITB, addendum, award notice and GC question arrives here first. Feeds the daily ITB intake job and the project auto-create flow.",
+  "accounts": [
+    "shawn@disassembledynamics.com",
+    "estimates@disassembledynamics.com",
+    "admin@disassembledynamics.com",
+    "Admin@disassembledynamics.com"
+  ],
+  "auth": {
+    "method": "app_password + Claude Gmail connector",
+    "secrets": [
+      "DEMEX_GMAIL_USER",
+      "DEMEX_GMAIL_APP_PASSWORD"
+    ],
+    "notes": "App password lives in .env (git-ignored). See .env.example. The Claude-side Gmail MCP connector is authorised separately in connector settings."
+  },
+  "access": {
+    "protocol": "IMAP + Gmail MCP search_threads/get_thread",
+    "base": null,
+    "search_query": "(\"invitation to bid\" OR \"invite to bid\" OR \"bid invitation\" OR ITB OR \"request for proposal\" OR \"request to bid\" OR \"bids due\" OR demolition) newer_than:2d -in:sent -in:draft"
+  },
+  "entities": {
+    "reads": [
+      "thread",
+      "message",
+      "attachment",
+      "sender",
+      "due date text"
+    ],
+    "writes": []
+  },
+  "demex_mapping": {
+    "sender domain": "clients[].email / clients[].name",
+    "subject": "projects[].name",
+    "body due date": "projects[].dueAt",
+    "platform of origin": "projects[].source",
+    "attachments": "attachments table / plans folder"
+  },
+  "code": [
+    "email_ingestor.py",
+    "demex_bridge.py"
+  ],
+  "trigger": {
+    "type": "scheduled",
+    "detail": "demex-itb-intake, daily ~06:15 local"
+  },
+  "known_limits": [
+    "App passwords require 2-Step Verification on the Google account.",
+    "IMAP body parsing is HTML-heavy for platform blasts; plaintext fallback is lossy on tables.",
+    "Gmail thread search returns whole threads when any one message matches, so already-submitted bids surface and must be filtered."
+  ],
+  "owner_action_required": [],
+  "paths": {
+    "inbound": "integrations/gmail/inbound/",
+    "outbound": "integrations/gmail/outbound/",
+    "logs": "integrations/gmail/logs/",
+    "samples": "integrations/gmail/samples/"
+  },
+  "last_verified": "2026-08-11"
+}

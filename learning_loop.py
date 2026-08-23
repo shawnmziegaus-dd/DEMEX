@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import re
 import sys
 from pathlib import Path
 from typing import Optional
@@ -155,13 +156,59 @@ def size_tier_name(amount: float) -> str:
     return SIZE_TIERS[-1][0]
 
 
+# Scope categorisation mirrors DEMEX.html deriveScopeType so the cockpit's trade
+# filter speaks the same vocabulary (demolition / containment / both) whether a
+# project was tagged in the app or only carries a free-text scope/name.
+_CONTAIN_RE = re.compile(r"(abat|asbestos|mold|microbial|lead\b|remediat|"
+                         r"containment|hazmat|encapsul|negative air|haz\b)", re.I)
+_DEMO_RE = re.compile(r"(demo|demolition|removal|selective|interior strip|gut|"
+                      r"dismantle|disassemble|sitework|wreck)", re.I)
+
+
+def _derive_scope_type(p: dict) -> str:
+    text = " ".join(str(p.get(k, "")) for k in ("scope", "name", "notes", "type"))
+    contain = bool(_CONTAIN_RE.search(text))
+    demo = bool(_DEMO_RE.search(text))
+    if contain and demo:
+        return "both"
+    if contain:
+        return "containment"
+    return "demolition"
+
+
 def _trade(p: dict):
-    """Best-available trade/scope label for a project (None if unknown)."""
-    for k in ("trade", "category", "scope_type", "scope"):
+    """Trade/scope label for a project, in the app's vocabulary.
+
+    Prefers an explicit tag; otherwise derives demolition/containment/both from
+    the project text. Always returns a label (never None) so every decided bid
+    lands in exactly one trade bucket.
+    """
+    for k in ("trade", "category", "scope_type"):
         v = p.get(k)
         if v:
             return str(v)
-    return None
+    return _derive_scope_type(p)
+
+
+def available_trades(projects: list[dict]) -> list[dict]:
+    """Trades that actually have decided (won/lost) bids, with won/lost counts.
+
+    Drives the cockpit scope dropdown: only scopes with real history appear, so
+    there are no dead filter options. Sorted by decided-bid count (desc)."""
+    agg: dict[str, dict] = {}
+    for p in projects:
+        st = _outcome_status(p)
+        if st not in (WON, LOST):
+            continue
+        t = _trade(p) or "unknown"
+        a = agg.setdefault(t, {"trade": t, "won": 0, "lost": 0})
+        a[st] += 1
+    out = []
+    for a in agg.values():
+        a["decided"] = a["won"] + a["lost"]
+        out.append(a)
+    out.sort(key=lambda x: (-x["decided"], x["trade"]))
+    return out
 
 
 def price_bands(projects: list[dict], lo: float = 0.0,
@@ -360,6 +407,9 @@ def run(args: argparse.Namespace) -> int:
     # price_bands = global (back-compat); tiered_bands = size/trade-scaled model.
     result["price_bands"] = price_bands(projects, trade=args.trade)
     result["tiered_bands"] = tiered_bands(projects, trade=args.trade)
+    # Full trade roster (NOT trade-filtered) so the cockpit dropdown always lists
+    # every scope with decided history, regardless of the current selection.
+    result["available_trades"] = available_trades(projects)
     if args.candidate_amount is not None:
         result["candidate_assessment"] = assess_in_context(
             args.candidate_amount, projects, size_hint=args.size_hint,

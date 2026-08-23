@@ -424,8 +424,22 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
     p.win_loss_status = p.status==='won'?'won':(p.status==='lost'?'lost':'pending');
     return p;
   }
+  function ensureShape(){
+    // Backfill every top-level key so a partial import can never brick the app.
+    if(!DB)DB={};
+    if(!Array.isArray(DB.projects))DB.projects=[];
+    if(!Array.isArray(DB.clients))DB.clients=[];
+    if(!Array.isArray(DB.actuals))DB.actuals=[];
+    if(!Array.isArray(DB.followups))DB.followups=[];
+    if(!Array.isArray(DB.audit))DB.audit=[];
+    if(!DB.company||typeof DB.company!=='object')DB.company={name:'',contact:'',addr:'',phone:'',email:'',bidPrefix:'DDD',overheadPct:12,profitPct:18};
+    if(!Array.isArray(DB.rates)||!DB.rates.length)DB.rates=JSON.parse(JSON.stringify(RATE_DEFAULTS));
+    if(!DB.rateSettings)DB.rateSettings=JSON.parse(JSON.stringify(RATE_SETTINGS_DEFAULT));
+    if(!DB.costModel)DB.costModel=JSON.parse(JSON.stringify(COSTMODEL_DEFAULT));
+    if(!DB.rateOverrides||typeof DB.rateOverrides!=='object')DB.rateOverrides={};
+  }
   function normalizeSchema(){
-    if(!DB||!Array.isArray(DB.projects))return;
+    ensureShape();
     var acc=rollupActuals();
     DB.projects.forEach(function(p){normalizeProject(p,acc);});
     DB.v=SCHEMA_VERSION;
@@ -474,6 +488,8 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
       }
       case 'editCost':{ if(!DB.projects.some(function(p){return p.id===a.id;}))return{ok:false,error:'Project not found.'}; if(CATS.indexOf(a.cat)<0&&a.cat!=='hrs')return{ok:false,error:'Bad field.'}; if(+a.value<0)return{ok:false,error:'Value must be ≥ 0.'}; return{ok:true};}
       case 'applyRec':{ if(!num(+a.delta))return{ok:false,error:'Bad adjustment.'};return{ok:true};}
+      case 'clearRec':{ return{ok:true};}
+      case 'markComplete':{ if(!DB.projects.some(function(p){return p.id===a.id;}))return{ok:false,error:'Project not found.'};return{ok:true};}
       case 'replaceAll': case 'merge':{ if(!a.data||!Array.isArray(a.data.projects))return{ok:false,error:'Not a valid DEMEX file (missing projects).'};return{ok:true};}
       case 'setRate':{ if(!DB.rates.some(function(r){return r.id===a.id;}))return{ok:false,error:'Rate not found.'}; if(['low','high'].indexOf(a.field)<0)return{ok:false,error:'Bad field.'}; if(!(+a.value>=0))return{ok:false,error:'Rate must be \u2265 0.'}; return{ok:true};}
       case 'setRateSetting':{ return{ok:true};}
@@ -490,7 +506,8 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
         var d=a.data,st=d.status||'estimating';
         DB.projects.push({id:uid('pj'),name:d.name.trim(),client_id:d.client_id||null,address:d.address||'',type:d.type||'Open Shop',scope:d.scope||'Demolition',status:st,bidNo:d.bidNo||'',bidAmount:+d.bidAmount||0,alternates:[],submittedAt:st==='submitted'?todayISO():null,dueAt:d.dueAt||null,awardedAt:st==='won'?todayISO():null,probability:PROB[st],source:d.source||'Manual',notes:d.notes||'',sqft:+d.sqft||0,estCosts:{labor:0,disposal:0,equipment:0,material:0,sub:0},estLaborHrs:0,estQty:[],scope_type:deriveScopeType({scope:d.scope||'Demolition',name:d.name,notes:d.notes,type:d.type}),estimated_quantities:[],unit_rates:[],bulk_pricing_thresholds:[],actual_realized_costs:blankActuals(),win_loss_status:(st==='won'?'won':(st==='lost'?'lost':'pending')),completed:false,createdAt:now()});break;}
       case 'updateProject':{var p=proj(a.id);if(p)Object.assign(p,a.patch||{});break;}
-      case 'setStatus':{var p2=proj(a.id);if(p2){p2.status=a.status;p2.probability=PROB[a.status];if(a.status==='won'&&!p2.awardedAt)p2.awardedAt=todayISO();if(a.status==='submitted'&&!p2.submittedAt)p2.submittedAt=todayISO();if(a.status==='won')p2.completed=p2.completed;p2.win_loss_status=a.status==='won'?'won':(a.status==='lost'?'lost':'pending');}break;}
+      case 'setStatus':{var p2=proj(a.id);if(p2){p2.status=a.status;p2.probability=PROB[a.status];if(a.status==='won'&&!p2.awardedAt)p2.awardedAt=todayISO();if(a.status==='submitted'&&!p2.submittedAt)p2.submittedAt=todayISO();if(a.status!=='won'&&a.status!=='lost')p2.completed=false;p2.win_loss_status=a.status==='won'?'won':(a.status==='lost'?'lost':'pending');}break;}
+      case 'markComplete':{var pc=proj(a.id);if(pc)pc.completed=(a.value!=null?!!a.value:true);break;}
       case 'editCost':{var p3=proj(a.id);if(p3){if(a.cat==='hrs')p3.estLaborHrs=+a.value||0;else{p3.estCosts=p3.estCosts||{};p3.estCosts[a.cat]=+a.value||0;}}break;}
       case 'deleteProject':{DB.projects=DB.projects.filter(function(p){return p.id!==a.id;});break;}
       case 'addClient':{var c=a.data;DB.clients.push({id:uid('cl'),name:c.name.trim(),type:c.type||'',contactName:c.contactName||'',email:c.email||'',phone:c.phone||'',address:c.address||'',notes:c.notes||'',createdAt:now()});break;}
@@ -498,6 +515,7 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
       case 'toggleFollowup':{var fu=DB.followups.filter(function(x){return x.id===a.id;})[0];if(fu)fu.done=!fu.done;break;}
       case 'addActual':{var x=a.data;DB.actuals.push({id:uid('ac'),project_id:x.project_id,date:x.date||todayISO(),category:x.category,desc:x.desc||'',amount:+x.amount||0,hours:+x.hours||0});var rp=proj(x.project_id);if(rp){rp.actual_realized_costs=rp.actual_realized_costs||blankActuals();if(CATS.indexOf(x.category)>=0)rp.actual_realized_costs[x.category]=(rp.actual_realized_costs[x.category]||0)+(+x.amount||0);rp.actual_realized_costs.total=(rp.actual_realized_costs.total||0)+(+x.amount||0);rp.actual_realized_costs.recordedAt=x.date||todayISO();rp.actual_realized_costs.source='rollup:actuals';}break;}
       case 'applyRec':{DB.rateOverrides=DB.rateOverrides||{};DB.rateOverrides[a.svc]=Math.round(a.delta*10)/10;break;}
+      case 'clearRec':{if(DB.rateOverrides)delete DB.rateOverrides[a.svc];break;}
       case 'setRate':{ var rr=DB.rates.filter(function(r){return r.id===a.id;})[0]; if(rr)rr[a.field]=+a.value||0; break;}
       case 'setRateSetting':{ DB.rateSettings=DB.rateSettings||{}; DB.rateSettings[a.key]=a.value; break;}
       case 'resetRates':{ DB.rates=JSON.parse(JSON.stringify(RATE_DEFAULTS)); break;}
@@ -505,7 +523,7 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
       case 'saveProposal':{ var pp=proj(a.id); if(pp)pp.proposal=a.proposal; break;}
       case 'setCostModel':{ DB.costModel=DB.costModel||{}; DB.costModel[a.key]=+a.value||0; break;}
       case 'replaceAll':{var keep=DB.audit;DB=a.data;DB.audit=keep;normalizeSchema();break;}
-      case 'merge':{['clients','projects','actuals','followups'].forEach(function(k){if(Array.isArray(a.data[k]))DB[k]=(DB[k]||[]).concat(a.data[k]);});if(a.data.company)DB.company=a.data.company;if(a.data.rateOverrides)DB.rateOverrides=Object.assign({},DB.rateOverrides||{},a.data.rateOverrides);var bn={};DB.projects.forEach(function(p){bn[p.name]=p.id;});(DB.actuals||[]).forEach(function(z){if(!z.project_id&&z._proj&&bn[z._proj])z.project_id=bn[z._proj];});normalizeSchema();break;}
+      case 'merge':{['clients','projects','actuals','followups'].forEach(function(k){if(Array.isArray(a.data[k])){var seen={};DB[k]=(DB[k]||[]).concat(a.data[k]).filter(function(row){var id=row&&row.id;if(id==null)return true;if(seen[id])return false;seen[id]=true;return true;});}});if(a.data.company)DB.company=a.data.company;if(a.data.rateOverrides)DB.rateOverrides=Object.assign({},DB.rateOverrides||{},a.data.rateOverrides);var bn={};DB.projects.forEach(function(p){bn[p.name]=p.id;});(DB.actuals||[]).forEach(function(z){if(!z.project_id&&z._proj&&bn[z._proj])z.project_id=bn[z._proj];});normalizeSchema();break;}
     }
   }
   function audit(a){DB.audit=DB.audit||[];DB.audit.unshift({ts:now(),type:a.type,summary:summarize(a)});if(DB.audit.length>200)DB.audit.length=200;}
@@ -529,7 +547,10 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
   function proj(id){for(var i=0;i<DB.projects.length;i++)if(DB.projects[i].id===id)return DB.projects[i];return null;}
   function client(id){for(var i=0;i<DB.clients.length;i++)if(DB.clients[i].id===id)return DB.clients[i];return{name:'—'};}
   function revenueOf(p){return (p.bidAmount||0)+(p.alternates||[]).reduce(function(s,a){return s+(a.amount||0);},0);}
-  function estTotal(p){var c=p.estCosts||{};var direct=(c.labor||0)+(c.disposal||0)+(c.equipment||0)+(c.material||0)+(c.sub||0);var oh=direct*((DB.company.overheadPct||0)/100);var profit=(direct+oh)*((DB.company.profitPct||0)/100);return{direct:direct,oh:oh,profit:profit,sell:direct+oh+profit};}
+  function estTotal(p){var c=p.estCosts||{};var direct=(c.labor||0)+(c.disposal||0)+(c.equipment||0)+(c.material||0)+(c.sub||0);
+    // A saved line-item estimate is the authoritative cost model when the legacy category costs are empty.
+    if(!direct&&p.estimate&&(+p.estimate.direct>0)){return{direct:+p.estimate.direct||0,oh:+p.estimate.oh||0,profit:+p.estimate.profit||0,sell:+p.estimate.sell||((+p.estimate.direct||0)+(+p.estimate.oh||0)+(+p.estimate.profit||0))};}
+    var oh=direct*((DB.company.overheadPct||0)/100);var profit=(direct+oh)*((DB.company.profitPct||0)/100);return{direct:direct,oh:oh,profit:profit,sell:direct+oh+profit};}
   function actualTotal(pid){var rows=(DB.actuals||[]).filter(function(a){return a.project_id===pid;});var sum=rows.reduce(function(s,a){return s+(a.amount||0);},0);var hrs=rows.reduce(function(s,a){return s+(a.hours||0);},0);var byCat={};rows.forEach(function(a){byCat[a.category]=(byCat[a.category]||0)+(a.amount||0);});return{sum:sum,hrs:hrs,byCat:byCat,rows:rows};}
   function winRate(){var d=DB.projects.filter(function(p){return p.status==='won'||p.status==='lost';});if(!d.length)return null;return Math.round(d.filter(function(p){return p.status==='won';}).length/d.length*100);}
   var BASE_RATES={demo_walls:{base:[4,9],unit:'LF',label:'Demo walls'},demo_floor:{base:[.6,1.5],unit:'SF',label:'Demo flooring'},demo_ceiling:{base:[.8,1.75],unit:'SF',label:'Demo ceiling'},exterior_demo:{base:[2,5],unit:'SF',label:'Exterior demo'},mep:{base:[1,2.5],unit:'SF',label:'MEP removal'},count:{base:[85,250],unit:'EA',label:'Count item'}};
@@ -553,7 +574,7 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
 
   function rates(){return DB.rates;}
   function rateSettings(){return DB.rateSettings;}
-  function effRate(id){var r=DB.rates.filter(function(x){return x.id===id;})[0];if(!r)return 0;var mid=(r.low+r.high)/2;var t=TIER[(DB.rateSettings||{}).tier]||1;var rg=(DB.rateSettings||{}).regionMult||1;return mid*t*rg;}
+  function effRate(id){var r=DB.rates.filter(function(x){return x.id===id;})[0];if(!r)return 0;var mid=(r.low+r.high)/2;var t=TIER[(DB.rateSettings||{}).tier]||1;var rg=(DB.rateSettings||{}).regionMult||1;var ov=(DB.rateOverrides||{})[id];var adj=(typeof ov==='number'&&!isNaN(ov))?(1+ov/100):1;return mid*t*rg*adj;}
   function toast(msg,kind){window.dispatchEvent(new CustomEvent('dx-toast',{detail:{msg:msg,kind:kind||'ok'}}));}
 
   return {load:load,subscribe:subscribe,get:function(){return DB;},commit:commit,toast:toast,rates:rates,rateSettings:rateSettings,effRate:effRate,TIER:TIER,
@@ -961,7 +982,7 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
     if (r.ok) {
       DX.toast((isNew ? 'Project created + ' : '') + 'Loaded ' + eq.length + ' line items into the estimate — open the Estimate tab to price & review', 'ok');
       closeOverlay();
-      try { location.hash = '#/estimator'; } catch (e) {}
+      try { location.hash = '#/estimator/' + pid; } catch (e) {}
     }
   }
 
@@ -1011,9 +1032,16 @@ const STPILL = {
   won: C.green,
   lost: C.red2
 };
+// Parse a date-only string in LOCAL time (new Date('YYYY-MM-DD') is UTC midnight,
+// which made bids read as overdue on the morning of their due date).
+function localDate(d) {
+  if (d && /^\d{4}-\d{2}-\d{2}$/.test(d)) { var p = d.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  return new Date(d);
+}
 const dueColor = d => {
   if (!d) return C.t3;
-  const days = (new Date(d) - new Date()) / 864e5;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const days = (localDate(d) - today) / 864e5;
   return days < 0 ? C.red2 : days < 3 ? C.gold : C.t2;
 };
 function useStore() {
@@ -1021,16 +1049,21 @@ function useStore() {
   useEffect(() => DX.subscribe(bump), []);
   return DX.get();
 }
+function parseHashRoute() {
+  var raw = location.hash.replace('#/', '') || 'dashboard';
+  var parts = raw.split('/');
+  return { base: parts[0] || 'dashboard', param: parts[1] || null };
+}
 function useHashRoute() {
-  const [h, setH] = useState(() => location.hash.replace('#/', '') || 'dashboard');
+  const [h, setH] = useState(() => parseHashRoute());
   useEffect(() => {
-    const f = () => setH(location.hash.replace('#/', '') || 'dashboard');
+    const f = () => setH(parseHashRoute());
     window.addEventListener('hashchange', f);
     return () => window.removeEventListener('hashchange', f);
   }, []);
-  return [h, r => {
+  return [h.base, r => {
     location.hash = '#/' + r;
-  }];
+  }, h.param];
 }
 
 /* ---------- shared bits ---------- */
@@ -1188,32 +1221,88 @@ function ProjectBridgeActions(props) {
 }
 function RateAccuracyPanel(props) {
   var p = props.p || {};
-  var bs = React.useState(null), bands = bs[0], setBands = bs[1];
+  var rs = React.useState(null), rates = rs[0], setRates = rs[1];
+  var os = React.useState([]), trades = os[0], setTrades = os[1];   // scope dropdown options (kept stable across selections)
+  var ds = React.useState(''), trade = ds[0], setTrade = ds[1];     // selected scope ('' = all)
+  var ls = React.useState(true), loading = ls[0], setLoading = ls[1];
   var es = React.useState(''), err = es[0], setErr = es[1];
   var seed = p.estimate && p.estimate.sell || p.bidAmount || 0;
   var as = React.useState(seed ? String(Math.round(seed)) : ''), amt = as[0], setAmt = as[1];
   React.useEffect(function () {
-    bridgeCall('rates').then(function (d) {
-      var pb = d.payload && d.payload.price_bands;
-      if (!pb || pb.competitive_ceiling == null) throw new Error('No price bands yet — needs decided (won/lost) bid history.');
-      setBands(pb);
-    }).catch(function (e) { setErr(bridgeErr(e)); });
-  }, []);
+    var live = true;
+    setErr(''); setLoading(true);
+    // A scope filter needs live bands (the cached reference is all-trades only).
+    var path = 'rates' + (trade ? '?trade=' + encodeURIComponent(trade) : '');
+    bridgeCall(path).then(function (d) {
+      if (!live) return;
+      var pay = d.payload || {};
+      // Roster is the full trade list; keep it stable so a no-data scope can't
+      // empty the dropdown and trap the user on a dead selection.
+      if (Array.isArray(pay.available_trades) && pay.available_trades.length) setTrades(pay.available_trades);
+      var glob = pay.tiered_bands && pay.tiered_bands.global || pay.price_bands;
+      if (!glob || glob.competitive_ceiling == null) throw new Error(trade ? ('Not enough decided ' + trade + ' bids yet to build bands.') : 'No price bands yet — needs decided (won/lost) bid history.');
+      setRates(pay); setLoading(false);
+    }).catch(function (e) { if (live) { setErr(bridgeErr(e)); setRates(null); setLoading(false); } });
+    return function () { live = false; };
+  }, [trade]);
   function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+  function cap(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
+  // Pick the size tier for this job and return its band set. The tier is chosen
+  // by the job's size (its saved estimate/bid = seed), falling back to whatever
+  // amount is being typed. Mirrors learning_loop.assess_in_context: a thin or
+  // inverted tier is already collapsed to the global bands server-side, carrying
+  // a `basis`/`fallback_reason` flag we surface here.
+  function tierName(hint) {
+    var tb = rates && rates.tiered_bands;
+    var tiers = tb && tb.tiers || [];
+    if (!tiers.length || !isFinite(hint)) return null;
+    for (var i = 0; i < tiers.length; i++) {
+      var lo = tiers[i][1], hi = tiers[i][2];
+      if (hint >= lo && (hi == null || hint < hi)) return tiers[i][0];
+    }
+    return tiers[tiers.length - 1][0];
+  }
+  function selected(v) {
+    if (!rates) return null;
+    var tb = rates.tiered_bands;
+    var glob = tb && tb.global || rates.price_bands;
+    var hint = seed > 0 ? seed : parseFloat(v);
+    var name = tierName(hint);
+    var bands = name && tb && tb.by_size && tb.by_size[name] || glob;
+    if (!bands || bands.competitive_ceiling == null) bands = glob;
+    return { bands: bands, tier: name, basis: bands && bands.basis || 'global', reason: bands && bands.fallback_reason };
+  }
+  function tierRange(name) {
+    var tiers = rates && rates.tiered_bands && rates.tiered_bands.tiers || [];
+    for (var i = 0; i < tiers.length; i++) if (tiers[i][0] === name) {
+      var lo = tiers[i][1], hi = tiers[i][2];
+      return (lo > 0 ? fmt(lo) : '$0') + '–' + (hi == null ? '+' : fmt(hi));
+    }
+    return '';
+  }
   function zoneFor(v) {
-    if (!bands) return null;
+    var sel = selected(v); if (!sel) return null;
+    var bands = sel.bands;
     var n = parseFloat(v);
-    if (!isFinite(n) || n <= 0) return null;
+    if (!isFinite(n) || n <= 0 || !bands || bands.competitive_ceiling == null) return null;
     if (n <= bands.competitive_ceiling) return { color: C.green, label: 'COMPETITIVE', msg: 'At or below where we typically win. Hold.' };
     if (n <= bands.resistance_line) return { color: C.gold, label: 'WATCH', msg: 'Above our usual winning range. Sharpen if this job is a priority.' };
     if (n <= bands.danger_line) return { color: '#ff8a3d', label: 'STRETCH', msg: 'Past the market-resistance midpoint. Win odds drop sharply here.' };
     return { color: C.red2, label: 'PRICED-OUT', msg: 'In the zone where bids consistently LOSE. Re-scope or cut markup before submitting.' };
   }
+  var sel = selected(amt);
+  var bands = sel && sel.bands;
   var z = zoneFor(amt);
   var body;
   if (err) body = /*#__PURE__*/React.createElement("div", { style: { fontSize: 12, color: C.t3 } }, err);
-  else if (!bands) body = /*#__PURE__*/React.createElement("div", { style: { fontSize: 12, color: C.t3 } }, 'Loading win/loss bands…');
+  else if (loading || !rates || !bands) body = /*#__PURE__*/React.createElement("div", { style: { fontSize: 12, color: C.t3 } }, 'Loading win/loss bands…');
   else body = /*#__PURE__*/React.createElement("div", null,
+    sel.tier ? /*#__PURE__*/React.createElement("div", { className: "mono", style: { fontSize: 10, color: C.t3, marginBottom: 8, display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' } },
+      /*#__PURE__*/React.createElement("span", { style: { color: C.t2, letterSpacing: 1 } }, 'SIZE TIER:'),
+      /*#__PURE__*/React.createElement("span", { style: { color: C.t1, fontWeight: 700, textTransform: 'uppercase' } }, sel.tier),
+      /*#__PURE__*/React.createElement("span", null, tierRange(sel.tier)),
+      /*#__PURE__*/React.createElement("span", { style: { color: sel.basis === 'segment' ? C.green : C.t3 } },
+        sel.basis === 'segment' ? '· size-specific bands' : '· global bands (' + (sel.reason === 'thin' ? 'thin sample' : sel.reason === 'inverted' ? 'no clean split' : 'fallback') + ')')) : null,
     /*#__PURE__*/React.createElement("div", { style: { display: 'flex', gap: 8, alignItems: 'center' } },
       /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 13, color: C.t3 } }, '$'),
       /*#__PURE__*/React.createElement("input", {
@@ -1232,8 +1321,19 @@ function RateAccuracyPanel(props) {
       /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", { style: { color: C.gold } }, '■ '), '≤' + fmt(bands.resistance_line) + ' watch'),
       /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", { style: { color: '#ff8a3d' } }, '■ '), '≤' + fmt(bands.danger_line) + ' stretch'),
       /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", { style: { color: C.red2 } }, '■ '), '>' + fmt(bands.danger_line) + ' lose')));
+  var scopeSel = trades.length ? /*#__PURE__*/React.createElement("div", { style: { display: 'flex', gap: 8, alignItems: 'center', marginBottom: 10 } },
+    /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 10, letterSpacing: 1, color: C.t3 } }, 'SCOPE'),
+    /*#__PURE__*/React.createElement("select", {
+      value: trade,
+      onChange: function (e) { setTrade(e.target.value); },
+      style: { flex: 1, background: C.panel, border: '0.5px solid ' + C.line2, color: C.t1, borderRadius: 8, padding: '7px 9px', fontSize: 12, outline: 'none' }
+    }, [/*#__PURE__*/React.createElement("option", { key: '__all', value: '' }, 'All scopes')].concat(
+      trades.map(function (t) {
+        var name = String(t.trade || '');
+        return /*#__PURE__*/React.createElement("option", { key: name, value: name }, cap(name) + ' (' + (t.decided || 0) + ')');
+      })))) : null;
   return /*#__PURE__*/React.createElement("div", { style: { marginTop: 14, paddingTop: 14, borderTop: '0.5px solid ' + C.line } },
-    /*#__PURE__*/React.createElement(SectionLabel, { color: C.t3 }, 'BID ACCURACY CHECK'), body);
+    /*#__PURE__*/React.createElement(SectionLabel, { color: C.t3 }, 'BID ACCURACY CHECK'), scopeSel, body);
 }
 const Stat = ({
   v,
@@ -1290,13 +1390,15 @@ const SectionLabel = ({
 /* ---------- Toast ---------- */
 function Toaster() {
   const [t, setT] = useState(null);
+  const timerRef = useRef(null);
   useEffect(() => {
     const f = e => {
+      if (timerRef.current) clearTimeout(timerRef.current);
       setT(e.detail);
-      setTimeout(() => setT(null), 2400);
+      timerRef.current = setTimeout(() => setT(null), 2800);
     };
     window.addEventListener('dx-toast', f);
-    return () => window.removeEventListener('dx-toast', f);
+    return () => { window.removeEventListener('dx-toast', f); if (timerRef.current) clearTimeout(timerRef.current); };
   }, []);
   if (!t) return null;
   return /*#__PURE__*/React.createElement("div", {
@@ -1590,13 +1692,17 @@ function agentRoute(cmd) {
       text: 'No awarded jobs to analyze yet. Profit will populate once you log a completed job.'
     };
     let r = 0,
-      a = 0;
+      a = 0,
+      anyActuals = false;
     won.forEach(p => {
       r += rev(p);
-      a += DX.actualTotal(p.id).sum || DX.estTotal(p).direct;
+      const act = DX.actualTotal(p.id).sum;
+      if (act) anyActuals = true;
+      a += act || DX.estTotal(p).direct;
     });
+    const marginTxt = r > 0 ? ' (' + Math.round((r - a) / r * 100) + '% margin)' : '';
     return {
-      text: 'Portfolio: ' + money(r) + ' revenue, ' + money(r - a) + ' realized profit (' + Math.round((r - a) / r * 100) + '% margin).',
+      text: 'Portfolio: ' + money(r) + ' revenue, ' + money(r - a) + (anyActuals ? ' realized' : ' projected (no actuals logged yet)') + ' profit' + marginTxt + '.',
       go: 'performance'
     };
   }
@@ -2804,7 +2910,22 @@ function Performance({
       fontSize: 12,
       color: r.delta > 0 ? C.red2 : C.green
     }
-  }, (r.delta > 0 ? '+' : '') + Math.round(r.delta), "%")))) : /*#__PURE__*/React.createElement(Empty, null, "Complete and log costs on a job to generate pricing intelligence. Nothing is inferred from invented data.")), /*#__PURE__*/React.createElement("div", {
+  }, (r.delta > 0 ? '+' : '') + Math.round(r.delta), "%")), /*#__PURE__*/React.createElement("div", {
+    style: { marginTop: 6, display: 'flex', alignItems: 'center', gap: 8 }
+  }, (function(){
+    var applied = (DX.get().rateOverrides || {})[r.svc];
+    var isApplied = typeof applied === 'number' && !isNaN(applied);
+    return /*#__PURE__*/React.createElement(React.Fragment, null,
+      /*#__PURE__*/React.createElement(Btn, {
+        style: { padding: '4px 9px', fontSize: 11 },
+        onClick: function(){
+          if (isApplied) { DX.commit({ type: 'clearRec', svc: r.svc }); DX.toast('Removed ' + r.label + ' adjustment', 'ok'); }
+          else { DX.commit({ type: 'applyRec', svc: r.svc, delta: r.delta }); DX.toast('Applied ' + (r.delta > 0 ? '+' : '') + Math.round(r.delta) + '% to ' + r.label + ' — rates now use it', 'ok'); }
+        }
+      }, isApplied ? 'Remove adjustment' : 'Apply to rates'),
+      isApplied ? /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 10, color: C.green } }, "active: ", (applied > 0 ? '+' : ''), applied, "%") : null
+    );
+  })()))) : /*#__PURE__*/React.createElement(Empty, null, "Complete and log costs on a job to generate pricing intelligence. Nothing is inferred from invented data.")), /*#__PURE__*/React.createElement("div", {
     style: {
       background: C.panel,
       border: '0.5px solid ' + C.line,
@@ -3326,7 +3447,16 @@ function ProjectModal({
       padding: '5px 10px',
       fontSize: 11
     }
-  }, s)))), /*#__PURE__*/React.createElement("div", {
+  }, s)), (p.status === 'won' || p.status === 'lost') ? /*#__PURE__*/React.createElement(Btn, {
+    key: "__complete",
+    primary: !!p.completed,
+    ghost: true,
+    onClick: () => {
+      DX.commit({ type: 'markComplete', id, value: !p.completed });
+      DX.toast(!p.completed ? 'Job marked complete — Pricing IQ will learn from it once costs are logged' : 'Job un-marked complete', 'ok');
+    },
+    style: { padding: '5px 10px', fontSize: 11, borderColor: C.green, color: p.completed ? '#fff' : C.green, background: p.completed ? C.green : 'transparent' }
+  }, p.completed ? '✓ job complete' : 'mark job complete') : null)), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: 'repeat(4,1fr)',
@@ -4111,7 +4241,18 @@ function CostBreakdown(props) {
 }
 function EstimatorWorkspace() {
   const db = useStore();
-  const [pid, setPid] = useState(db.projects[0] ? db.projects[0].id : '');
+  const [, , routeParam] = useHashRoute();
+  const [pid, setPid] = useState(() => {
+    var next = window.__DX_NEXT_PID; window.__DX_NEXT_PID = null;
+    if (next && DX.proj(next)) return next;
+    if (routeParam && DX.proj(routeParam)) return routeParam;
+    return db.projects[0] ? db.projects[0].id : '';
+  });
+  // Follow deep-links (#/estimator/<pid>) and recover when projects arrive after an empty mount.
+  useEffect(() => {
+    if (routeParam && DX.proj(routeParam) && routeParam !== pid) setPid(routeParam);
+    else if (!DX.proj(pid) && db.projects[0]) setPid(db.projects[0].id);
+  }, [routeParam, db.projects.length]);
   const proj = DX.proj(pid);
   const blank = () => ({
     svc: db.rates[0] ? db.rates[0].id : '',
@@ -4478,8 +4619,15 @@ function ProposalsWorkspace() {
   function full() {
     return '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + esc(proj ? proj.name : 'Proposal') + '</title><style>body{max-width:800px;margin:36px auto;padding:0 30px}' + PP_CSS.replace(/\.pp/g, 'body') + '@media print{body{margin:0}}</style></head><body class="pp">' + body() + '</body></html>';
   }
+  function warnIfUnpriced() {
+    if (base > 0) return false;
+    var hasEst = proj && proj.estimate && proj.estimate.sell > 0;
+    DX.toast(hasEst ? 'Base bid is $0.00 — open the Estimator and click "Set as bid amount" first (estimate sell is ' + m(proj.estimate.sell) + ')' : 'Base bid is $0.00 — set a bid amount before sending this proposal', 'err');
+    return true;
+  }
   function printDoc() {
     if (!proj) return;
+    if (warnIfUnpriced()) return;
     var w2 = window.open('', '_blank');
     if (!w2) {
       DX.toast('Allow pop-ups to print/PDF', 'err');
@@ -4496,6 +4644,7 @@ function ProposalsWorkspace() {
   }
   function download() {
     if (!proj) return;
+    if (warnIfUnpriced()) return;
     var blob = new Blob([full()], {
       type: 'text/html'
     });
@@ -5245,7 +5394,7 @@ function TakeoffWorkspace() {
       padding: '7px 11px',
       fontSize: 11
     }
-  }, "Drive plans (40)"), S.nPages > 1 ? /*#__PURE__*/React.createElement("div", {
+  }, "Drive plans (" + DRIVE_PLANS.length + ")"), S.nPages > 1 ? /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
@@ -5818,7 +5967,7 @@ function sendToEstimate(items, pid, db) {
     estimate: est,
     estQty: eq
   });
-  if (r.ok) DX.toast('Sent ' + merged.length + ' line(s) to ' + (proj ? proj.name.split(',')[0] : 'project') + ' — open Estimate', 'ok');
+  if (r.ok) { window.__DX_NEXT_PID = pid; DX.toast('Sent ' + merged.length + ' line(s) to ' + (proj ? proj.name.split(',')[0] : 'project') + ' — open Estimate', 'ok'); }
 }
 function dxBuildDraft(f) {
   var db = DX.get(),

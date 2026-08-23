@@ -1,0 +1,53 @@
+{
+  "schema": "demex_connector/v1",
+  "key": "reproconnect",
+  "name": "ReproConnect",
+  "vendor": "ReproConnect / reprographics partners",
+  "category": "plan_room",
+  "status": "live",
+  "direction": "inbound",
+  "purpose": "Plan-room distribution used by several Florida GCs. Carries the actual drawing sets rather than the invitation text.",
+  "accounts": [
+    "admin@disassembledynamics.com"
+  ],
+  "auth": {
+    "method": "email_ingest + public download link",
+    "secrets": [],
+    "notes": ""
+  },
+  "access": {
+    "protocol": "email + https download",
+    "senders": [],
+    "base": null
+  },
+  "entities": {
+    "reads": [
+      "plan set download link",
+      "project name",
+      "bid date"
+    ],
+    "writes": []
+  },
+  "demex_mapping": {
+    "download link": "plans/<project>/",
+    "project title": "projects[].name"
+  },
+  "code": [
+    "email_ingestor.py"
+  ],
+  "trigger": {
+    "type": "scheduled",
+    "detail": "daily ITB intake"
+  },
+  "known_limits": [
+    "Download links expire; plans must be pulled promptly and cached locally under plans/."
+  ],
+  "owner_action_required": [],
+  "paths": {
+    "inbound": "integrations/reproconnect/inbound/",
+    "outbound": "integrations/reproconnect/outbound/",
+    "logs": "integrations/reproconnect/logs/",
+    "samples": "integrations/reproconnect/samples/"
+  },
+  "last_verified": "2026-08-11"
+}

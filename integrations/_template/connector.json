@@ -1,0 +1,42 @@
+{
+  "schema": "demex_connector/v1",
+  "key": "<kebab-key>",
+  "name": "<Product name>",
+  "vendor": "<Vendor>",
+  "category": "bid_platform | plan_room | email | accounting | scheduling | document_storage | contracts | takeoff_markup | public_procurement | file_transfer",
+  "status": "live | partial | planned | unverified | blocked",
+  "direction": "inbound | outbound | bidirectional",
+  "purpose": "One paragraph: what job this app does for the business, not what the API does.",
+  "accounts": [],
+  "auth": {
+    "method": "",
+    "secrets": [],
+    "notes": ""
+  },
+  "access": {
+    "protocol": "",
+    "senders": [],
+    "base": ""
+  },
+  "entities": {
+    "reads": [],
+    "writes": []
+  },
+  "demex_mapping": {},
+  "code": [],
+  "trigger": {
+    "type": "scheduled|event|manual",
+    "detail": ""
+  },
+  "known_limits": [
+    "State what this integration cannot do. An unstated limit becomes a wrong bid."
+  ],
+  "owner_action_required": [],
+  "paths": {
+    "inbound": "integrations/<kebab-key>/inbound/",
+    "outbound": "integrations/<kebab-key>/outbound/",
+    "logs": "integrations/<kebab-key>/logs/",
+    "samples": "integrations/<kebab-key>/samples/"
+  },
+  "last_verified": "YYYY-MM-DD"
+}

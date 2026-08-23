@@ -1,0 +1,56 @@
+{
+  "schema": "demex_connector/v1",
+  "key": "bluebook",
+  "name": "The Blue Book Network",
+  "vendor": "The Blue Book Building & Construction Network",
+  "category": "bid_platform",
+  "status": "live",
+  "direction": "inbound",
+  "purpose": "Secondary ITB lead source, mostly regional GCs.",
+  "accounts": [
+    "shawn@disassembledynamics.com"
+  ],
+  "auth": {
+    "method": "email_ingest (no API)",
+    "secrets": [],
+    "notes": ""
+  },
+  "access": {
+    "protocol": "email",
+    "senders": [],
+    "base": "https://www.thebluebook.com"
+  },
+  "entities": {
+    "reads": [
+      "project name",
+      "location",
+      "bid due date",
+      "GC contact"
+    ],
+    "writes": []
+  },
+  "demex_mapping": {
+    "project title": "projects[].name",
+    "due date": "projects[].dueAt"
+  },
+  "code": [
+    "email_ingestor.py"
+  ],
+  "trigger": {
+    "type": "scheduled",
+    "detail": "daily ITB intake"
+  },
+  "known_limits": [
+    "Low volume relative to PlanHub; sender addresses vary by GC so keyword matching carries the load."
+  ],
+  "owner_action_required": [
+    "Confirm the exact sending domain(s) currently in use so the ingestor can key on sender rather than keywords."
+  ],
+  "paths": {
+    "inbound": "integrations/bluebook/inbound/",
+    "outbound": "integrations/bluebook/outbound/",
+    "logs": "integrations/bluebook/logs/",
+    "samples": "integrations/bluebook/samples/"
+  },
+  "last_verified": "2026-08-11"
+}

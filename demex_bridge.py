@@ -210,13 +210,15 @@ class Handler(SimpleHTTPRequestHandler):
     def _rates(self, q):
         """Serve the Master Reference Rate data for the cockpit accuracy panel.
 
-        Returns demex_rate_reference.json as-is. With ?refresh=1 (or if that file
-        is missing), recompute the win/loss price bands live from
-        demex_full_history_import.json via learning_loop.py.
+        Returns demex_rate_reference.json as-is for the default (all-scopes) view.
+        Recomputes live from demex_full_history_import.json via learning_loop.py
+        when ?refresh=1, the file is missing, OR a ?trade=<scope> filter is given
+        (the static reference holds only the global, all-trades bands).
         """
         ref = ROOT / "demex_rate_reference.json"
         refresh = (q.get("refresh") or ["0"])[0] in ("1", "true", "yes")
-        if ref.is_file() and not refresh:
+        trade = (q.get("trade") or [""])[0].strip()
+        if ref.is_file() and not refresh and not trade:
             data = _read_json_file(str(ref))
             if data is not None:
                 return self._json({"ok": True, "payload": data})
@@ -225,8 +227,10 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json({"ok": False,
                                "error": "No rate reference or history file found."})
         out = _tmp(".json")
-        rc, log = run_tool(["learning_loop.py", "--input", str(hist),
-                            "--export-json", out])
+        args = ["learning_loop.py", "--input", str(hist), "--export-json", out]
+        if trade:
+            args += ["--trade", trade]
+        rc, log = run_tool(args)
         learn = _read_json_file(out)
         _unlink(out)
         if learn is None:
@@ -235,6 +239,15 @@ class Handler(SimpleHTTPRequestHandler):
                                "log": _tail(log)})
         payload = _read_json_file(str(ref)) or {"schema": "demex_rate_reference/live"}
         payload["price_bands"] = learn.get("price_bands")
+        # Keep the size-tier model in sync on a live refresh; the cockpit
+        # accuracy panel scales its risk bands off tiered_bands.
+        if learn.get("tiered_bands"):
+            payload["tiered_bands"] = learn.get("tiered_bands")
+        # available_trades is the full roster (not trade-filtered) -> the scope
+        # dropdown lists every scope with decided history regardless of selection.
+        if learn.get("available_trades") is not None:
+            payload["available_trades"] = learn.get("available_trades")
+        payload["trade"] = trade or None
         payload["learning_state"] = {k: learn.get(k) for k in
                                      ("losing_streak", "markup_delta_pct",
                                       "rationale", "decided_bids")}

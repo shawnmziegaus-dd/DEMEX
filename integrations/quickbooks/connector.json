@@ -1,0 +1,65 @@
+{
+  "schema": "demex_connector/v1",
+  "key": "quickbooks",
+  "name": "QuickBooks",
+  "vendor": "Intuit",
+  "category": "accounting",
+  "status": "planned",
+  "direction": "bidirectional",
+  "purpose": "Closes the learning loop. Actual labour, disposal, equipment, subcontractor and material costs per job flow back in so estimate accuracy improves against reality instead of against memory.",
+  "accounts": [],
+  "auth": {
+    "method": "oauth2 (Intuit) / Claude QuickBooks connector",
+    "secrets": [
+      "QB_CLIENT_ID",
+      "QB_CLIENT_SECRET",
+      "QB_REALM_ID"
+    ],
+    "notes": "The Claude-side QuickBooks connector currently reports as requiring authorisation."
+  },
+  "access": {
+    "protocol": "REST",
+    "senders": [],
+    "base": "https://quickbooks.api.intuit.com"
+  },
+  "entities": {
+    "reads": [
+      "invoice",
+      "bill",
+      "vendor payment",
+      "job/customer",
+      "P&L by job"
+    ],
+    "writes": [
+      "invoice draft from awarded contract amount"
+    ]
+  },
+  "demex_mapping": {
+    "job actuals": "projects[].actual_realized_costs",
+    "invoice total": "projects[].bidAmount reconciliation",
+    "vendor bill": "estCosts.sub / estCosts.disposal"
+  },
+  "code": [
+    "learning_loop.py",
+    "pricing_engine.py"
+  ],
+  "trigger": {
+    "type": "scheduled",
+    "detail": "proposed weekly job-cost sync"
+  },
+  "known_limits": [
+    "Not yet authorised - see owner_action.",
+    "Job costing only works if every cost is coded to a job in QuickBooks; uncoded costs silently break the feedback loop."
+  ],
+  "owner_action_required": [
+    "Authorise the QuickBooks connector in Claude connector settings before this can be built.",
+    "Confirm that jobs are tracked as Customers:Jobs (or Classes) so costs can be attributed per project."
+  ],
+  "paths": {
+    "inbound": "integrations/quickbooks/inbound/",
+    "outbound": "integrations/quickbooks/outbound/",
+    "logs": "integrations/quickbooks/logs/",
+    "samples": "integrations/quickbooks/samples/"
+  },
+  "last_verified": "2026-08-11"
+}

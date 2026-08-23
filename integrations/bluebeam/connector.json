@@ -1,0 +1,69 @@
+{
+  "schema": "demex_connector/v1",
+  "key": "bluebeam",
+  "name": "Bluebeam Revu",
+  "vendor": "Bluebeam, Inc. (Nemetschek)",
+  "category": "takeoff_markup",
+  "status": "live",
+  "direction": "bidirectional",
+  "purpose": "Where the takeoff actually happens. Shawn marks up the plan set in Revu; DEMEX reads the measurement annotations back out of the saved PDF and turns them into priced quantities. This is the single most important integration in the stack.",
+  "accounts": [],
+  "auth": {
+    "method": "file-based (no API)",
+    "secrets": [],
+    "notes": "Revu is a desktop application. Integration is by reading the annotation objects embedded in the saved PDF."
+  },
+  "access": {
+    "protocol": "PDF annotation objects",
+    "senders": [],
+    "base": null,
+    "annotation_types": [
+      "/Polygon + /IT /PolygonDimension (area, sf)",
+      "/PolyLine + /IT /PolyLineDimension (polylength, ft-in)",
+      "/PolyLine perimeter measurement",
+      "/Highlight and /Ink (count / point items)",
+      "/Square (sheet detail boxes - ignore)"
+    ]
+  },
+  "entities": {
+    "reads": [
+      "area measurements",
+      "length measurements",
+      "perimeter measurements",
+      "count highlights",
+      "annotation colour",
+      "measurement scale",
+      "author"
+    ],
+    "writes": [
+      "markup legend / colour standard applied by the estimator in Revu"
+    ]
+  },
+  "demex_mapping": {
+    "annotation colour": "estQty[].svc (scope bucket)",
+    "/Contents 'NNN.NN sf'": "estQty[].qty with unit SF",
+    "/Contents \"NN'-N 1/4\\\"\"": "estQty[].qty with unit LF",
+    "highlight count": "estQty[].qty with unit EA"
+  },
+  "code": [
+    "tools/takeoff_markup_extract.py",
+    "takeoff_scalar.py"
+  ],
+  "trigger": {
+    "type": "manual",
+    "detail": "run tools/takeoff_markup_extract.py on the saved marked-up PDF"
+  },
+  "known_limits": [
+    "Colour is the only scope signal in the file - if the estimator deviates from the legend the extraction is wrong. See standards/takeoff/DEMEX_Takeoff_Markup_Standard.md.",
+    "Freehand /Ink highlights carry no text, so they extract as an unlabeled count and always need review.",
+    "Extracted quantities are gross geometry. Waste, overlap, thickness and access factors are applied by the pricing engine, not the extractor."
+  ],
+  "owner_action_required": [],
+  "paths": {
+    "inbound": "integrations/bluebeam/inbound/",
+    "outbound": "integrations/bluebeam/outbound/",
+    "logs": "integrations/bluebeam/logs/",
+    "samples": "integrations/bluebeam/samples/"
+  },
+  "last_verified": "2026-08-11"
+}

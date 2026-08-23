@@ -1,0 +1,63 @@
+{
+  "schema": "demex_connector/v1",
+  "key": "buildingconnected",
+  "name": "BuildingConnected",
+  "vendor": "Autodesk",
+  "category": "bid_platform",
+  "status": "live",
+  "direction": "inbound",
+  "purpose": "Invitation and addendum channel for GCs who run their bid lists on BuildingConnected (e.g. SA Casey Construction). Addenda arrive here, not by direct email.",
+  "accounts": [
+    "estimates@disassembledynamics.com"
+  ],
+  "auth": {
+    "method": "email_ingest (no API today)",
+    "secrets": [],
+    "notes": "Autodesk Platform Services exposes a BuildingConnected API but it requires an Autodesk app + partner-level access. Not provisioned."
+  },
+  "access": {
+    "protocol": "email",
+    "senders": [
+      "team@buildingconnected.com"
+    ],
+    "base": "https://app.buildingconnected.com"
+  },
+  "entities": {
+    "reads": [
+      "GC name and sender contact",
+      "project name",
+      "message body (addendum notices)",
+      "attachments"
+    ],
+    "writes": [
+      "bid response - manual in portal"
+    ]
+  },
+  "demex_mapping": {
+    "'X of Y sent your company a message about Z'": "clients[].contactName / clients[].name / projects[].name",
+    "message body": "projects[].notes",
+    "attachment": "attachments table"
+  },
+  "code": [
+    "email_ingestor.py"
+  ],
+  "trigger": {
+    "type": "scheduled",
+    "detail": "daily ITB intake"
+  },
+  "known_limits": [
+    "Subject lines are truncated with an ellipsis ('Willow Run Park Renov...') - never key dedupe on subject alone.",
+    "Addendum notices look like new invitations to a keyword filter; they must merge into the existing project record.",
+    "Attachments are frequently referenced as 'uploaded' with no file attached - the plan must be pulled from the portal."
+  ],
+  "owner_action_required": [
+    "Confirm whether the Autodesk/BuildingConnected account tier permits API access; if so this moves from email scraping to a real feed."
+  ],
+  "paths": {
+    "inbound": "integrations/buildingconnected/inbound/",
+    "outbound": "integrations/buildingconnected/outbound/",
+    "logs": "integrations/buildingconnected/logs/",
+    "samples": "integrations/buildingconnected/samples/"
+  },
+  "last_verified": "2026-08-11"
+}

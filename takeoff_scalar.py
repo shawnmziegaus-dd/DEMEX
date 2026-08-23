@@ -72,7 +72,7 @@ import logging
 import math
 import sqlite3
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -202,21 +202,23 @@ def render_page(pdf_path: Path, page_index: int, dpi: int):
 def vector_geometry(pdf_path: Path, page_index: int) -> dict:
     """Extract the PDF's own vector primitives for a page (in PDF points).
 
-    Returns {"lines": [(x0,y0,x1,y1), ...], "rects": [(x0,y0,x1,y1), ...]}.
+    Returns {"lines": [(x0,y0,x1,y1), ...], "rects": [(x0,y0,x1,y1), ...],
+    "page_size": (width, height)}.
     These are EXACT (no pixel approximation). pdfplumber's coordinate origin is
     the top-left of the page; 1 point = 1/72 inch. Empty if the PDF is a scanned
     raster with no vectors, in which case we fall back to OpenCV.
     """
     if pdfplumber is None:
-        return {"lines": [], "rects": []}
+        return {"lines": [], "rects": [], "page_size": (0.0, 0.0)}
     lines, rects = [], []
     with pdfplumber.open(str(pdf_path)) as pdf:
         page = pdf.pages[page_index]
+        size = (float(page.width), float(page.height))
         for ln in page.lines:
             lines.append((ln["x0"], ln["top"], ln["x1"], ln["bottom"]))
         for rc in page.rects:
             rects.append((rc["x0"], rc["top"], rc["x1"], rc["bottom"]))
-    return {"lines": lines, "rects": rects}
+    return {"lines": lines, "rects": rects, "page_size": size}
 
 
 # --------------------------------------------------------------------------- #
@@ -276,7 +278,7 @@ def save_scale(pdf_path: Path, page_index: int, px_per_ft: float, dpi: int) -> N
     data[str(page_index)] = {
         "px_per_ft": px_per_ft,
         "dpi": dpi,
-        "saved_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        "saved_at": datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
     }
     p.write_text(json.dumps(data, indent=2), encoding="utf-8")
     log.info("Saved scale for page %d -> %.4f px/ft (dpi %d) in %s",
@@ -429,6 +431,62 @@ def auto_contours(img, px_per_ft: float, min_sf: float, max_sf: float) -> list[d
     return out
 
 
+# Margin band (fraction of page edge) treated as title-block / border frame.
+PAGE_MARGIN_BAND = 0.05
+# Reject rects skinnier than this width:height (or height:width) ratio.
+MAX_RECT_ASPECT = 25.0
+
+
+def filter_auto_rects(rects: list[tuple[float, float, float, float]],
+                      page_w: float, page_h: float) -> list[tuple[float, float, float, float]]:
+    """Conservatively drop obvious non-room rectangles for auto-area.
+
+    - exact duplicates (same rect drawn twice, fill + stroke, etc.)
+    - rects touching the outer page margin band (title blocks, border frames)
+    - extreme aspect ratios (grid lines / schedule rules drawn as rects)
+    - rects fully contained inside an already-accepted larger rect (legend
+      cells, nested frames)
+    Deliberately dumb: everything that survives is still needs_review=1.
+    """
+    norm = []
+    for (x0, y0, x1, y1) in rects:
+        lo_x, hi_x = min(x0, x1), max(x0, x1)
+        lo_y, hi_y = min(y0, y1), max(y0, y1)
+        norm.append((lo_x, lo_y, hi_x, hi_y))
+
+    seen: set[tuple[float, float, float, float]] = set()
+    candidates = []
+    for r in norm:
+        key = tuple(round(v, 2) for v in r)
+        if key in seen:
+            continue  # exact duplicate
+        seen.add(key)
+        x0, y0, x1, y1 = r
+        w, h = x1 - x0, y1 - y0
+        if w <= 0 or h <= 0:
+            continue
+        if page_w > 0 and page_h > 0:
+            mx, my = page_w * PAGE_MARGIN_BAND, page_h * PAGE_MARGIN_BAND
+            if x0 < mx or y0 < my or x1 > page_w - mx or y1 > page_h - my:
+                continue  # touches title-block / border band
+        if max(w / h, h / w) > MAX_RECT_ASPECT:
+            continue  # extreme aspect ratio
+        candidates.append(r)
+
+    # Drop rects fully nested inside an already-accepted (larger) rect.
+    candidates.sort(key=lambda r: (r[2] - r[0]) * (r[3] - r[1]), reverse=True)
+    kept: list[tuple[float, float, float, float]] = []
+    eps = 0.5  # points
+    for r in candidates:
+        x0, y0, x1, y1 = r
+        nested = any(kx0 - eps <= x0 and ky0 - eps <= y0 and
+                     x1 <= kx1 + eps and y1 <= ky1 + eps
+                     for (kx0, ky0, kx1, ky1) in kept)
+        if not nested:
+            kept.append(r)
+    return kept
+
+
 # --------------------------------------------------------------------------- #
 # Auto-count: template matching across pages with non-max suppression         #
 # --------------------------------------------------------------------------- #
@@ -540,12 +598,19 @@ def make_measurement(mtype: str, svc: str, qty: float, page_index: int,
     }
 
 
-def measurements_to_line_data(ms: list[dict]) -> dict:
+def source_key(source_pdf: str, method: str, page: int) -> str:
+    """Stable tag identifying WHERE a takeoff entry came from, so a re-run of
+    the same PDF/mode/page REPLACES its prior output instead of stacking it."""
+    return f"{source_pdf}|{method}|p{page}"
+
+
+def measurements_to_line_data(ms: list[dict], source_pdf: str = "") -> dict:
     """Build the {estimated_quantities, unit_rates, bulk_pricing_thresholds}
     payload, shaped exactly as DEMEX.html expects (mapEQ / unit_rates)."""
     est_qty, rates = [], []
     for m in ms:
         note = f"takeoff {m['method']} p{m['page']} (review)"
+        src = source_key(source_pdf, m["method"], m["page"])
         est_qty.append({
             "item": m["label"],
             "svc": m["svc"],          # required for DEMEX to price the line
@@ -554,6 +619,8 @@ def measurements_to_line_data(ms: list[dict]) -> dict:
             "location": m["location"],
             "notes": note,
             "scope_type": m["scope_type"],
+            "source": src,
+            "needs_review": 1,
         })
         rates.append({
             "svc": m["svc"],
@@ -562,6 +629,7 @@ def measurements_to_line_data(ms: list[dict]) -> dict:
             "unit": m["unit"],
             "rate": m["rate"],        # rate-card midpoint; estimator can override
             "scope_type": m["scope_type"],
+            "source": src,
         })
     return {
         "estimated_quantities": est_qty,
@@ -624,31 +692,54 @@ def resolve_project(conn: sqlite3.Connection, name: str, scope_type: str) -> dic
 
 def persist(conn: sqlite3.Connection, name: str, measurements: list[dict],
             scope_type: str, source_pdf: str) -> str:
-    """Merge measurements into the project and write to demex_records.db."""
+    """Merge measurements into the project and write to demex_records.db.
+
+    Replace-by-source: re-running the same PDF/mode/page REPLACES that run's
+    prior entries (JSON columns and line_items) instead of stacking them, so
+    quantities never double. Entries from other sources (email ingestor, other
+    PDFs/modes/pages) are left untouched."""
     if not measurements:
         log.warning("No measurements to persist.")
         return ""
-    proj = resolve_project(conn, name, scope_type)
-    new = measurements_to_line_data(measurements)
-    line_data = {
-        "estimated_quantities": proj["estimated_quantities"] + new["estimated_quantities"],
-        "unit_rates": proj["unit_rates"] + new["unit_rates"],
-        "bulk_pricing_thresholds": [],
-    }
-    upsert_project(conn, proj["row"], line_data)
-    # Also denormalize into line_items for SQL querying (our own minimal insert
-    # so we don't depend on the email parser's exact dict-key contract).
-    pid = proj["row"]["project_id"]
-    for m in measurements:
+    new = measurements_to_line_data(measurements, source_pdf)
+    sources = {source_key(source_pdf, m["method"], m["page"]) for m in measurements}
+
+    with conn:
+        proj = resolve_project(conn, name, scope_type)
+        pid = proj["row"]["project_id"]
+        # Ensure the project row exists / metadata is refreshed (no line data --
+        # the JSON columns are written authoritatively below).
+        upsert_project(conn, proj["row"], {
+            "estimated_quantities": [], "unit_rates": [],
+            "bulk_pricing_thresholds": [],
+        })
+        keep_qty = [e for e in proj["estimated_quantities"]
+                    if e.get("source") not in sources]
+        keep_rates = [e for e in proj["unit_rates"]
+                      if e.get("source") not in sources]
         conn.execute(
-            """INSERT INTO line_items
-               (project_id, kind, description, scope_type, qty, unit,
-                unit_price, source_pdf, needs_review)
-               VALUES (?,?,?,?,?,?,?,?,1)""",
-            (pid, "quantity", m["label"], m["scope_type"], m["qty"], m["unit"],
-             m["rate"], source_pdf),
+            "UPDATE projects SET estimated_quantities=?, unit_rates=? "
+            "WHERE project_id=?",
+            (json.dumps(keep_qty + new["estimated_quantities"]),
+             json.dumps(keep_rates + new["unit_rates"]), pid),
         )
-    conn.commit()
+        # Denormalized line_items: delete this tool's prior rows for the same
+        # source keys, then insert fresh ones tagged with the source key.
+        for src in sources:
+            conn.execute(
+                "DELETE FROM line_items WHERE project_id=? AND source_pdf=? "
+                "AND kind='quantity'",
+                (pid, src),
+            )
+        for m in measurements:
+            conn.execute(
+                """INSERT INTO line_items
+                   (project_id, kind, description, scope_type, qty, unit,
+                    unit_price, source_pdf, needs_review)
+                   VALUES (?,?,?,?,?,?,?,?,1)""",
+                (pid, "quantity", m["label"], m["scope_type"], m["qty"], m["unit"],
+                 m["rate"], source_key(source_pdf, m["method"], m["page"])),
+            )
     log.info("Persisted %d measurement(s) into project %s.", len(measurements), pid)
     return pid
 
@@ -746,12 +837,15 @@ def run(args: argparse.Namespace) -> int:
         pi = resolve_pages(pdf_path, args.page, all_default=False)[0]
         img = render_page(pdf_path, pi, args.dpi)
         px = ensure_scale(pdf_path, pi, args.dpi, args, img)
-        # Prefer exact PDF vector rectangles when present.
+        # Prefer exact PDF vector rectangles when present. Filter the raw rect
+        # soup first: title-block frames, legend cells, duplicated/nested and
+        # sliver rects are drawing furniture, not demo areas.
         used_vectors = False
         geom = vector_geometry(pdf_path, pi)
         ppf = points_per_foot(px, args.dpi)
         if geom["rects"] and ppf > 0:
-            for (x0, y0, x1, y1) in geom["rects"]:
+            page_w, page_h = geom.get("page_size", (0.0, 0.0))
+            for (x0, y0, x1, y1) in filter_auto_rects(geom["rects"], page_w, page_h):
                 sf = (abs(x1 - x0) / ppf) * (abs(y1 - y0) / ppf)
                 if args.min_sf <= sf <= args.max_sf:
                     used_vectors = True

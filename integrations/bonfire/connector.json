@@ -1,0 +1,62 @@
+{
+  "schema": "demex_connector/v1",
+  "key": "bonfire",
+  "name": "Bonfire",
+  "vendor": "Bonfire Interactive (Euna Solutions)",
+  "category": "public_procurement",
+  "status": "live",
+  "direction": "inbound",
+  "purpose": "Public-owner solicitation portal. Carries municipal/county RFPs, addenda, Q&A responses and bid tabulations.",
+  "accounts": [
+    "shawn@disassembledynamics.com"
+  ],
+  "auth": {
+    "method": "portal login (manual) + email notices",
+    "secrets": [],
+    "notes": "Vendor portal account per issuing agency."
+  },
+  "access": {
+    "protocol": "email",
+    "senders": [
+      "No-Reply@gobonfire.com"
+    ],
+    "base": "https://gobonfire.com"
+  },
+  "entities": {
+    "reads": [
+      "solicitation number",
+      "title",
+      "public notices",
+      "bid tabulation"
+    ],
+    "writes": [
+      "bid submission - manual in portal"
+    ]
+  },
+  "demex_mapping": {
+    "RFP-xx-xxxxx": "projects[].bidNo",
+    "title": "projects[].name",
+    "notice type": "projects[].status"
+  },
+  "code": [
+    "email_ingestor.py"
+  ],
+  "trigger": {
+    "type": "scheduled",
+    "detail": "daily ITB intake"
+  },
+  "known_limits": [
+    "Emits notice types that are NOT invitations - 'Preliminary Bid Tabulation', award notices, Q&A postings. These must be classified, not imported as leads.",
+    "Bid tabulations are a competitive-intelligence goldmine and should be routed to the learning loop, not the pipeline."
+  ],
+  "owner_action_required": [
+    "Bid tabulations from Bonfire are the single best source of competitor pricing - worth a dedicated parser."
+  ],
+  "paths": {
+    "inbound": "integrations/bonfire/inbound/",
+    "outbound": "integrations/bonfire/outbound/",
+    "logs": "integrations/bonfire/logs/",
+    "samples": "integrations/bonfire/samples/"
+  },
+  "last_verified": "2026-08-11"
+}

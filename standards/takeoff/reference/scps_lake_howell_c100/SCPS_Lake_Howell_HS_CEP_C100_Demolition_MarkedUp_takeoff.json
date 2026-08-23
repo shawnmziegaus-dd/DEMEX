@@ -1,0 +1,1065 @@
+{
+  "schema": "demex_takeoff_markup/v1",
+  "source_pdf": "SCPS_Lake_Howell_HS_CEP_C100_Demolition_MarkedUp.pdf",
+  "pages": 1,
+  "extracted_at": "2026-08-11T20:56:40+00:00",
+  "legend_version": "1.1",
+  "legend_profile": "site_civil",
+  "counts": {
+    "measurements": 45,
+    "area": 17,
+    "length": 17,
+    "count": 11,
+    "needs_review": 5,
+    "unmapped_colour": 0,
+    "unconfirmed_legend": 0
+  },
+  "skipped_annotations": {
+    "/Square": 299
+  },
+  "rollup": [
+    {
+      "svc": "concrete_flat",
+      "unit": "SF",
+      "scope": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "qty": 1675.71,
+      "annotations": 16
+    },
+    {
+      "svc": "structure_demo",
+      "unit": "SF",
+      "scope": "Structure demolition / limits of work footprint",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "qty": 855.41,
+      "annotations": 1
+    },
+    {
+      "svc": "utility_demo",
+      "unit": "LF",
+      "scope": "Utility line removal - electrical, water, storm, sanitary, gas",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "qty": 456.11,
+      "annotations": 13
+    },
+    {
+      "svc": "fence_demo",
+      "unit": "LF",
+      "scope": "Fence, gate, guardrail and handrail removal",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "qty": 154.9,
+      "annotations": 4
+    },
+    {
+      "svc": "count",
+      "unit": "EA",
+      "scope": "Equipment / fixture removal - panels, transformers, generators, poles, inlets, hydrants",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "qty": 10.0,
+      "annotations": 10
+    },
+    {
+      "svc": null,
+      "unit": "EA",
+      "scope": "UNMAPPED - colour not on legend",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "qty": 1.0,
+      "annotations": 1
+    }
+  ],
+  "measurements": [
+    {
+      "page": 1,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Stamp",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNMAPPED - colour not on legend",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "JKlima",
+      "needs_review": 1
+    },
+    {
+      "page": 1,
+      "kind": "area",
+      "qty": 855.41,
+      "unit": "SF",
+      "label": "855.41 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Structure demolition / limits of work footprint",
+      "svc": "structure_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "length",
+      "qty": 11.69,
+      "unit": "LF",
+      "label": "11'-8 1/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Fence, gate, guardrail and handrail removal",
+      "svc": "fence_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "area",
+      "qty": 25.1,
+      "unit": "SF",
+      "label": "25.1 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "color_hex": "#0000FF",
+      "color_name": "Blue",
+      "scope": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "area",
+      "qty": 25.01,
+      "unit": "SF",
+      "label": "25.01 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "color_hex": "#0000FF",
+      "color_name": "Blue",
+      "scope": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "area",
+      "qty": 24.37,
+      "unit": "SF",
+      "label": "24.37 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "color_hex": "#0000FF",
+      "color_name": "Blue",
+      "scope": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "area",
+      "qty": 7.67,
+      "unit": "SF",
+      "label": "7.67 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "color_hex": "#0000FF",
+      "color_name": "Blue",
+      "scope": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "area",
+      "qty": 3.47,
+      "unit": "SF",
+      "label": "3.47 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "color_hex": "#0000FF",
+      "color_name": "Blue",
+      "scope": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "area",
+      "qty": 3.29,
+      "unit": "SF",
+      "label": "3.29 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "color_hex": "#0000FF",
+      "color_name": "Blue",
+      "scope": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "area",
+      "qty": 3.09,
+      "unit": "SF",
+      "label": "3.09 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "color_hex": "#0000FF",
+      "color_name": "Blue",
+      "scope": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "area",
+      "qty": 3.02,
+      "unit": "SF",
+      "label": "3.02 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "color_hex": "#0000FF",
+      "color_name": "Blue",
+      "scope": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "area",
+      "qty": 138.6,
+      "unit": "SF",
+      "label": "138.6 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "color_hex": "#0000FF",
+      "color_name": "Blue",
+      "scope": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "area",
+      "qty": 60.75,
+      "unit": "SF",
+      "label": "60.75 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "color_hex": "#0000FF",
+      "color_name": "Blue",
+      "scope": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "area",
+      "qty": 3.01,
+      "unit": "SF",
+      "label": "3.01 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "color_hex": "#0000FF",
+      "color_name": "Blue",
+      "scope": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "area",
+      "qty": 3.26,
+      "unit": "SF",
+      "label": "3.26 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "color_hex": "#0000FF",
+      "color_name": "Blue",
+      "scope": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "area",
+      "qty": 240.59,
+      "unit": "SF",
+      "label": "240.59 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "color_hex": "#0000FF",
+      "color_name": "Blue",
+      "scope": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "area",
+      "qty": 278.52,
+      "unit": "SF",
+      "label": "278.52 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "color_hex": "#0000FF",
+      "color_name": "Blue",
+      "scope": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "area",
+      "qty": 765.55,
+      "unit": "SF",
+      "label": "765.55 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "color_hex": "#0000FF",
+      "color_name": "Blue",
+      "scope": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "area",
+      "qty": 90.41,
+      "unit": "SF",
+      "label": "90.41 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "color_hex": "#0000FF",
+      "color_name": "Blue",
+      "scope": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "length",
+      "qty": 79.25,
+      "unit": "LF",
+      "label": "79'-3\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Fence, gate, guardrail and handrail removal",
+      "svc": "fence_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "length",
+      "qty": 15.29,
+      "unit": "LF",
+      "label": "15'-3 1/2\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Fence, gate, guardrail and handrail removal",
+      "svc": "fence_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "length",
+      "qty": 48.67,
+      "unit": "LF",
+      "label": "48'-8\"",
+      "measurement": "Perimeter Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Fence, gate, guardrail and handrail removal",
+      "svc": "fence_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "length",
+      "qty": 15.0,
+      "unit": "LF",
+      "label": "15'-0\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        0.0,
+        0.251,
+        0.0
+      ],
+      "color_hex": "#004000",
+      "color_name": "Dark Green",
+      "scope": "Utility line removal - electrical, water, storm, sanitary, gas",
+      "svc": "utility_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "length",
+      "qty": 11.42,
+      "unit": "LF",
+      "label": "11'-5\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        0.0,
+        0.251,
+        0.0
+      ],
+      "color_hex": "#004000",
+      "color_name": "Dark Green",
+      "scope": "Utility line removal - electrical, water, storm, sanitary, gas",
+      "svc": "utility_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "length",
+      "qty": 9.79,
+      "unit": "LF",
+      "label": "9'-9 1/2\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        0.0,
+        0.251,
+        0.0
+      ],
+      "color_hex": "#004000",
+      "color_name": "Dark Green",
+      "scope": "Utility line removal - electrical, water, storm, sanitary, gas",
+      "svc": "utility_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "length",
+      "qty": 10.0,
+      "unit": "LF",
+      "label": "10'-0\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        0.0,
+        0.251,
+        0.0
+      ],
+      "color_hex": "#004000",
+      "color_name": "Dark Green",
+      "scope": "Utility line removal - electrical, water, storm, sanitary, gas",
+      "svc": "utility_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "length",
+      "qty": 89.81,
+      "unit": "LF",
+      "label": "89'-9 3/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        0.0,
+        0.251,
+        0.0
+      ],
+      "color_hex": "#004000",
+      "color_name": "Dark Green",
+      "scope": "Utility line removal - electrical, water, storm, sanitary, gas",
+      "svc": "utility_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Equipment / fixture removal - panels, transformers, generators, poles, inlets, hydrants",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 1,
+      "kind": "length",
+      "qty": 93.6,
+      "unit": "LF",
+      "label": "93'-7 1/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        0.0,
+        0.251,
+        0.0
+      ],
+      "color_hex": "#004000",
+      "color_name": "Dark Green",
+      "scope": "Utility line removal - electrical, water, storm, sanitary, gas",
+      "svc": "utility_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "length",
+      "qty": 31.6,
+      "unit": "LF",
+      "label": "31'-7 1/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        0.0,
+        0.251,
+        0.0
+      ],
+      "color_hex": "#004000",
+      "color_name": "Dark Green",
+      "scope": "Utility line removal - electrical, water, storm, sanitary, gas",
+      "svc": "utility_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "length",
+      "qty": 53.06,
+      "unit": "LF",
+      "label": "53'-3/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        0.0,
+        0.251,
+        0.0
+      ],
+      "color_hex": "#004000",
+      "color_name": "Dark Green",
+      "scope": "Utility line removal - electrical, water, storm, sanitary, gas",
+      "svc": "utility_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "length",
+      "qty": 20.65,
+      "unit": "LF",
+      "label": "20'-7 3/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        0.0,
+        0.251,
+        0.0
+      ],
+      "color_hex": "#004000",
+      "color_name": "Dark Green",
+      "scope": "Utility line removal - electrical, water, storm, sanitary, gas",
+      "svc": "utility_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "length",
+      "qty": 21.42,
+      "unit": "LF",
+      "label": "21'-5\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        0.0,
+        0.251,
+        0.0
+      ],
+      "color_hex": "#004000",
+      "color_name": "Dark Green",
+      "scope": "Utility line removal - electrical, water, storm, sanitary, gas",
+      "svc": "utility_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "length",
+      "qty": 32.81,
+      "unit": "LF",
+      "label": "32'-9 3/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        0.0,
+        0.251,
+        0.0
+      ],
+      "color_hex": "#004000",
+      "color_name": "Dark Green",
+      "scope": "Utility line removal - electrical, water, storm, sanitary, gas",
+      "svc": "utility_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "length",
+      "qty": 31.85,
+      "unit": "LF",
+      "label": "31'-10 1/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        0.0,
+        0.251,
+        0.0
+      ],
+      "color_hex": "#004000",
+      "color_name": "Dark Green",
+      "scope": "Utility line removal - electrical, water, storm, sanitary, gas",
+      "svc": "utility_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Equipment / fixture removal - panels, transformers, generators, poles, inlets, hydrants",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 1,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": "TF",
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Equipment / fixture removal - panels, transformers, generators, poles, inlets, hydrants",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Equipment / fixture removal - panels, transformers, generators, poles, inlets, hydrants",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 1,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": "P",
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Equipment / fixture removal - panels, transformers, generators, poles, inlets, hydrants",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": "EP",
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Equipment / fixture removal - panels, transformers, generators, poles, inlets, hydrants",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": "EP",
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Equipment / fixture removal - panels, transformers, generators, poles, inlets, hydrants",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": "EP",
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Equipment / fixture removal - panels, transformers, generators, poles, inlets, hydrants",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "length",
+      "qty": 35.1,
+      "unit": "LF",
+      "label": "35'-1 1/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        0.0,
+        0.251,
+        0.0
+      ],
+      "color_hex": "#004000",
+      "color_name": "Dark Green",
+      "scope": "Utility line removal - electrical, water, storm, sanitary, gas",
+      "svc": "utility_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": "P",
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Equipment / fixture removal - panels, transformers, generators, poles, inlets, hydrants",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 1,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Equipment / fixture removal - panels, transformers, generators, poles, inlets, hydrants",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    }
+  ],
+  "est_qty": [
+    {
+      "desc": "Concrete flatwork removal - pads, slabs on grade, sidewalk, aprons",
+      "svc": "concrete_flat",
+      "qty": 1675.71,
+      "unit": "SF",
+      "source": "SCPS_Lake_Howell_HS_CEP_C100_Demolition_MarkedUp.pdf",
+      "needs_review": 0
+    },
+    {
+      "desc": "Structure demolition / limits of work footprint",
+      "svc": "structure_demo",
+      "qty": 855.41,
+      "unit": "SF",
+      "source": "SCPS_Lake_Howell_HS_CEP_C100_Demolition_MarkedUp.pdf",
+      "needs_review": 0
+    },
+    {
+      "desc": "Utility line removal - electrical, water, storm, sanitary, gas",
+      "svc": "utility_demo",
+      "qty": 456.11,
+      "unit": "LF",
+      "source": "SCPS_Lake_Howell_HS_CEP_C100_Demolition_MarkedUp.pdf",
+      "needs_review": 0
+    },
+    {
+      "desc": "Fence, gate, guardrail and handrail removal",
+      "svc": "fence_demo",
+      "qty": 154.9,
+      "unit": "LF",
+      "source": "SCPS_Lake_Howell_HS_CEP_C100_Demolition_MarkedUp.pdf",
+      "needs_review": 0
+    },
+    {
+      "desc": "Equipment / fixture removal - panels, transformers, generators, poles, inlets, hydrants",
+      "svc": "count",
+      "qty": 10.0,
+      "unit": "EA",
+      "source": "SCPS_Lake_Howell_HS_CEP_C100_Demolition_MarkedUp.pdf",
+      "needs_review": 1
+    }
+  ]
+}

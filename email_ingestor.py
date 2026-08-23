@@ -62,7 +62,7 @@ import re
 import sqlite3
 import ssl
 import sys
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from email.header import decode_header, make_header
 from email.message import Message
 from pathlib import Path
@@ -581,50 +581,155 @@ CREATE TABLE IF NOT EXISTS attachments (
 def db_init(db_path: str) -> sqlite3.Connection:
     conn = sqlite3.connect(db_path)
     conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     conn.executescript(SCHEMA)
     conn.commit()
     return conn
 
 
+# Markers that vary between emails about the SAME job and must not change the
+# project identity: reply/forward prefixes, addendum/revision counters, tags.
+_RE_REPLY_PREFIX = re.compile(r"(?i)^\s*(?:(?:re|fwd?|fw)\s*:\s*)+")
+_RE_BRACKET_TAG = re.compile(r"\[[^\]]*\]")
+_RE_ADDENDUM = re.compile(
+    r"(?i)\b(?:addendum|add\.?|revision|rev\.?|update[sd]?|reminder)\b"
+    r"\s*#?\s*\d*")
+
+
+def normalize_project_key(subject: str) -> str:
+    """Collapse a subject/project name to a stable identity key.
+
+    Emails in the same thread/job ("ITB - Foo", "RE: ITB - Foo Addendum #2")
+    must map to ONE project, so we strip reply prefixes, bracketed tags,
+    addendum/revision markers, bid-keyword noise, punctuation, and case.
+    """
+    s = subject or ""
+    s = _RE_REPLY_PREFIX.sub("", s)
+    s = _RE_BRACKET_TAG.sub(" ", s)
+    for kw in KEYWORDS:
+        s = re.sub(rf"(?i)\b{re.escape(kw)}\b", " ", s)
+    s = _RE_ADDENDUM.sub(" ", s)
+    s = re.sub(r"[^\w\s]", " ", s)
+    s = re.sub(r"[\s_]+", " ", s).strip().lower()
+    return s
+
+
 def project_id_for(message_id: str, subject: str) -> str:
-    basis = (message_id or subject or "").encode("utf-8")
+    # Identity is the normalized job name so follow-up emails about the same
+    # job land on the same project row. Message-ID hash is only a fallback
+    # when the subject yields no usable name.
+    key = normalize_project_key(subject)
+    basis = (key or message_id or "").encode("utf-8")
     return "pj_" + hashlib.sha1(basis).hexdigest()[:12]
 
 
+# Pipeline status vocabulary (DEMEX.html STATUSES) with a rank so an update
+# from a later email can only move a project FORWARD, never backward.
+STATUS_RANK = {
+    "": -1, "invited": 0, "estimating": 1, "submitted": 2,
+    "won": 3, "lost": 3, "declined": 3,
+}
+
+
+def _status_rank(status: Optional[str]) -> int:
+    return STATUS_RANK.get((status or "").strip().lower(), -1)
+
+
+def _merge_json_list(existing_json: Optional[str], new_list: list) -> str:
+    """Union of the existing JSON list and new entries, deduping identical
+    entries (key-order-insensitive) while preserving order."""
+    try:
+        merged = json.loads(existing_json or "[]")
+    except (ValueError, TypeError):
+        merged = []
+    seen = {json.dumps(e, sort_keys=True) for e in merged}
+    for entry in new_list:
+        key = json.dumps(entry, sort_keys=True)
+        if key not in seen:
+            seen.add(key)
+            merged.append(entry)
+    return json.dumps(merged)
+
+
 def upsert_project(conn: sqlite3.Connection, row: dict, line_data: dict) -> None:
-    now = datetime.utcnow().isoformat(timespec="seconds") + "Z"
-    # Merge any PDF-derived line data into the v4 JSON columns.
-    est_qty = json.dumps(line_data.get("estimated_quantities", []))
-    rates = json.dumps(line_data.get("unit_rates", []))
-    bulk = json.dumps(line_data.get("bulk_pricing_thresholds", []))
-    actuals = json.dumps({
-        "labor": 0, "disposal": 0, "equipment": 0, "material": 0,
-        "sub": 0, "total": 0, "recordedAt": None, "source": "",
-    })
+    now = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+    new_qty = line_data.get("estimated_quantities", [])
+    new_rates = line_data.get("unit_rates", [])
+    new_bulk = line_data.get("bulk_pricing_thresholds", [])
+    new_review = int(row.get("needs_review", 1))
+
+    existing = conn.execute(
+        "SELECT * FROM projects WHERE project_id = ?", (row["project_id"],)
+    ).fetchone()
+
+    if existing is None:
+        actuals = json.dumps({
+            "labor": 0, "disposal": 0, "equipment": 0, "material": 0,
+            "sub": 0, "total": 0, "recordedAt": None, "source": "",
+        })
+        conn.execute(
+            """
+            INSERT INTO projects (
+                project_id, name, client_name, address, scope_type, due_date,
+                scope_summary, status, win_loss_status, estimated_quantities,
+                unit_rates, bulk_pricing_thresholds, actual_realized_costs,
+                source_message_id, needs_review, created_at, updated_at
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            """,
+            (
+                row["project_id"], row["name"], row["client_name"], row["address"],
+                row["scope_type"], row["due_date"], row["scope_summary"],
+                row["status"], row["win_loss_status"], json.dumps(new_qty),
+                json.dumps(new_rates), json.dumps(new_bulk),
+                actuals, row["source_message_id"], new_review, now, now,
+            ),
+        )
+        return
+
+    # ---- Merge, don't clobber: a follow-up email must never erase state. ----
+    cols = [d[0] for d in conn.execute(
+        "SELECT * FROM projects LIMIT 0").description]
+    old = dict(zip(cols, tuple(existing)))
+
+    # Status can only move forward through the pipeline.
+    status = row["status"] if _status_rank(row["status"]) > _status_rank(old["status"]) \
+        else (old["status"] or row["status"])
+    # win_loss never reverts from a decided outcome back to pending/empty.
+    old_wl = (old["win_loss_status"] or "").strip().lower()
+    new_wl = (row.get("win_loss_status") or "").strip().lower()
+    if old_wl in ("won", "lost") and new_wl not in ("won", "lost"):
+        win_loss = old["win_loss_status"]
+    else:
+        win_loss = row.get("win_loss_status") or old["win_loss_status"]
+    # scope_summary keeps the longer / non-empty text.
+    old_sum = old["scope_summary"] or ""
+    new_sum = row.get("scope_summary") or ""
+    scope_summary = new_sum if len(new_sum) > len(old_sum) else old_sum
+    needs_review = int(bool(old["needs_review"]) or bool(new_review))
+
     conn.execute(
         """
-        INSERT INTO projects (
-            project_id, name, client_name, address, scope_type, due_date,
-            scope_summary, status, win_loss_status, estimated_quantities,
-            unit_rates, bulk_pricing_thresholds, actual_realized_costs,
-            source_message_id, needs_review, created_at, updated_at
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-        ON CONFLICT(project_id) DO UPDATE SET
-            scope_type=excluded.scope_type,
-            due_date=COALESCE(excluded.due_date, projects.due_date),
-            scope_summary=excluded.scope_summary,
-            status=excluded.status,
-            win_loss_status=excluded.win_loss_status,
-            estimated_quantities=excluded.estimated_quantities,
-            unit_rates=excluded.unit_rates,
-            bulk_pricing_thresholds=excluded.bulk_pricing_thresholds,
-            updated_at=excluded.updated_at
+        UPDATE projects SET
+            scope_type=?,
+            due_date=COALESCE(?, due_date),
+            scope_summary=?,
+            status=?,
+            win_loss_status=?,
+            estimated_quantities=?,
+            unit_rates=?,
+            bulk_pricing_thresholds=?,
+            needs_review=?,
+            updated_at=?
+        WHERE project_id=?
         """,
         (
-            row["project_id"], row["name"], row["client_name"], row["address"],
-            row["scope_type"], row["due_date"], row["scope_summary"],
-            row["status"], row["win_loss_status"], est_qty, rates, bulk,
-            actuals, row["source_message_id"], 1, now, now,
+            row["scope_type"] or old["scope_type"], row["due_date"],
+            scope_summary, status, win_loss,
+            _merge_json_list(old["estimated_quantities"], new_qty),
+            _merge_json_list(old["unit_rates"], new_rates),
+            _merge_json_list(old["bulk_pricing_thresholds"], new_bulk),
+            needs_review, now, row["project_id"],
         ),
     )
 
@@ -787,27 +892,27 @@ def run(args: argparse.Namespace) -> int:
                                 "bulk_pricing_thresholds": []}
                 if attachments:
                     proj_dir.mkdir(parents=True, exist_ok=True)
-                for fname, payload in attachments:
-                    safe = slugify(Path(fname).stem) + ".pdf"
-                    dest = proj_dir / safe
-                    dest.write_bytes(payload)
-                    insert_attachment(conn, pid, message_id, fname, str(dest))
-                    log.info("    saved attachment %s", dest)
-                    if not args.no_pdf_parse and _PDF_BACKEND:
-                        pdf_text = extract_pdf_text(dest)
-                        if pdf_text:
-                            parsed = parse_line_items(pdf_text)
-                            for k in merged_lines:
-                                merged_lines[k].extend(parsed[k])
-                            insert_line_items(conn, pid, parsed, str(dest))
-                            # Refine scope from PDF content if richer than email.
-                            row["scope_type"] = classify_scope(pdf_text) \
-                                if pdf_text.strip() else row["scope_type"]
+                with conn:  # one transaction per message
+                    for fname, payload in attachments:
+                        safe = slugify(Path(fname).stem) + ".pdf"
+                        dest = proj_dir / safe
+                        dest.write_bytes(payload)
+                        insert_attachment(conn, pid, message_id, fname, str(dest))
+                        log.info("    saved attachment %s", dest)
+                        if not args.no_pdf_parse and _PDF_BACKEND:
+                            pdf_text = extract_pdf_text(dest)
+                            if pdf_text:
+                                parsed = parse_line_items(pdf_text)
+                                for k in merged_lines:
+                                    merged_lines[k].extend(parsed[k])
+                                insert_line_items(conn, pid, parsed, str(dest))
+                                # Refine scope from PDF content if richer than email.
+                                row["scope_type"] = classify_scope(pdf_text) \
+                                    if pdf_text.strip() else row["scope_type"]
 
-                upsert_project(conn, row, merged_lines)
-                insert_email(conn, message_id, pid, folder, subject, sender,
-                             sent_at, kw, body)
-                conn.commit()
+                    upsert_project(conn, row, merged_lines)
+                    insert_email(conn, message_id, pid, folder, subject, sender,
+                                 sent_at, kw, body)
                 processed += 1
                 log.info("  [%s] %s -> %s/%s", kw or "match", project_name,
                          row["scope_type"], row["win_loss_status"])

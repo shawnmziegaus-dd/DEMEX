@@ -1,0 +1,50 @@
+{
+  "schema": "demex_connector/v1",
+  "key": "dropbox",
+  "name": "Dropbox (GC-shared plan folders)",
+  "vendor": "Dropbox",
+  "category": "file_transfer",
+  "status": "planned",
+  "direction": "inbound",
+  "purpose": "Several GCs (Summit GC among them) distribute plan sets as public Dropbox folder links inside the ITB email.",
+  "accounts": [],
+  "auth": {
+    "method": "public shared link (no auth)",
+    "secrets": [],
+    "notes": "Links are public; no Dropbox account required to fetch."
+  },
+  "access": {
+    "protocol": "https",
+    "senders": [],
+    "base": "https://www.dropbox.com"
+  },
+  "entities": {
+    "reads": [
+      "plan set PDFs",
+      "spec PDFs"
+    ],
+    "writes": []
+  },
+  "demex_mapping": {
+    "folder link in email body": "plans/<project>/"
+  },
+  "code": [],
+  "trigger": {
+    "type": "event",
+    "detail": "on ITB import when body contains a dropbox.com link"
+  },
+  "known_limits": [
+    "Folder links need '?dl=1' handling and can be large; download must be size-capped and logged.",
+    "Links are revoked after award."
+  ],
+  "owner_action_required": [
+    "Not yet built. Next step: auto-detect dropbox.com links during ITB intake and mirror the folder into plans/<project>/."
+  ],
+  "paths": {
+    "inbound": "integrations/dropbox/inbound/",
+    "outbound": "integrations/dropbox/outbound/",
+    "logs": "integrations/dropbox/logs/",
+    "samples": "integrations/dropbox/samples/"
+  },
+  "last_verified": "2026-08-11"
+}

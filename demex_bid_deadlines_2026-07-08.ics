@@ -1,0 +1,153 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//DEMEX//Bid Deadlines//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:demex-20260709-cfa-wetumpka@demex
+DTSTART;VALUE=DATE:20260708
+DTEND;VALUE=DATE:20260709
+SUMMARY:Bid Due : Chick-fil-A : Wetumpka\, AL - Summit
+DESCRIPTION:BID DUE 7/9/26 @ 5PM EST (tomorrow - inside 3-day window). Submit to Estimating@Summitgc.net.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260710-dollartree-wpb@demex
+DTSTART;VALUE=DATE:20260708
+DTEND;VALUE=DATE:20260709
+SUMMARY:Bid Due : Dollar Tree : West Palm Beach\, FL - Summit
+DESCRIPTION:BID DUE 7/10/26 (inside 3-day window). Submit to Estimating@Summitgc.net. Est start 9/21/26.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260713-olss-pontevedra@demex
+DTSTART;VALUE=DATE:20260708
+DTEND;VALUE=DATE:20260709
+SUMMARY:Bid Due : Our Lady Star of the Sea Ed/Admin Bldg : Ponte Vedra Beach\, FL - Auld & White
+DESCRIPTION:BID DUE MON 7/13/26 @ 2PM ET (extended - may move again). Major demolition scope. Quotes to Leigh Anne lgiles@auld-white.com 904-296-2555. Docs: auld-whitebids.com key 2FD89BDC6F.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260714-dunkin-bristol@demex
+DTSTART;VALUE=DATE:20260709
+DTEND;VALUE=DATE:20260710
+SUMMARY:Bid Due : Dunkin Donuts : Bristol\, TN - Summit
+DESCRIPTION:BID DUE TUE 7/14/26. Submit to Estimating@Summitgc.net. Est start 8/13/26. Plans via Dropbox link in 7/7 ITB email.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260715-autozone-alabaster@demex
+DTSTART;VALUE=DATE:20260710
+DTEND;VALUE=DATE:20260711
+SUMMARY:Bid Due : AutoZone : Alabaster\, AL - Summit
+DESCRIPTION:BID DUE WED 7/15/26 @ 5PM. Submit to Estimating@Summitgc.net.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260716-mavis-york@demex
+DTSTART;VALUE=DATE:20260713
+DTEND;VALUE=DATE:20260714
+SUMMARY:Bid Due : Mavis Tire : York\, SC - Summit
+DESCRIPTION:BID DUE THU 7/16/26 @ 5PM EST. Submit to Estimating@Summitgc.net.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260717-occorrections@demex
+DTSTART;VALUE=DATE:20260714
+DTEND;VALUE=DATE:20260715
+SUMMARY:Bid Due : OC Corrections Window Repl & Wall Restoration (Demo) : Orlando\, FL - SA Casey
+DESCRIPTION:BID DUE FRI 7/17/26 @ 10AM (new bid date per Ian Casey\, SA Casey Construction via BuildingConnected 7/6).
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260724-autozone-apopka@demex
+DTSTART;VALUE=DATE:20260721
+DTEND;VALUE=DATE:20260722
+SUMMARY:Bid Due : AutoZone #10995 : Apopka\, FL - Hanna Design Group
+DESCRIPTION:BID DUE FRI 7/24/26 @ 5PM Central. Full Site Demo scope. Submit to ymelero@hannadesigngroup.com (Yelitza Melero 847-982-8499) with required bid clarification form. Plans: hdgplanroom.com key B1F737958A.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260727-autozone-cumming@demex
+DTSTART;VALUE=DATE:20260722
+DTEND;VALUE=DATE:20260723
+SUMMARY:Bid Due : AutoZone : Cumming\, GA - Summit
+DESCRIPTION:BID DUE MON 7/27/26. Submit to Estimating@Summitgc.net. Est start 11/24/26.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260811-terryparker-jax@demex
+DTSTART;VALUE=DATE:20260806
+DTEND;VALUE=DATE:20260807
+SUMMARY:Bid Due : DCPS Terry Parker HS Automotive : Jacksonville\, FL - Auld & White
+DESCRIPTION:BID DUE TUE 8/11/26 @ 2PM ET - PUBLIC BID OPENING\, LATE BIDS NOT ACCEPTED. ~7\,000 SF interior demolition + renovation\, 7301 Parker School Rd. Quotes to Leigh Anne lgiles@auld-white.com 904-296-2555. Docs: auld-whitebids.com key FD287B5504. Site visit details forthcoming.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260722-dollartree-sanantonio@demex
+DTSTART;VALUE=DATE:20260717
+DTEND;VALUE=DATE:20260718
+SUMMARY:Bid Due : Dollar Tree : San Antonio\, TX - Summit
+DESCRIPTION:BID DUE WED 7/22/26 @ 5PM. Submit to Estimating@Summitgc.net. Out-of-state - confirm viability.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260710-53bank-lakeland@demex
+DTSTART;VALUE=DATE:20260708
+DTEND;VALUE=DATE:20260709
+SUMMARY:Bid Due : 5/3 Bank County Line : Lakeland\, FL - GC TBD (PlanHub)
+DESCRIPTION:BID DUE ~7/10/26 per PlanHub reminder (2 days left as of 7/8). Confirm GC and exact deadline in PlanHub portal.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260715-tacobell-miami@demex
+DTSTART;VALUE=DATE:20260710
+DTEND;VALUE=DATE:20260711
+SUMMARY:Bid Due : Taco Bell Complete Demo + New Constr : Miami\, FL - George H. Pastor & Sons
+DESCRIPTION:BID DUE WED 7/15/26 @ 10PM ET. Complete demo of existing Taco Bell\, 13550 SW 152nd St. DETAILED bid breakdown REQUIRED or bid rejected. Submit via ghpastorplans.com (key XC2E24FBC) / estimating@ghpastorbids.com 734-522-3800.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260713-oc-femalecell@demex
+DTSTART;VALUE=DATE:20260708
+DTEND;VALUE=DATE:20260709
+SUMMARY:Bid Due : OC Corrections Female Cell Renovations & Water Piping (Demo) : Orlando\, FL - SA Casey
+DESCRIPTION:BID DUE MON 7/13/26 @ 10:30AM (new date per Kelly Lehman\, SA Casey via BuildingConnected 6/25). Inside 3-day window.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260708-autozone-burton@demex
+DTSTART;VALUE=DATE:20260708
+DTEND;VALUE=DATE:20260709
+SUMMARY:Bid Due : AutoZone : Burton\, MI - Summit
+DESCRIPTION:BID DUE TODAY 7/8/26 @ 5PM. Submit to Estimating@Summitgc.net. REV 2 plans + photos apply.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260708-autozone-tavernier@demex
+DTSTART;VALUE=DATE:20260708
+DTEND;VALUE=DATE:20260709
+SUMMARY:Bid Due : AutoZone : Tavernier\, FL - Summit
+DESCRIPTION:BID DUE TODAY 7/8/26. Submit to Estimating@Summitgc.net. Est start 10/9/26.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260708-autozone-ola@demex
+DTSTART;VALUE=DATE:20260708
+DTEND;VALUE=DATE:20260709
+SUMMARY:Bid Due : AutoZone : Ola (McDonough)\, GA - Summit
+DESCRIPTION:BID DUE TODAY 7/8/26. Submit to Estimating@Summitgc.net.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260720-cat48-gainesville@demex
+DTSTART;VALUE=DATE:20260715
+DTEND;VALUE=DATE:20260716
+SUMMARY:Bid Due : CAT4-8 Eastside HS Switchgear (Selective Demo) : Gainesville\, FL - Scorpio
+DESCRIPTION:BID DUE 7/20/26 @ 2PM per Addendum 02 (Blake wrote "Tuesday July 20th" but 7/20 is a Monday - CONFIRM). Bid DDD-2026/0707R1 already submitted 7/7 - MUST re-submit acknowledging Addendum 02. Send to nate@scorpioco.com cc bburney@scorpioco.com.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260714-wbequestrian-prebid@demex
+DTSTART;TZID=America/New_York:20260714T090000
+DTEND;TZID=America/New_York:20260714T103000
+SUMMARY:Pre-Bid Site Walk : WB Equestrian Ctr Repurpose : Sanford\, FL - Scorpio
+DESCRIPTION:MANDATORY-ISH pre-bid conference + site walk\, 7425 WB Equestrian Dr\, Sanford FL 32771. Selective demo scope. Contact: Charles Conway (386) 679-7106.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260717-wbequestrian-rfi@demex
+DTSTART;TZID=America/New_York:20260717T140000
+DTEND;TZID=America/New_York:20260717T143000
+SUMMARY:RFI Deadline : WB Equestrian Ctr Repurpose : Sanford\, FL - Scorpio
+DESCRIPTION:Pre-bid RFI deadline 2PM. Submit RFIs to bids@scorpioco.com.
+END:VEVENT
+BEGIN:VEVENT
+UID:demex-20260727-wbequestrian-bid@demex
+DTSTART;VALUE=DATE:20260722
+DTEND;VALUE=DATE:20260723
+SUMMARY:Bid Due : WB Equestrian Ctr Repurpose (Selective Demo) : Sanford\, FL - Scorpio
+DESCRIPTION:BID DUE MON 7/27/26 @ 2PM. Adaptive reuse of equestrian center\, selective demolition scope. Bids to bids@scorpioco.com cc Blake@ScorpioCo.com & Charles@ScorpioCo.com.
+END:VEVENT
+END:VCALENDAR
