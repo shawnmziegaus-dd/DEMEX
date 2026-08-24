@@ -384,6 +384,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self._proposal(body)
         if path == "ai":
             return self._ai(body)
+        if path == "markup-extract":
+            return self._markup_extract(body)
         return self._json({"ok": False, "error": "Unknown endpoint: " + path}, 404)
 
     # ---- endpoints ----
@@ -430,6 +432,40 @@ class Handler(SimpleHTTPRequestHandler):
         if rc != 0 or payload is None:
             return self._json({"ok": False,
                                "error": _tail(log) or "Takeoff failed.",
+                               "log": _tail(log)})
+        return self._json({"ok": True, "payload": payload, "log": _tail(log)})
+
+    def _markup_extract(self, body):
+        """Exact-quantities takeoff from a Bluebeam-marked-up PDF.
+
+        Runs tools/takeoff_markup_extract.py against the DEMEX markup legend.
+        This is the accurate takeoff path: it reads the measurement annotations
+        the estimator drew in Bluebeam, so quantities are exact, colour-mapped
+        to scope, and flagged (needs_review / UNMAPPED) instead of guessed.
+        """
+        pdf = body.get("pdf")
+        if not pdf:
+            return self._json({"ok": False, "error": "pdf is required."}, 400)
+        pdf = resolve_pdf_path(str(pdf))
+        if pdf is None:
+            return self._json({"ok": False,
+                               "error": "pdf path outside allowed directories"},
+                              400)
+        out = _tmp(".json")
+        args = [os.path.join("tools", "takeoff_markup_extract.py"),
+                "--pdf", pdf, "--out", out, "--quiet"]
+        if body.get("profile"):
+            args += ["--profile", str(body["profile"])]
+        if body.get("tolerance") is not None:
+            args += ["--tolerance", str(float(body["tolerance"]))]
+        if body.get("project"):
+            args += ["--project", str(body["project"]), "--db", DB]
+        rc, log = run_tool(args)
+        payload = _read_json_file(out)
+        _unlink(out)
+        if rc != 0 or payload is None:
+            return self._json({"ok": False,
+                               "error": _tail(log) or "Markup extraction failed.",
                                "log": _tail(log)})
         return self._json({"ok": True, "payload": payload, "log": _tail(log)})
 

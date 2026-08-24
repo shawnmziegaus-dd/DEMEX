@@ -497,6 +497,7 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
       case 'setRateSetting':{ return{ok:true};}
       case 'resetRates':{ return{ok:true};}
       case 'saveEstimate':{ if(!DB.projects.some(function(p){return p.id===a.id;}))return{ok:false,error:'Project not found.'}; return{ok:true};}
+      case 'saveTakeoff':{ if(!DB.projects.some(function(p){return p.id===a.id;}))return{ok:false,error:'Project not found.'}; if(!a.takeoff||typeof a.takeoff!=='object')return{ok:false,error:'No takeoff session data.'}; return{ok:true};}
       case 'saveProposal':{ if(!DB.projects.some(function(p){return p.id===a.id;}))return{ok:false,error:'Project not found.'}; return{ok:true};}
       case 'setCostModel':{ if(!(+a.value>=0))return{ok:false,error:'Value must be \u2265 0.'}; return{ok:true};}
       default:return{ok:false,error:'Unknown action: '+a.type};
@@ -523,6 +524,7 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
       case 'resetRates':{ DB.rates=JSON.parse(JSON.stringify(RATE_DEFAULTS)); break;}
       case 'saveEstimate':{ var pe=proj(a.id); if(pe){ pe.estimate=a.estimate; if(a.estQty){pe.estQty=a.estQty;pe.estimated_quantities=mapEQ(a.estQty);} if(a.unit_rates)pe.unit_rates=a.unit_rates; if(a.bulk_pricing_thresholds)pe.bulk_pricing_thresholds=a.bulk_pricing_thresholds; } break;}
       case 'saveProposal':{ var pp=proj(a.id); if(pp)pp.proposal=a.proposal; break;}
+      case 'saveTakeoff':{ var pt=proj(a.id); if(pt)pt.takeoff=a.takeoff; break;}
       case 'setCostModel':{ DB.costModel=DB.costModel||{}; DB.costModel[a.key]=+a.value||0; break;}
       case 'replaceAll':{var keep=DB.audit;DB=a.data;DB.audit=keep;normalizeSchema();break;}
       case 'merge':{['clients','projects','actuals','followups'].forEach(function(k){if(Array.isArray(a.data[k])){var seen={};DB[k]=(DB[k]||[]).concat(a.data[k]).filter(function(row){var id=row&&row.id;if(id==null)return true;if(seen[id])return false;seen[id]=true;return true;});}});if(a.data.company)DB.company=a.data.company;if(a.data.rateOverrides)DB.rateOverrides=Object.assign({},DB.rateOverrides||{},a.data.rateOverrides);var bn={};DB.projects.forEach(function(p){bn[p.name]=p.id;});(DB.actuals||[]).forEach(function(z){if(!z.project_id&&z._proj&&bn[z._proj])z.project_id=bn[z._proj];});normalizeSchema();break;}
@@ -536,6 +538,7 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
     if(a.type==='applyRec')return 'Pricing adj '+a.svc+' '+(a.delta>0?'+':'')+a.delta.toFixed(1)+'%';
     if(a.type==='saveEstimate')return 'Estimate saved ('+((proj(a.id)||{}).name||'')+')';
     if(a.type==='saveProposal')return 'Proposal saved ('+((proj(a.id)||{}).name||'')+')';
+    if(a.type==='saveTakeoff')return 'Takeoff session saved ('+((proj(a.id)||{}).name||'')+')';
     if(a.type==='addClient')return 'Added client "'+a.data.name+'"';
     if(a.type==='addFollowup')return 'Follow-up added';
     if(a.type==='deleteProject')return 'Deleted project';
@@ -1201,6 +1204,32 @@ function ProjectBridgeActions(props) {
       setBusy('');
     }).catch(fail);
   }
+  function runMarkupExtract() {
+    // The accurate takeoff path: reads Bluebeam measurement annotations the
+    // estimator drew (colour = scope per the DEMEX markup standard) — exact
+    // quantities, never guessed. Auto-picks a "*MarkedUp*" plan when present.
+    if (busy) return;
+    setBusy('markup');
+    DX.toast('Locating marked-up plan…', 'ok');
+    bridgeCall('plans?project=' + encodeURIComponent(p.name)).then(function (d) {
+      var plans = d.payload && d.payload.plans || [];
+      if (!plans.length) throw new Error('No plan PDFs found. Drop the Bluebeam-marked-up PDF in the projects/ folder.');
+      var marked = plans.filter(function (x) { return /marked.?up/i.test(x.path || x.name || ''); })[0] || plans[0];
+      DX.toast('Reading Bluebeam markups from ' + (marked.name || marked.path) + '…', 'ok');
+      return bridgeCall('markup-extract', { body: { pdf: marked.path, project: p.name } });
+    }).then(function (d) {
+      var pay = d.payload || {};
+      var eq = pay.est_qty || [];
+      if (!eq.length) throw new Error('No measurement markups found — is this the marked-up PDF (Bluebeam measurement annotations, DEMEX colour legend)?');
+      DX.commit({ type: 'updateProject', id: id, patch: { estimated_quantities: eq, estQty: eq } });
+      var c = pay.counts || {};
+      var warn = [];
+      if (c.needs_review) warn.push(c.needs_review + ' need review');
+      if (c.unmapped_colour) warn.push(c.unmapped_colour + ' unmapped colour(s)');
+      DX.toast(eq.length + ' exact quantities from ' + (c.measurements || eq.length) + ' markups' + (warn.length ? ' — ' + warn.join(', ') : ''), warn.length ? 'err' : 'ok');
+      setBusy('');
+    }).catch(fail);
+  }
   function runPricing() {
     if (busy) return;
     setBusy('pricing');
@@ -1234,6 +1263,8 @@ function ProjectBridgeActions(props) {
   }, /*#__PURE__*/React.createElement(Btn, {
     ghost: true, onClick: runTakeoff, style: { opacity: busy === 'takeoff' ? 0.6 : 1 }
   }, busy === 'takeoff' ? 'Running…' : 'Run Visual Takeoff'), /*#__PURE__*/React.createElement(Btn, {
+    ghost: true, onClick: runMarkupExtract, style: { opacity: busy === 'markup' ? 0.6 : 1 }
+  }, busy === 'markup' ? 'Reading markups…' : 'Extract Bluebeam Markups'), /*#__PURE__*/React.createElement(Btn, {
     ghost: true, onClick: runPricing, style: { opacity: busy === 'pricing' ? 0.6 : 1 }
   }, busy === 'pricing' ? 'Optimizing…' : 'Approve & Optimize Pricing'), /*#__PURE__*/React.createElement(Btn, {
     primary: true, onClick: runProposal, style: { opacity: busy === 'pdf' ? 0.6 : 1 }
@@ -5004,6 +5035,40 @@ function TakeoffWorkspace() {
   const [pid, setPid] = React.useState(db.projects[0] ? db.projects[0].id : '');
   const [dlg, setDlg] = React.useState(false);
   const [lib, setLib] = React.useState(false);
+  // ── Session persistence: measurements + calibration survive tab switches & reloads.
+  // The PDF itself is not stored (too large) — reloading the same file restores everything.
+  const pidRef = React.useRef(pid);
+  pidRef.current = pid;
+  function saveSession() {
+    const s = Sref.current, id = pidRef.current;
+    if (!s || !id || !DX.proj(id)) return;
+    const nItems = Object.keys(s.itemsByPage).reduce((n, k) => n + (s.itemsByPage[k] || []).length, 0);
+    if (!nItems && !Object.keys(s.scaleByPage).length) return;
+    DX.commit({ type: 'saveTakeoff', id: id, takeoff: {
+      fileName: s.fileName || '',
+      itemsByPage: JSON.parse(JSON.stringify(s.itemsByPage)),
+      scaleByPage: JSON.parse(JSON.stringify(s.scaleByPage)),
+      nItems: nItems,
+      savedAt: new Date().toISOString()
+    }});
+  }
+  function restoreSession(fileName) {
+    const p = DX.proj(pidRef.current);
+    const t = p && p.takeoff;
+    if (!t || !t.fileName || t.fileName !== fileName) return false;
+    S.itemsByPage = JSON.parse(JSON.stringify(t.itemsByPage || {}));
+    S.scaleByPage = JSON.parse(JSON.stringify(t.scaleByPage || {}));
+    DX.toast('Restored saved takeoff session — ' + (t.nItems || 0) + ' measurement(s) from ' + (t.savedAt || '').slice(0, 10), 'ok');
+    return true;
+  }
+  React.useEffect(() => {
+    const onUnload = () => saveSession();
+    window.addEventListener('beforeunload', onUnload);
+    return () => {
+      window.removeEventListener('beforeunload', onUnload);
+      saveSession(); // component unmount (tab switch)
+    };
+  }, []);
   const [sc, setSc] = React.useState({
     mode: 'preset',
     preset: 2,
@@ -5208,14 +5273,33 @@ function TakeoffWorkspace() {
     draw();
     bump();
   }
-  function zoom(f) {
-    S.zoom = Math.max(0.05, Math.min(12, S.zoom * f));
+  function zoom(f, cx, cy) {
+    var z0 = S.zoom;
+    var z1 = Math.max(0.05, Math.min(12, z0 * f));
+    if (cx != null && cy != null) {
+      // anchor the zoom on the cursor: keep the plan point under (cx,cy) fixed
+      S.ox = cx - (cx - S.ox) * (z1 / z0);
+      S.oy = cy - (cy - S.oy) * (z1 / z0);
+    }
+    S.zoom = z1;
     draw();
   }
   function onWheel(e) {
     e.preventDefault();
-    zoom(e.deltaY < 0 ? 1.1 : 0.9);
+    var r = cref.current ? cref.current.getBoundingClientRect() : null;
+    var cx = r ? e.clientX - r.left : null;
+    var cy = r ? e.clientY - r.top : null;
+    zoom(e.deltaY < 0 ? 1.1 : 0.9, cx, cy);
   }
+  // React 18 attaches wheel listeners passively — preventDefault there is a no-op.
+  // Bind our own non-passive listener directly on the canvas.
+  React.useEffect(() => {
+    const cv = cref.current;
+    if (!cv) return;
+    const h = e => onWheel(e);
+    cv.addEventListener('wheel', h, { passive: false });
+    return () => cv.removeEventListener('wheel', h);
+  });
   function fit() {
     const cv = cref.current,
       p = S.plan;
@@ -5269,9 +5353,11 @@ function TakeoffWorkspace() {
   async function onFile(e) {
     const f = e.target.files[0];
     if (!f) return;
+    saveSession(); // keep whatever was measured on the previous file
     S.fileName = f.name;
     S.itemsByPage = {};
     S.scaleByPage = {};
+    restoreSession(f.name);
     S.pts = [];
     S.pages = [];
     S.pdf = null;
@@ -5538,8 +5624,7 @@ function TakeoffWorkspace() {
     onMouseDown: onDownWrap,
     onMouseMove: onMove,
     onMouseUp: onUp,
-    onDoubleClick: onDbl,
-    onWheel: onWheel
+    onDoubleClick: onDbl
   }), !S.plan ? /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'absolute',
