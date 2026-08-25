@@ -12,6 +12,9 @@ credentials.json
 tmp*.json
 tmp*.pdf
 
+# Live rate card synced from DEMEX.html via POST /api/ratecard (runtime state)
+demex_rate_card.json
+
 # Local ingestion database & downloaded bid PDFs
 demex_records.db
 demex_records.db-journal

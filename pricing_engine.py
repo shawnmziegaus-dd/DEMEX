@@ -32,8 +32,10 @@ builds in DEMEX.html:
       "summary": "human readable line for the toast"
     }
 
-Rate-resolution policy (v2): a line prices only when a rate actually resolves
-(explicit line rate -> project unit_rates override -> RATE_CARD). A line whose
+Rate-resolution policy (v3): a line prices only when a rate actually resolves
+(explicit line rate -> project unit_rates override -> synced app rate card
+(demex_rate_card.json, pushed by DEMEX.html via the bridge) -> embedded
+RATE_CARD fallback). A line whose
 svc is in PRICED_BY_OTHERS (and carries no explicit/override rate) is measured
 and listed under `by_others_lines` but never priced by us. Any other line with
 no resolvable rate is EXCLUDED from the totals and reported in
@@ -55,6 +57,17 @@ from pathlib import Path
 from typing import Optional
 
 log = logging.getLogger("demex.pricing")
+
+ROOT = Path(__file__).resolve().parent
+
+# Live rate card synced from DEMEX.html via the bridge (POST /api/ratecard).
+# When present, it is the single source of truth for catalog rates; the
+# embedded RATE_CARD below remains only as a fallback for svcs the synced
+# file does not carry.
+RATE_CARD_FILE = ROOT / "demex_rate_card.json"
+
+# Mirrors DEMEX.html TIER = {Lean:0.85, Market:1.0, Premium:1.2}.
+TIER_MULT = {"Lean": 0.85, "Market": 1.0, "Premium": 1.2}
 
 # --- policy constants (centralised for easy tuning) ------------------------- #
 BULK_THRESHOLD_SF = 10000.0   # quantity over this (SF) earns the bulk discount
@@ -107,6 +120,62 @@ PRICED_BY_OTHERS = {
 }
 
 
+def load_synced_rates(path: Path = RATE_CARD_FILE):
+    """Load the app-synced rate card into a {svc: effective_rate} table.
+
+    Effective unit rate = midpoint (low+high)/2
+                          x tier multiplier (Lean 0.85 / Market 1.0 /
+                            Premium 1.2; default 1.0)
+                          x regionMult (default 1.0)
+                          x (1 + override_pct/100) when a rateOverrides
+                            entry exists for the svc.
+
+    Returns (table, source_label) or (None, None) when the file is absent
+    or unusable -- callers then fall back to the embedded RATE_CARD.
+    """
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return None, None
+    except Exception as e:
+        log.warning("Ignoring unreadable rate card %s: %s", path, e)
+        return None, None
+    rates = data.get("rates") if isinstance(data, dict) else None
+    if not isinstance(rates, list) or not rates:
+        return None, None
+    settings = data.get("rateSettings") or {}
+    tier_mult = TIER_MULT.get(settings.get("tier"), 1.0)
+    try:
+        region_mult = float(settings.get("regionMult") or 1.0)
+    except (TypeError, ValueError):
+        region_mult = 1.0
+    overrides = data.get("rateOverrides") or {}
+    table = {}
+    for r in rates:
+        if not isinstance(r, dict):
+            continue
+        svc = r.get("id")
+        if not svc:
+            continue
+        try:
+            low, high = float(r.get("low")), float(r.get("high"))
+        except (TypeError, ValueError):
+            continue
+        rate = ((low + high) / 2.0) * tier_mult * region_mult
+        try:
+            pct = float(overrides.get(svc) or 0.0)
+        except (TypeError, ValueError):
+            pct = 0.0
+        if pct:
+            rate *= (1.0 + pct / 100.0)
+        table[str(svc)] = round(rate, 4)
+    if not table:
+        return None, None
+    label = (f"synced:{Path(path).name} "
+             f"(savedAt {data.get('savedAt') or 'unknown'})")
+    return table, label
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
@@ -131,6 +200,8 @@ def price_project(project: dict,
     eq = project.get("estimated_quantities") or project.get("estQty") or []
     overrides = _rate_lookup(project.get("unit_rates"))
     proj_scope = (project.get("scope_type") or "demolition").lower()
+    synced_rates, synced_label = load_synced_rates()
+    rate_source = synced_label or "embedded-defaults"
 
     lines, est_qty, new_unit_rates, bulk_rows = [], [], [], []
     unpriced_lines, by_others_lines = [], []
@@ -154,7 +225,12 @@ def price_project(project: dict,
                     "reason": PRICED_BY_OTHERS[svc],
                 })
                 continue
-            base_rate = RATE_CARD.get(svc)
+            # Synced app rate card (when present) beats the embedded card;
+            # embedded RATE_CARD stays as fallback for svcs it doesn't carry.
+            if synced_rates is not None:
+                base_rate = synced_rates.get(svc)
+            if base_rate is None:
+                base_rate = RATE_CARD.get(svc)
         if base_rate is None:
             # No rate resolved anywhere: flag, don't silently price at 0.
             if not svc:
@@ -162,7 +238,8 @@ def price_project(project: dict,
                           "item) -- no rate can resolve")
             else:
                 reason = (f"no rate for svc '{svc}' (no line rate, no "
-                          f"project unit_rates entry, no RATE_CARD entry)")
+                          f"project unit_rates entry, no synced/embedded "
+                          f"rate-card entry)")
             unpriced_lines.append({
                 "item": label, "svc": svc, "qty": qty, "unit": unit,
                 "reason": reason,
@@ -234,6 +311,7 @@ def price_project(project: dict,
         "by_others_lines": by_others_lines,
         "by_others_count": len(by_others_lines),
         "warning": warning,
+        "rate_source": rate_source,
         "applied": {
             "overhead_pct": float(overhead_pct),
             "profit_pct": float(profit_pct),

@@ -545,7 +545,22 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
     if(a.type==='replaceAll'||a.type==='merge')return 'Imported data ('+a.type+')';
     return a.type;
   }
-  function commit(a){var v=validate(a);if(!v.ok){toast(v.error,'err');return v;}apply(a);audit(a);save();emit();return{ok:true};}
+  // Keep the backend pricing tools on the same numbers the estimator sees:
+  // after any rate-affecting commit, push the live rate card to the bridge
+  // (fire-and-forget, debounced; silently skipped when the bridge is offline).
+  var RATE_ACTIONS={setRate:1,setRateSetting:1,resetRates:1,applyRec:1,clearRec:1};
+  var _rateSyncT=null;
+  function syncRateCard(){
+    if(typeof window.bridgeCall!=='function')return;
+    if(_rateSyncT)clearTimeout(_rateSyncT);
+    _rateSyncT=setTimeout(function(){
+      _rateSyncT=null;
+      try{
+        window.bridgeCall('ratecard',{body:{rates:DB.rates||[],rateSettings:DB.rateSettings||{},rateOverrides:DB.rateOverrides||{}}}).catch(function(){});
+      }catch(e){}
+    },800);
+  }
+  function commit(a){var v=validate(a);if(!v.ok){toast(v.error,'err');return v;}apply(a);audit(a);save();emit();if(RATE_ACTIONS[a.type])syncRateCard();return{ok:true};}
 
   function clients(){return DB.clients;}
   function projects(){return DB.projects;}
@@ -584,7 +599,7 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
   function effRate(id){var r=DB.rates.filter(function(x){return x.id===id;})[0];if(!r)return 0;var mid=(r.low+r.high)/2;var t=TIER[(DB.rateSettings||{}).tier]||1;var rg=(DB.rateSettings||{}).regionMult||1;var ov=(DB.rateOverrides||{})[id];var adj=(typeof ov==='number'&&!isNaN(ov))?(1+ov/100):1;return mid*t*rg*adj;}
   function toast(msg,kind){window.dispatchEvent(new CustomEvent('dx-toast',{detail:{msg:msg,kind:kind||'ok'}}));}
 
-  return {load:load,subscribe:subscribe,get:function(){return DB;},commit:commit,toast:toast,rates:rates,rateSettings:rateSettings,effRate:effRate,TIER:TIER,
+  return {load:load,subscribe:subscribe,get:function(){return DB;},commit:commit,toast:toast,rates:rates,rateSettings:rateSettings,effRate:effRate,TIER:TIER,syncRateCard:syncRateCard,
     clients:clients,projects:projects,proj:proj,client:client,revenueOf:revenueOf,estTotal:estTotal,actualTotal:actualTotal,winRate:winRate,computeIntel:computeIntel,autoBidNo:autoBidNo,
     callAI:callAI,getKey:getKey,setKey:setKey,exportData:exportData,importFile:importFile,reseed:reseed,
     STATUSES:STATUSES,CATS:CATS,todayISO:todayISO};
@@ -1544,6 +1559,7 @@ function Boot({
     const reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
     const stages = [[300, 'LOADING RECORDS…'], [700, 'VALIDATING SCHEMA…'], [1100, 'WARMING AGENT…'], [1500, 'READY']];
     DX.load();
+    DX.syncRateCard(); // bootstrap: backend tools price with the app's live rates
     const timers = stages.map(([t, s]) => setTimeout(() => setStat(s), reduce ? 0 : t));
     const end = setTimeout(onDone, reduce ? 200 : 1750);
     return () => {
@@ -2331,6 +2347,47 @@ function Dashboard({
 }
 
 /* ════════ PIPELINE workspace ════════ */
+function StaleBidsPanel({ onOpen }) {
+  // Bids stuck at "submitted" never feed the win/loss price bands. Surface the
+  // old ones so they can be resolved in two clicks — each resolution makes the
+  // learning loop's competitive bands sharper.
+  const db = useStore();
+  const [open, setOpen] = useState(false);
+  const [skipped, setSkipped] = useState({}); // dismissed for this session only
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  const ageDays = p => {
+    const ref = p.submittedAt || p.dueAt;
+    if (!ref) return null;
+    return Math.floor((now - localDate(ref)) / 864e5);
+  };
+  const stale = db.projects
+    .filter(p => p.status === 'submitted' && !skipped[p.id])
+    .map(p => ({ p, age: ageDays(p) }))
+    .filter(x => x.age == null || x.age >= 30)
+    .sort((a, b) => (b.age || 9999) - (a.age || 9999));
+  if (!stale.length) return null;
+  const resolve = (id, status, name) => {
+    DX.commit({ type: 'setStatus', id, status });
+    DX.toast(name.split(',')[0] + ' → ' + status + ' — pricing bands updated on next refresh', 'ok');
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    style: { background: C.panel, border: '0.5px solid ' + C.line, borderLeft: '2px solid ' + C.gold, borderRadius: 10, padding: '10px 14px', marginBottom: 14 }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: { display: 'flex', alignItems: 'center', gap: 10 }
+  }, /*#__PURE__*/React.createElement("span", { style: { fontSize: 12.5, color: C.t1 } },
+    /*#__PURE__*/React.createElement("b", null, stale.length), " submitted bid" + (stale.length > 1 ? 's are' : ' is') + " 30+ days old. Resolving won/lost teaches the pricing bands — they currently learn from decided bids only."),
+    /*#__PURE__*/React.createElement(Btn, { ghost: true, onClick: () => setOpen(!open), style: { marginLeft: 'auto', padding: '4px 10px', fontSize: 11 } }, open ? 'Hide' : 'Review')),
+    open ? /*#__PURE__*/React.createElement("div", { style: { marginTop: 10, maxHeight: 300, overflowY: 'auto' } },
+      stale.map(({ p, age }) => /*#__PURE__*/React.createElement("div", {
+        key: p.id,
+        style: { display: 'flex', alignItems: 'center', gap: 10, padding: '7px 4px', borderTop: '0.5px solid ' + C.line }
+      },
+        /*#__PURE__*/React.createElement("span", { onClick: () => onOpen && onOpen(p.id), style: { fontSize: 12.5, color: C.t1, cursor: 'pointer', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, p.name),
+        /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 11, color: C.t3, flexShrink: 0 } }, (p.bidAmount ? '$' + Math.round(p.bidAmount).toLocaleString() : 'no amount') + ' · ' + (age != null ? age + 'd' : 'undated')),
+        /*#__PURE__*/React.createElement(Btn, { ghost: true, onClick: () => resolve(p.id, 'won', p.name), style: { padding: '3px 9px', fontSize: 11, color: C.green, borderColor: C.green } }, "Won"),
+        /*#__PURE__*/React.createElement(Btn, { ghost: true, onClick: () => resolve(p.id, 'lost', p.name), style: { padding: '3px 9px', fontSize: 11, color: C.red2, borderColor: C.red2 } }, "Lost"),
+        /*#__PURE__*/React.createElement(Btn, { ghost: true, onClick: () => setSkipped(s => ({ ...s, [p.id]: true })), style: { padding: '3px 9px', fontSize: 11, color: C.t3 } }, "Still open")))) : null);
+}
 function Pipeline({
   onNew,
   onOpen
@@ -2410,7 +2467,7 @@ function Pipeline({
       border: '0.5px solid ' + (tab === k ? C.line2 : 'transparent'),
       color: tab === k ? C.t1 : C.t2
     }
-  }, l))), tab === 'board' ? /*#__PURE__*/React.createElement("div", {
+  }, l))), /*#__PURE__*/React.createElement(StaleBidsPanel, { onOpen: onOpen }), tab === 'board' ? /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: 'repeat(5,1fr)',

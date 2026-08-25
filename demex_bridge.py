@@ -19,6 +19,10 @@ Endpoints
   GET  /api/health                      -> {ok:true}
   GET  /api/token                       -> {token} (for X-DEMEX-Token on POSTs)
   GET  /api/rates[?refresh=1]           -> {ok, payload:{price_bands,...}}
+  GET  /api/ratecard                    -> synced rate card JSON (404 if none)
+  POST /api/ratecard {rates,rateSettings,rateOverrides}
+                                        -> {ok:true,count:N} (writes
+                                           demex_rate_card.json atomically)
   GET  /api/plans?project=<name>        -> {ok, payload:{plans:[{path,name,dir}]}}
   POST /api/ingest   {since?}           -> {ok, payload:{clients,projects}}
   POST /api/takeoff  {pdf,project,...}  -> {ok, payload:{clients,projects}}
@@ -49,6 +53,7 @@ import sys
 import tempfile
 import urllib.error
 import urllib.request
+from datetime import datetime, timezone
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
@@ -58,6 +63,11 @@ PORT = int(os.environ.get("DEMEX_BRIDGE_PORT", "8765"))
 PY = sys.executable                          # avoids the MS Store python stub
 DB = str(ROOT / "demex_records.db")
 TOOL_TIMEOUT = 1800                          # seconds; email scans can be slow
+
+# Live rate card synced from the app (single source of truth for backend
+# pricing). Written atomically by POST /api/ratecard; read at startup by
+# pricing_engine.py and takeoff_scalar.py. Runtime state -- gitignored.
+RATE_CARD_FILE = ROOT / "demex_rate_card.json"
 
 # Per-run auth token for state-changing requests. Held only in memory; the UI
 # obtains it via GET /api/token (same-origin only -- no CORS headers exist).
@@ -319,6 +329,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json({"token": TOKEN})
         if path == "rates":
             return self._rates(q)
+        if path == "ratecard":
+            return self._ratecard_get()
         if path == "plans":
             proj = (q.get("project") or [""])[0]
             return self._json({"ok": True,
@@ -371,6 +383,69 @@ class Handler(SimpleHTTPRequestHandler):
                                       "rationale", "decided_bids")}
         return self._json({"ok": True, "payload": payload})
 
+    def _ratecard_get(self):
+        """Serve the last rate card the app synced (GET /api/ratecard)."""
+        if not RATE_CARD_FILE.is_file():
+            return self._json({"error": "no rate card synced yet"}, 404)
+        data = _read_json_file(str(RATE_CARD_FILE))
+        if data is None:
+            return self._json({"error": "rate card file is unreadable"}, 500)
+        return self._json(data)
+
+    def _ratecard_post(self, body):
+        """Persist the app's live rate card (POST /api/ratecard, token-gated).
+
+        Body: {"rates":[{id,label,unit,low,high,...}...],
+               "rateSettings":{tier,regionMult,region},
+               "rateOverrides":{svc: pct}}
+        Validated, stamped with savedAt/source, and written ATOMICALLY to
+        demex_rate_card.json (tempfile in ROOT + os.replace) so a concurrent
+        reader (pricing_engine / takeoff_scalar) never sees a partial file.
+        """
+        rates = body.get("rates")
+        if not isinstance(rates, list) or not rates:
+            return self._json({"ok": False,
+                               "error": "rates must be a non-empty list"}, 400)
+        for i, r in enumerate(rates):
+            if not isinstance(r, dict):
+                return self._json({"ok": False,
+                                   "error": f"rates[{i}] is not an object"},
+                                  400)
+            if not isinstance(r.get("id"), str) or not r["id"].strip():
+                return self._json({"ok": False,
+                                   "error": f"rates[{i}].id must be a "
+                                            f"non-empty string"}, 400)
+            for k in ("low", "high"):
+                v = r.get(k)
+                if isinstance(v, bool) or not isinstance(v, (int, float)) \
+                        or v < 0:
+                    return self._json(
+                        {"ok": False,
+                         "error": f"rates[{i}].{k} must be a number >= 0"},
+                        400)
+        settings = body.get("rateSettings")
+        if settings is not None and not isinstance(settings, dict):
+            return self._json({"ok": False,
+                               "error": "rateSettings must be an object"}, 400)
+        overrides = body.get("rateOverrides")
+        if overrides is not None and not isinstance(overrides, dict):
+            return self._json({"ok": False,
+                               "error": "rateOverrides must be an object"},
+                              400)
+        doc = dict(body)
+        doc["savedAt"] = (datetime.now(timezone.utc)
+                          .isoformat(timespec="seconds")
+                          .replace("+00:00", "Z"))
+        doc["source"] = "DEMEX.html"
+        tmp = _tmp(".json")
+        try:
+            Path(tmp).write_text(json.dumps(doc, indent=2), encoding="utf-8")
+            os.replace(tmp, str(RATE_CARD_FILE))
+        except BaseException:
+            _unlink(tmp)
+            raise
+        return self._json({"ok": True, "count": len(rates)})
+
     def _api_post(self, u):
         path = u.path[len("/api/"):]
         body = self._body()
@@ -386,6 +461,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self._ai(body)
         if path == "markup-extract":
             return self._markup_extract(body)
+        if path == "ratecard":
+            return self._ratecard_post(body)
         return self._json({"ok": False, "error": "Unknown endpoint: " + path}, 404)
 
     # ---- endpoints ----

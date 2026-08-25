@@ -156,6 +156,75 @@ SVC_CATALOG: dict[str, dict] = {
     "slab_removal":      {"label": "Interior slab / setting bed removal", "unit": "SF", "low": 2,   "high": 5},
 }
 
+# Mirrors DEMEX.html TIER = {Lean:0.85, Market:1.0, Premium:1.2}.
+_TIER_MULT = {"Lean": 0.85, "Market": 1.0, "Premium": 1.2}
+
+
+def _apply_synced_rate_card(path: Optional[Path] = None) -> bool:
+    """Overlay the app-synced rate card (demex_rate_card.json) onto SVC_CATALOG.
+
+    DEMEX.html pushes its live rate table to the bridge (POST /api/ratecard),
+    which writes demex_rate_card.json next to this script. When that file is
+    present it is the single source of truth: each matching catalog id gets its
+    low/high replaced with the synced band scaled by tier multiplier x
+    regionMult x (1 + override_pct/100) -- so make_measurement's midpoint
+    equals pricing_engine's effective rate. Ids in the file but not in the
+    catalog are added, with the unit from the file. Missing/unreadable file =
+    embedded defaults stay untouched. Returns True when an overlay applied.
+    """
+    p = Path(path) if path else Path(__file__).resolve().parent / "demex_rate_card.json"
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return False
+    except Exception as e:
+        log.warning("Ignoring unreadable rate card %s: %s", p, e)
+        return False
+    rates = data.get("rates") if isinstance(data, dict) else None
+    if not isinstance(rates, list):
+        return False
+    settings = data.get("rateSettings") or {}
+    mult = _TIER_MULT.get(settings.get("tier"), 1.0)
+    try:
+        mult *= float(settings.get("regionMult") or 1.0)
+    except (TypeError, ValueError):
+        pass
+    overrides = data.get("rateOverrides") or {}
+    applied = False
+    for r in rates:
+        if not isinstance(r, dict) or not r.get("id"):
+            continue
+        svc = str(r["id"])
+        try:
+            low, high = float(r.get("low")), float(r.get("high"))
+        except (TypeError, ValueError):
+            continue
+        m = mult
+        try:
+            pct = float(overrides.get(svc) or 0.0)
+        except (TypeError, ValueError):
+            pct = 0.0
+        if pct:
+            m *= (1.0 + pct / 100.0)
+        entry = SVC_CATALOG.get(svc)
+        if entry is None:
+            entry = SVC_CATALOG[svc] = {
+                "label": r.get("label") or svc,
+                "unit": (r.get("unit") or "EA").upper(),
+            }
+        entry["low"] = round(low * m, 4)
+        entry["high"] = round(high * m, 4)
+        applied = True
+    if applied:
+        log.info("Rate card synced from %s (savedAt %s) applied to catalog.",
+                 p.name, data.get("savedAt") or "unknown")
+    return applied
+
+
+# Startup overlay: the synced app rate card (when present) wins over the
+# embedded catalog bands above.
+_apply_synced_rate_card()
+
 # Defaults mirror DEMEX.html TakeoffWorkspace.defaultSvc() (line 4861).
 DEFAULT_SVC = {"area": "demo_floor", "length": "demo_walls", "count": "doors"}
 UNIT_FOR_TYPE = {"area": "SF", "length": "LF", "count": "EA"}
