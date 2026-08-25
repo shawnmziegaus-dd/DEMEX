@@ -279,14 +279,16 @@ def vector_geometry(pdf_path: Path, page_index: int) -> dict:
     """Extract the PDF's own vector primitives for a page (in PDF points).
 
     Returns {"lines": [(x0,y0,x1,y1), ...], "rects": [(x0,y0,x1,y1), ...],
-    "page_size": (width, height)}.
+    "words": [(x0,y0,x1,y1), ...], "page_size": (width, height)}.
     These are EXACT (no pixel approximation). pdfplumber's coordinate origin is
     the top-left of the page; 1 point = 1/72 inch. Empty if the PDF is a scanned
-    raster with no vectors, in which case we fall back to OpenCV.
+    raster with no vectors, in which case we fall back to OpenCV. `words` holds
+    text word bounding boxes so filter_auto_rects can reject text-dominated
+    boxes (general-notes / legend / schedule frames).
     """
     if pdfplumber is None:
-        return {"lines": [], "rects": [], "page_size": (0.0, 0.0)}
-    lines, rects = [], []
+        return {"lines": [], "rects": [], "words": [], "page_size": (0.0, 0.0)}
+    lines, rects, words = [], [], []
     with pdfplumber.open(str(pdf_path)) as pdf:
         page = pdf.pages[page_index]
         size = (float(page.width), float(page.height))
@@ -294,7 +296,13 @@ def vector_geometry(pdf_path: Path, page_index: int) -> dict:
             lines.append((ln["x0"], ln["top"], ln["x1"], ln["bottom"]))
         for rc in page.rects:
             rects.append((rc["x0"], rc["top"], rc["x1"], rc["bottom"]))
-    return {"lines": lines, "rects": rects, "page_size": size}
+        try:
+            for w in page.extract_words():
+                words.append((float(w["x0"]), float(w["top"]),
+                              float(w["x1"]), float(w["bottom"])))
+        except Exception:  # text extraction must never break geometry
+            words = []
+    return {"lines": lines, "rects": rects, "words": words, "page_size": size}
 
 
 # --------------------------------------------------------------------------- #
@@ -511,15 +519,24 @@ def auto_contours(img, px_per_ft: float, min_sf: float, max_sf: float) -> list[d
 PAGE_MARGIN_BAND = 0.05
 # Reject rects skinnier than this width:height (or height:width) ratio.
 MAX_RECT_ASPECT = 25.0
+# Reject rects whose interior is mostly text: a box with more than this
+# fraction of its area covered by text glyphs is a general-notes / legend /
+# schedule frame, not a demolition region. Real rooms carry a name tag and a
+# few dimensions (single-digit % coverage); note boxes run 30-60%.
+MAX_RECT_TEXT_COVERAGE = 0.20
 
 
 def filter_auto_rects(rects: list[tuple[float, float, float, float]],
-                      page_w: float, page_h: float) -> list[tuple[float, float, float, float]]:
+                      page_w: float, page_h: float,
+                      words: Optional[list[tuple[float, float, float, float]]] = None,
+                      ) -> list[tuple[float, float, float, float]]:
     """Conservatively drop obvious non-room rectangles for auto-area.
 
     - exact duplicates (same rect drawn twice, fill + stroke, etc.)
     - rects touching the outer page margin band (title blocks, border frames)
     - extreme aspect ratios (grid lines / schedule rules drawn as rects)
+    - text-dominated boxes (general notes, legends, schedules) when `words`
+      (text word bboxes from vector_geometry) are provided
     - rects fully contained inside an already-accepted larger rect (legend
       cells, nested frames)
     Deliberately dumb: everything that survives is still needs_review=1.
@@ -547,6 +564,18 @@ def filter_auto_rects(rects: list[tuple[float, float, float, float]],
                 continue  # touches title-block / border band
         if max(w / h, h / w) > MAX_RECT_ASPECT:
             continue  # extreme aspect ratio
+        if words:
+            # Text-coverage test: sum the area of words inside the rect.
+            # Words are small and rarely overlap, so a plain sum is close
+            # enough to a union for a coarse coverage ratio.
+            text_area = sum(
+                (wx1 - wx0) * (wy1 - wy0)
+                for (wx0, wy0, wx1, wy1) in words
+                if wx0 >= x0 - 1 and wx1 <= x1 + 1
+                and wy0 >= y0 - 1 and wy1 <= y1 + 1
+            )
+            if text_area / (w * h) > MAX_RECT_TEXT_COVERAGE:
+                continue  # text-dominated box: notes / legend / schedule
         candidates.append(r)
 
     # Drop rects fully nested inside an already-accepted (larger) rect.
@@ -921,7 +950,8 @@ def run(args: argparse.Namespace) -> int:
         ppf = points_per_foot(px, args.dpi)
         if geom["rects"] and ppf > 0:
             page_w, page_h = geom.get("page_size", (0.0, 0.0))
-            for (x0, y0, x1, y1) in filter_auto_rects(geom["rects"], page_w, page_h):
+            for (x0, y0, x1, y1) in filter_auto_rects(geom["rects"], page_w, page_h,
+                                                      geom.get("words")):
                 sf = (abs(x1 - x0) / ppf) * (abs(y1 - y0) / ppf)
                 if args.min_sf <= sf <= args.max_sf:
                     used_vectors = True
