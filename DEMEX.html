@@ -439,6 +439,7 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
     if(!DB.rateSettings)DB.rateSettings=JSON.parse(JSON.stringify(RATE_SETTINGS_DEFAULT));
     if(!DB.costModel)DB.costModel=JSON.parse(JSON.stringify(COSTMODEL_DEFAULT));
     if(!DB.rateOverrides||typeof DB.rateOverrides!=='object')DB.rateOverrides={};
+    if(!Array.isArray(DB.corrections))DB.corrections=[];
   }
   function normalizeSchema(){
     ensureShape();
@@ -522,7 +523,7 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
       case 'setRate':{ var rr=DB.rates.filter(function(r){return r.id===a.id;})[0]; if(rr)rr[a.field]=+a.value||0; break;}
       case 'setRateSetting':{ DB.rateSettings=DB.rateSettings||{}; DB.rateSettings[a.key]=a.value; break;}
       case 'resetRates':{ DB.rates=JSON.parse(JSON.stringify(RATE_DEFAULTS)); break;}
-      case 'saveEstimate':{ var pe=proj(a.id); if(pe){ pe.estimate=a.estimate; if(a.estQty){pe.estQty=a.estQty;pe.estimated_quantities=mapEQ(a.estQty);} if(a.unit_rates)pe.unit_rates=a.unit_rates; if(a.bulk_pricing_thresholds)pe.bulk_pricing_thresholds=a.bulk_pricing_thresholds; } break;}
+      case 'saveEstimate':{ var pe=proj(a.id); if(pe){ if(a.estQty&&pe.ai_takeoff_baseline)recordCorrections(pe,a.estQty); pe.estimate=a.estimate; if(a.estQty){pe.estQty=a.estQty;pe.estimated_quantities=mapEQ(a.estQty);} if(a.unit_rates)pe.unit_rates=a.unit_rates; if(a.bulk_pricing_thresholds)pe.bulk_pricing_thresholds=a.bulk_pricing_thresholds; } break;}
       case 'saveProposal':{ var pp=proj(a.id); if(pp)pp.proposal=a.proposal; break;}
       case 'saveTakeoff':{ var pt=proj(a.id); if(pt)pt.takeoff=a.takeoff; break;}
       case 'setCostModel':{ DB.costModel=DB.costModel||{}; DB.costModel[a.key]=+a.value||0; break;}
@@ -544,6 +545,44 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
     if(a.type==='deleteProject')return 'Deleted project';
     if(a.type==='replaceAll'||a.type==='merge')return 'Imported data ('+a.type+')';
     return a.type;
+  }
+  // ── Estimator corrections are training data. When a project carries an AI
+  // takeoff baseline (auto-takeoff / markup-extract snapshot) and the estimator
+  // saves different quantities, record the delta as a structured correction.
+  // Only real human edits are recorded — never AI output alone.
+  function recordCorrections(p,newQty){
+    var base=p.ai_takeoff_baseline;if(!base||!Array.isArray(base.estQty))return;
+    DB.corrections=DB.corrections||[];
+    var key=function(svc,unit){return p.id+'|'+(svc||'')+'|'+(unit||'')+'|'+(base.source||'');};
+    var upsert=function(rec){
+      var k=key(rec.svc,rec.unit);
+      DB.corrections=DB.corrections.filter(function(c){return (c.project_id+'|'+(c.svc||'')+'|'+(c.unit||'')+'|'+(c.source||''))!==k;});
+      DB.corrections.push(rec);
+    };
+    var newBy={};(newQty||[]).forEach(function(q){newBy[(q.svc||'')+'|'+(q.unit||'')]=q;});
+    base.estQty.forEach(function(b){
+      var q=newBy[(b.svc||'')+'|'+(b.unit||'')];
+      var aiQ=+b.qty||0;
+      if(!q){ if(aiQ>0)upsert({project_id:p.id,project_name:p.name,svc:b.svc,unit:b.unit,ai_qty:aiQ,corrected_qty:0,delta_pct:-100,kind:'removed',source:base.source||'ai',ts:now()}); return; }
+      var newQ=+q.qty||0;
+      if(Math.abs(newQ-aiQ)>0.01&&aiQ>0){ upsert({project_id:p.id,project_name:p.name,svc:b.svc,unit:b.unit,ai_qty:aiQ,corrected_qty:newQ,delta_pct:Math.round((newQ-aiQ)/aiQ*1000)/10,kind:'adjusted',source:base.source||'ai',ts:now()}); }
+      delete newBy[(b.svc||'')+'|'+(b.unit||'')];
+    });
+    Object.keys(newBy).forEach(function(k2){
+      var q=newBy[k2];if(!(+q.qty>0))return;
+      upsert({project_id:p.id,project_name:p.name,svc:q.svc,unit:q.unit,ai_qty:0,corrected_qty:+q.qty,delta_pct:null,kind:'added',source:base.source||'ai',ts:now()});
+    });
+    if(DB.corrections.length>500)DB.corrections=DB.corrections.slice(-500);
+    syncCorrections();
+  }
+  var _corrSyncT=null;
+  function syncCorrections(){
+    if(typeof window.bridgeCall!=='function')return;
+    if(_corrSyncT)clearTimeout(_corrSyncT);
+    _corrSyncT=setTimeout(function(){
+      _corrSyncT=null;
+      try{ window.bridgeCall('corrections',{body:{corrections:DB.corrections||[]}}).catch(function(){}); }catch(e){}
+    },1200);
   }
   // Keep the backend pricing tools on the same numbers the estimator sees:
   // after any rate-affecting commit, push the live rate card to the bridge
@@ -1000,6 +1039,7 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
     var oh = direct * (((db.company || {}).overheadPct || 0) / 100);
     var profit = (direct + oh) * (((db.company || {}).profitPct || 0) / 100);
     var est = { lines: lines, direct: direct, oh: oh, profit: profit, sell: direct + oh + profit, savedAt: new Date().toISOString(), source: 'auto-takeoff' };
+    DX.commit({ type: 'updateProject', id: pid, patch: { ai_takeoff_baseline: { source: 'auto-takeoff', ts: new Date().toISOString(), estQty: JSON.parse(JSON.stringify(eq)) } } });
     var r = DX.commit({ type: 'saveEstimate', id: pid, estimate: est, estQty: eq });
     if (r.ok) {
       DX.toast((isNew ? 'Project created + ' : '') + 'Loaded ' + eq.length + ' line items into the estimate — open the Estimate tab to price & review', 'ok');
@@ -1214,7 +1254,7 @@ function ProjectBridgeActions(props) {
       var m = projs.filter(function (x) { return x.name === p.name; })[0] || projs[0];
       var eq = m && m.estimated_quantities || [];
       if (!eq.length) throw new Error('Takeoff returned no quantities for this plan.');
-      DX.commit({ type: 'updateProject', id: id, patch: { estimated_quantities: eq, estQty: eq, unit_rates: m && m.unit_rates || [] } });
+      DX.commit({ type: 'updateProject', id: id, patch: { estimated_quantities: eq, estQty: eq, unit_rates: m && m.unit_rates || [], ai_takeoff_baseline: { source: 'auto-takeoff', ts: new Date().toISOString(), estQty: JSON.parse(JSON.stringify(eq)) } } });
       DX.toast(eq.length + ' takeoff quantities loaded', 'ok');
       setBusy('');
     }).catch(fail);
@@ -1236,12 +1276,32 @@ function ProjectBridgeActions(props) {
       var pay = d.payload || {};
       var eq = pay.est_qty || [];
       if (!eq.length) throw new Error('No measurement markups found — is this the marked-up PDF (Bluebeam measurement annotations, DEMEX colour legend)?');
-      DX.commit({ type: 'updateProject', id: id, patch: { estimated_quantities: eq, estQty: eq } });
+      DX.commit({ type: 'updateProject', id: id, patch: { estimated_quantities: eq, estQty: eq, ai_takeoff_baseline: { source: 'markup-extract', ts: new Date().toISOString(), estQty: JSON.parse(JSON.stringify(eq)) } } });
       var c = pay.counts || {};
       var warn = [];
       if (c.needs_review) warn.push(c.needs_review + ' need review');
       if (c.unmapped_colour) warn.push(c.unmapped_colour + ' unmapped colour(s)');
       DX.toast(eq.length + ' exact quantities from ' + (c.measurements || eq.length) + ' markups' + (warn.length ? ' — ' + warn.join(', ') : ''), warn.length ? 'err' : 'ok');
+      setBusy('');
+    }).catch(fail);
+  }
+  function runScopeAI() {
+    // AI reads the plan-sheet text (notes, keynotes, schedules) and suggests
+    // scope ITEMS only — no quantities, nothing auto-applied. Estimator reviews
+    // each suggestion in the project modal and adds what's real.
+    if (busy) return;
+    setBusy('scope');
+    DX.toast('Locating plans…', 'ok');
+    bridgeCall('plans?project=' + encodeURIComponent(p.name)).then(function (d) {
+      var plans = d.payload && d.payload.plans || [];
+      if (!plans.length) throw new Error('No plan PDFs found for this project.');
+      DX.toast('AI reading plan notes & keynotes…', 'ok');
+      return bridgeCall('analyze-plan', { body: { pdf: plans[0].path, project: p.name } });
+    }).then(function (d) {
+      var pay = d.payload || {};
+      var sugg = pay.suggestions || [];
+      DX.commit({ type: 'updateProject', id: id, patch: { ai_scope_suggestions: { suggestions: sugg, warnings: pay.warnings || [], model: d.model, pages: d.pages_analyzed, ts: new Date().toISOString() } } });
+      DX.toast(sugg.length ? sugg.length + ' AI scope suggestions — review them below (nothing auto-added)' : 'AI found no scope items in the sheet text', sugg.length ? 'ok' : 'err');
       setBusy('');
     }).catch(fail);
   }
@@ -1280,10 +1340,80 @@ function ProjectBridgeActions(props) {
   }, busy === 'takeoff' ? 'Running…' : 'Run Visual Takeoff'), /*#__PURE__*/React.createElement(Btn, {
     ghost: true, onClick: runMarkupExtract, style: { opacity: busy === 'markup' ? 0.6 : 1 }
   }, busy === 'markup' ? 'Reading markups…' : 'Extract Bluebeam Markups'), /*#__PURE__*/React.createElement(Btn, {
+    ghost: true, onClick: runScopeAI, style: { opacity: busy === 'scope' ? 0.6 : 1 }
+  }, busy === 'scope' ? 'AI reading…' : 'AI Scope Suggestions'), /*#__PURE__*/React.createElement(Btn, {
     ghost: true, onClick: runPricing, style: { opacity: busy === 'pricing' ? 0.6 : 1 }
   }, busy === 'pricing' ? 'Optimizing…' : 'Approve & Optimize Pricing'), /*#__PURE__*/React.createElement(Btn, {
     primary: true, onClick: runProposal, style: { opacity: busy === 'pdf' ? 0.6 : 1 }
   }, busy === 'pdf' ? 'Generating…' : 'Generate Proposal PDF'));
+}
+function CorrectionStats(props) {
+  // Honest per-svc view of how far AI takeoff quantities are from what the
+  // estimator actually saved. Small n is shown as small n — no extrapolation.
+  var db = props.db;
+  var corr = db.corrections || [];
+  if (!corr.length) return null;
+  var by = {};
+  corr.forEach(function (c) {
+    if (c.kind !== 'adjusted' || c.delta_pct == null) return;
+    var k = c.svc || '?';
+    (by[k] = by[k] || { deltas: [], unit: c.unit }).deltas.push(+c.delta_pct);
+  });
+  var rows = Object.keys(by).map(function (svc) {
+    var d = by[svc].deltas;
+    var avg = d.reduce(function (s, x) { return s + x; }, 0) / d.length;
+    return { svc: svc, unit: by[svc].unit, n: d.length, avg: avg };
+  }).sort(function (a, b) { return Math.abs(b.avg) - Math.abs(a.avg); });
+  var removed = corr.filter(function (c) { return c.kind === 'removed'; }).length;
+  var addedN = corr.filter(function (c) { return c.kind === 'added'; }).length;
+  return /*#__PURE__*/React.createElement("div", {
+    style: { background: C.panel, border: '0.5px solid ' + C.line, borderRadius: 12, padding: '15px 16px', marginTop: 14 }
+  }, /*#__PURE__*/React.createElement("div", { className: "syne", style: { fontWeight: 800, fontSize: 13, marginBottom: 4 } },
+    "Takeoff corrections ", /*#__PURE__*/React.createElement("span", { style: { color: C.t3, fontSize: 11, fontWeight: 400 } }, "· what your edits teach the AI")),
+    /*#__PURE__*/React.createElement("div", { style: { fontSize: 11, color: C.t3, marginBottom: 8 } },
+      corr.length + " correction(s) captured" + (removed ? ' · ' + removed + ' AI item(s) deleted' : '') + (addedN ? ' · ' + addedN + ' scope item(s) the AI missed' : '')),
+    rows.length ? rows.map(function (r) {
+      return /*#__PURE__*/React.createElement("div", { key: r.svc, style: { display: 'flex', alignItems: 'center', gap: 10, padding: '5px 0', borderTop: '0.5px solid ' + C.line } },
+        /*#__PURE__*/React.createElement("span", { style: { fontSize: 12.5, color: C.t1, flex: 1 } }, r.svc, " ", /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 10, color: C.t3 } }, "n=" + r.n + (r.n < 3 ? ' (thin)' : ''))),
+        /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 12, color: r.avg > 0 ? C.green : C.red2 } },
+          "AI runs " + (r.avg > 0 ? 'low' : 'high') + " by " + Math.abs(Math.round(r.avg * 10) / 10) + "% avg"));
+    }) : /*#__PURE__*/React.createElement("div", { style: { fontSize: 11.5, color: C.t3 } }, "Only removals/additions so far — quantity adjustments will show per-service drift here."));
+}
+function AIScopeSuggestions(props) {
+  // Advisory AI scope items from plan-sheet text (via /api/analyze-plan).
+  // Everything here is clearly AI-suggested and requires an explicit Add —
+  // added items land in estimated_quantities with qty 0 for the estimator
+  // to measure; the AI never supplies a quantity.
+  var id = props.id, p = props.p;
+  var s = p.ai_scope_suggestions;
+  if (!s || !Array.isArray(s.suggestions) || !s.suggestions.length) return null;
+  var added = {};
+  (p.estimated_quantities || []).forEach(function (q) { added[(q.svc || '') + '|' + (q.item || '')] = 1; });
+  function addItem(sg) {
+    var eq = (p.estimated_quantities || []).slice();
+    eq.push({ item: sg.item || sg.svc, svc: sg.svc || '', unit: sg.unit || '', qty: 0, location: sg.sheet_ref || '', notes: 'AI-suggested (' + (sg.confidence || 'unrated') + ') — measure before pricing. ' + (sg.reason || '') });
+    DX.commit({ type: 'updateProject', id: id, patch: { estimated_quantities: eq, estQty: eq } });
+    DX.toast('Added "' + (sg.item || sg.svc) + '" at qty 0 — measure it in Takeoff', 'ok');
+  }
+  function dismiss() {
+    DX.commit({ type: 'updateProject', id: id, patch: { ai_scope_suggestions: null } });
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    style: { marginTop: 14, padding: '12px 14px', background: C.panel2, border: '0.5px solid ' + C.line, borderLeft: '2px solid ' + C.purple, borderRadius: 10 }
+  }, /*#__PURE__*/React.createElement("div", { style: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 } },
+    /*#__PURE__*/React.createElement("span", { className: "syne", style: { fontWeight: 800, fontSize: 12.5 } }, "AI scope suggestions"),
+    /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 10, color: C.t3 } }, "AI-generated from sheet text · pages " + (s.pages || []).join(', ') + " · verify everything"),
+    /*#__PURE__*/React.createElement(Btn, { ghost: true, onClick: dismiss, style: { marginLeft: 'auto', padding: '3px 9px', fontSize: 10.5, color: C.t3 } }, "Dismiss all")),
+    s.suggestions.map(function (sg, ix) {
+      var isAdded = added[(sg.svc || '') + '|' + (sg.item || sg.svc || '')];
+      return /*#__PURE__*/React.createElement("div", { key: ix, style: { display: 'flex', alignItems: 'flex-start', gap: 10, padding: '6px 0', borderTop: ix ? '0.5px solid ' + C.line : 'none' } },
+        /*#__PURE__*/React.createElement("div", { style: { flex: 1, minWidth: 0 } },
+          /*#__PURE__*/React.createElement("div", { style: { fontSize: 12.5, color: C.t1 } }, sg.item || sg.svc, " ", /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 10, color: sg.confidence === 'high' ? C.green : sg.confidence === 'low' ? C.red2 : C.gold } }, sg.confidence || '')),
+          /*#__PURE__*/React.createElement("div", { style: { fontSize: 11, color: C.t3 } }, (sg.svc || '') + (sg.unit ? ' · ' + sg.unit : '') + (sg.sheet_ref ? ' · ' + sg.sheet_ref : ''), sg.reason ? ' — ' + sg.reason : '')),
+        isAdded ? /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 10.5, color: C.green, flexShrink: 0, paddingTop: 4 } }, "✓ added") :
+          /*#__PURE__*/React.createElement(Btn, { ghost: true, onClick: function () { addItem(sg); }, style: { padding: '3px 10px', fontSize: 11, flexShrink: 0 } }, "Add @ qty 0"));
+    }),
+    (s.warnings || []).length ? /*#__PURE__*/React.createElement("div", { style: { marginTop: 6, fontSize: 10.5, color: C.gold } }, "AI warnings: " + s.warnings.join(' · ')) : null);
 }
 function RateAccuracyPanel(props) {
   var p = props.p || {};
@@ -3036,7 +3166,7 @@ function Performance({
       }, isApplied ? 'Remove adjustment' : 'Apply to rates'),
       isApplied ? /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 10, color: C.green } }, "active: ", (applied > 0 ? '+' : ''), applied, "%") : null
     );
-  })()))) : /*#__PURE__*/React.createElement(Empty, null, "Complete and log costs on a job to generate pricing intelligence. Nothing is inferred from invented data.")), /*#__PURE__*/React.createElement("div", {
+  })()))) : /*#__PURE__*/React.createElement(Empty, null, "Complete and log costs on a job to generate pricing intelligence. Nothing is inferred from invented data.")), /*#__PURE__*/React.createElement(CorrectionStats, { db: db }), /*#__PURE__*/React.createElement("div", {
     style: {
       background: C.panel,
       border: '0.5px solid ' + C.line,
@@ -3717,6 +3847,9 @@ function ProjectModal({
       lineHeight: 1.6
     }
   }, p.notes)) : null, /*#__PURE__*/React.createElement(ProjectBridgeActions, {
+    id: id,
+    p: p
+  }), /*#__PURE__*/React.createElement(AIScopeSuggestions, {
     id: id,
     p: p
   }), /*#__PURE__*/React.createElement(RateAccuracyPanel, {

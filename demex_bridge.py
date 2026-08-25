@@ -30,6 +30,20 @@ Endpoints
                                         -> {ok, payload:{estimate,estQty,...}}
   POST /api/proposal {project,company,client}  -> application/pdf (download)
   POST /api/ai       {prompt,max_tokens?,system?}  -> {text}
+  GET  /api/corrections                 -> {ok, corrections:[...]} (newest
+                                           first, cap 1000)
+  POST /api/corrections {corrections:[{project_id,svc,unit,ai_qty,
+                                       corrected_qty,delta_pct,kind,source,ts}]}
+                                        -> {ok:true,count:N,total:M} (upserts
+                                           estimator corrections into
+                                           demex_records.db for the learning
+                                           layer)
+  POST /api/analyze-plan {pdf,pages?,project?}
+                                        -> {ok, payload:{suggestions,...},
+                                            model, ai_generated,
+                                            pages_analyzed} (AI scope-item
+                                           suggestions from plan-sheet text;
+                                           never auto-applied)
 
 Security model (all localhost-only, defense in depth):
   * Every request must carry a Host header of localhost / 127.0.0.1 / [::1]
@@ -48,6 +62,7 @@ import json
 import os
 import re
 import secrets
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -78,6 +93,22 @@ ALLOWED_HOSTS = {"localhost", "127.0.0.1", "::1"}
 
 AI_API_URL = "https://api.anthropic.com/v1/messages"
 AI_DEFAULT_MODEL = "claude-sonnet-4-6"
+
+# Canonical scope/service vocabulary the app understands. /api/analyze-plan
+# instructs the model to suggest ONLY these svc ids.
+SVC_VOCAB = (
+    "demo_walls", "demo_floor", "demo_base", "demo_ceiling",
+    "demo_gyp_ceiling", "millwork", "doors", "storefront", "mep",
+    "light_fixture", "diffuser", "plumb_fixture", "concrete_flat",
+    "concrete_cut", "masonry", "exterior_demo", "asphalt", "mezzanine_demo",
+    "casework_demo", "slab_cut_patch", "door_window_infill",
+    "water_heater_demo", "interior_strip_out", "slab_removal",
+    "structure_demo", "fence_demo", "utility_demo", "abate_containment",
+    "abate_linear",
+)
+
+# Text handed to the model per analyze-plan call is capped at this many chars.
+PLAN_TEXT_CAP = 12000
 
 
 # --------------------------------------------------------------------------- #
@@ -197,6 +228,110 @@ def list_plans(project: str = "") -> list[dict]:
         if pref:
             return pref
     return items
+
+
+class _AIError(Exception):
+    """Anthropic call failure carrying the HTTP status to send to the UI."""
+
+    def __init__(self, msg: str, code: int):
+        super().__init__(msg)
+        self.msg, self.code = msg, code
+
+
+def call_ai(prompt: str, max_tokens: int = 600,
+            system: str | None = None) -> tuple[str, str]:
+    """Send one prompt to the Anthropic Messages API; return (text, model).
+
+    Shared by /api/ai and /api/analyze-plan. The key comes from
+    ANTHROPIC_API_KEY (loaded from .env by load_dotenv() at startup) and is
+    never logged or echoed. Raises _AIError with a UI-safe message + status.
+    """
+    key = (os.environ.get("ANTHROPIC_API_KEY") or "").strip()
+    if not key:
+        raise _AIError("ANTHROPIC_API_KEY not set in .env", 503)
+    model = os.environ.get("DEMEX_AI_MODEL", AI_DEFAULT_MODEL)
+    payload = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "messages": [{"role": "user", "content": prompt}],
+    }
+    if system:
+        payload["system"] = system
+    req = urllib.request.Request(
+        AI_API_URL,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json",
+                 "x-api-key": key,
+                 "anthropic-version": "2023-06-01"},
+        method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        # Pass the API's own error message through (it never contains the
+        # key); fall back to the bare status if the body isn't JSON.
+        try:
+            err = json.loads(e.read().decode("utf-8"))
+            msg = ((err.get("error") or {}).get("message")
+                   or "AI API error (HTTP %d)" % e.code)
+        except Exception:
+            msg = "AI API error (HTTP %d)" % e.code
+        raise _AIError(msg, e.code) from None
+    except Exception as e:
+        raise _AIError("AI request failed: %s" % e, 502) from None
+    text = "".join(b.get("text", "") for b in data.get("content") or []
+                   if isinstance(b, dict) and b.get("type") == "text")
+    return text, model
+
+
+def extract_plan_text(pdf_path: str,
+                      pages: list[int] | None = None) -> tuple[str, list[int]]:
+    """Extract text from the given 1-based pages of a plan PDF via pypdf.
+
+    Defaults to the first 3 pages; out-of-range page numbers are skipped.
+    Returns (text, pages_actually_read). pypdf is imported here -- not at
+    module level -- so the bridge still runs without it; the caller turns the
+    ImportError into a 503.
+    """
+    from pypdf import PdfReader
+    reader = PdfReader(pdf_path)
+    n = len(reader.pages)
+    want = pages if pages else [1, 2, 3]
+    used, chunks = [], []
+    for p in want:
+        if isinstance(p, int) and not isinstance(p, bool) and 1 <= p <= n:
+            used.append(p)
+            chunks.append("--- page %d ---\n%s"
+                          % (p, reader.pages[p - 1].extract_text() or ""))
+    return "\n".join(chunks), used
+
+
+def _corrections_db() -> sqlite3.Connection:
+    """Open demex_records.db with WAL + busy timeout; ensure corrections table.
+
+    The UNIQUE key columns (project_id, svc, unit, source) are normalized to
+    "" (never NULL) by the POST handler -- SQLite treats NULLs as distinct in
+    UNIQUE constraints, which would break the upsert.
+    """
+    conn = sqlite3.connect(DB)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA busy_timeout=5000")
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS corrections (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_id    TEXT,
+            project_name  TEXT,
+            svc           TEXT NOT NULL,
+            unit          TEXT,
+            ai_qty        REAL,
+            corrected_qty REAL,
+            delta_pct     REAL,
+            kind          TEXT,
+            source        TEXT,
+            ts            TEXT,
+            UNIQUE(project_id, svc, unit, source)
+        )""")
+    return conn
 
 
 # --------------------------------------------------------------------------- #
@@ -335,6 +470,8 @@ class Handler(SimpleHTTPRequestHandler):
             proj = (q.get("project") or [""])[0]
             return self._json({"ok": True,
                                "payload": {"plans": list_plans(proj)}})
+        if path == "corrections":
+            return self._corrections_get()
         return self._json({"ok": False, "error": "Unknown endpoint: " + path}, 404)
 
     def _rates(self, q):
@@ -463,6 +600,10 @@ class Handler(SimpleHTTPRequestHandler):
             return self._markup_extract(body)
         if path == "ratecard":
             return self._ratecard_post(body)
+        if path == "corrections":
+            return self._corrections_post(body)
+        if path == "analyze-plan":
+            return self._analyze_plan(body)
         return self._json({"ok": False, "error": "Unknown endpoint: " + path}, 404)
 
     # ---- endpoints ----
@@ -618,11 +759,11 @@ class Handler(SimpleHTTPRequestHandler):
     def _ai(self, body):
         """Proxy a prompt to the Anthropic Messages API; return {"text": ...}.
 
-        The key comes from ANTHROPIC_API_KEY (loaded from .env by
-        load_dotenv() at startup) and is never logged or echoed.
+        Thin wrapper over the shared call_ai() helper (same behavior as
+        before the /api/analyze-plan refactor: key checked first, then the
+        prompt, so an unconfigured install always surfaces the 503).
         """
-        key = (os.environ.get("ANTHROPIC_API_KEY") or "").strip()
-        if not key:
+        if not (os.environ.get("ANTHROPIC_API_KEY") or "").strip():
             return self._json({"error": "ANTHROPIC_API_KEY not set in .env"},
                               503)
         prompt = body.get("prompt")
@@ -632,38 +773,204 @@ class Handler(SimpleHTTPRequestHandler):
             max_tokens = int(body.get("max_tokens") or 600)
         except (TypeError, ValueError):
             max_tokens = 600
-        payload = {
-            "model": os.environ.get("DEMEX_AI_MODEL", AI_DEFAULT_MODEL),
-            "max_tokens": max_tokens,
-            "messages": [{"role": "user", "content": prompt}],
-        }
-        if body.get("system"):
-            payload["system"] = str(body["system"])
-        req = urllib.request.Request(
-            AI_API_URL,
-            data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json",
-                     "x-api-key": key,
-                     "anthropic-version": "2023-06-01"},
-            method="POST")
+        system = str(body["system"]) if body.get("system") else None
         try:
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-        except urllib.error.HTTPError as e:
-            # Pass the API's own error message through (it never contains the
-            # key); fall back to the bare status if the body isn't JSON.
-            try:
-                err = json.loads(e.read().decode("utf-8"))
-                msg = ((err.get("error") or {}).get("message")
-                       or "AI API error (HTTP %d)" % e.code)
-            except Exception:
-                msg = "AI API error (HTTP %d)" % e.code
-            return self._json({"error": msg}, e.code)
-        except Exception as e:
-            return self._json({"error": "AI request failed: %s" % e}, 502)
-        text = "".join(b.get("text", "") for b in data.get("content") or []
-                       if isinstance(b, dict) and b.get("type") == "text")
+            text, _model = call_ai(prompt, max_tokens, system)
+        except _AIError as e:
+            return self._json({"error": e.msg}, e.code)
         return self._json({"text": text})
+
+    def _corrections_post(self, body):
+        """Record estimator corrections to AI takeoffs (learning signal).
+
+        Body: {"corrections":[{project_id, project_name?, svc, unit, ai_qty,
+                               corrected_qty, delta_pct, kind, source, ts}]}
+        Each row is upserted on (project_id, svc, unit, source) so re-syncing
+        the same project updates the latest correction instead of duplicating.
+        """
+        corr = body.get("corrections")
+        if not isinstance(corr, list) or not corr:
+            return self._json({"ok": False,
+                               "error": "corrections must be a non-empty "
+                                        "list"}, 400)
+        rows = []
+        for i, c in enumerate(corr):
+            if not isinstance(c, dict):
+                return self._json({"ok": False,
+                                   "error": f"corrections[{i}] is not an "
+                                            f"object"}, 400)
+            svc = c.get("svc")
+            if not isinstance(svc, str) or not svc.strip():
+                return self._json({"ok": False,
+                                   "error": f"corrections[{i}].svc must be a "
+                                            f"non-empty string"}, 400)
+            for k in ("ai_qty", "corrected_qty"):
+                v = c.get(k)
+                if isinstance(v, bool) or not isinstance(v, (int, float)):
+                    return self._json(
+                        {"ok": False,
+                         "error": f"corrections[{i}].{k} must be a number"},
+                        400)
+            kind = str(c.get("kind") or "adjusted")
+            if kind not in ("adjusted", "removed", "added"):
+                return self._json(
+                    {"ok": False,
+                     "error": f"corrections[{i}].kind must be adjusted, "
+                              f"removed or added"}, 400)
+            delta = c.get("delta_pct")
+            if isinstance(delta, bool) or not isinstance(delta, (int, float)):
+                delta = None
+            # UNIQUE-key columns normalized to "" (NULLs are distinct in
+            # SQLite UNIQUE constraints and would break the upsert).
+            rows.append((str(c.get("project_id") or ""),
+                         str(c.get("project_name") or ""),
+                         svc.strip(),
+                         str(c.get("unit") or ""),
+                         float(c["ai_qty"]),
+                         float(c["corrected_qty"]),
+                         delta,
+                         kind,
+                         str(c.get("source") or ""),
+                         str(c.get("ts") or "")))
+        conn = _corrections_db()
+        try:
+            with conn:
+                for row in rows:
+                    conn.execute("""
+                        INSERT INTO corrections
+                            (project_id, project_name, svc, unit, ai_qty,
+                             corrected_qty, delta_pct, kind, source, ts)
+                        VALUES (?,?,?,?,?,?,?,?,?,?)
+                        ON CONFLICT(project_id, svc, unit, source) DO UPDATE
+                        SET project_name  = excluded.project_name,
+                            ai_qty        = excluded.ai_qty,
+                            corrected_qty = excluded.corrected_qty,
+                            delta_pct     = excluded.delta_pct,
+                            kind          = excluded.kind,
+                            ts            = excluded.ts""", row)
+            total = conn.execute(
+                "SELECT COUNT(*) FROM corrections").fetchone()[0]
+        finally:
+            conn.close()
+        return self._json({"ok": True, "count": len(rows), "total": total})
+
+    def _corrections_get(self):
+        """All recorded corrections, newest first (cap 1000)."""
+        cols = ("id", "project_id", "project_name", "svc", "unit", "ai_qty",
+                "corrected_qty", "delta_pct", "kind", "source", "ts")
+        conn = _corrections_db()
+        try:
+            cur = conn.execute(
+                "SELECT %s FROM corrections ORDER BY ts DESC, id DESC "
+                "LIMIT 1000" % ", ".join(cols))
+            out = [dict(zip(cols, r)) for r in cur.fetchall()]
+        finally:
+            conn.close()
+        return self._json({"ok": True, "corrections": out})
+
+    def _analyze_plan(self, body):
+        """AI scope-suggestion pass over plan-sheet TEXT (never auto-applied).
+
+        Body: {"pdf": path, "pages": [1-based page numbers] (default first
+        3), "project": optional name}. Extracts text with pypdf, asks the
+        model for scope ITEMS ONLY (no quantities -- those come from
+        measurement) restricted to the SVC_VOCAB ids, and returns the parsed
+        suggestions for the estimator to review.
+        """
+        pdf = body.get("pdf")
+        if not pdf:
+            return self._json({"ok": False, "error": "pdf is required."}, 400)
+        pdf = resolve_pdf_path(str(pdf))
+        if pdf is None:
+            return self._json({"ok": False,
+                               "error": "pdf path outside allowed directories"},
+                              400)
+        if not os.path.isfile(pdf):
+            return self._json({"ok": False, "error": "pdf not found"}, 400)
+        pages = body.get("pages")
+        if pages is not None:
+            if not isinstance(pages, list):
+                return self._json({"ok": False,
+                                   "error": "pages must be a list of page "
+                                            "numbers"}, 400)
+            try:
+                pages = [int(p) for p in pages]
+            except (TypeError, ValueError):
+                return self._json({"ok": False,
+                                   "error": "pages must be a list of page "
+                                            "numbers"}, 400)
+        project = str(body.get("project") or "").strip()
+        if not (os.environ.get("ANTHROPIC_API_KEY") or "").strip():
+            return self._json({"ok": False,
+                               "error": "ANTHROPIC_API_KEY not set in .env"},
+                              503)
+        try:
+            text, used = extract_plan_text(pdf, pages)
+        except ImportError:
+            return self._json({"ok": False,
+                               "error": "pypdf is not installed -- run "
+                                        "'pip install pypdf' to enable "
+                                        "/api/analyze-plan"}, 503)
+        except Exception as e:
+            return self._json({"ok": False,
+                               "error": "Could not read PDF text: %s" % e},
+                              400)
+        if not text.strip() or not used:
+            return self._json({"ok": False,
+                               "error": "No text could be extracted from the "
+                                        "requested pages (scanned/raster "
+                                        "sheets have no text layer)."})
+        truncated = len(text) > PLAN_TEXT_CAP
+        prompt = (
+            "You are a commercial demolition estimator's assistant analyzing "
+            "the text extracted from construction plan sheets.\n"
+            "Project: %s\n"
+            "Pages analyzed (1-based): %s\n\n"
+            "Allowed svc ids (use ONLY these, verbatim):\n%s\n\n"
+            "Plan-sheet text%s:\n<<<PLAN TEXT\n%s\nPLAN TEXT>>>\n\n"
+            "Identify demolition scope ITEMS suggested by the notes, "
+            "keynotes and legends in the text. Return STRICT JSON only -- no "
+            "markdown fences, no commentary -- with exactly this shape:\n"
+            '{"suggestions":[{"svc":"<one allowed svc id>",'
+            '"item":"<short human label>","unit":"SF|LF|EA",'
+            '"reason":"<why -- cite the note/keynote text>",'
+            '"sheet_ref":"<page or sheet id if inferable, else null>",'
+            '"confidence":"high|medium|low"}],'
+            '"notes_found":<count of demolition-relevant notes seen>,'
+            '"warnings":["<anything ambiguous or concerning>"]}\n\n'
+            "Rules: suggestions are scope ITEMS ONLY -- never include "
+            "quantities (quantities come from measurement, not from notes). "
+            "Max 25 suggestions. Include only items with textual evidence in "
+            "the plan text above; never invent scope that is not supported "
+            "by the text."
+            % (project or "(unnamed)",
+               used,
+               ", ".join(SVC_VOCAB),
+               " (truncated to first %d characters)" % PLAN_TEXT_CAP
+               if truncated else "",
+               text[:PLAN_TEXT_CAP]))
+        try:
+            reply, model = call_ai(prompt, max_tokens=2000)
+        except _AIError as e:
+            return self._json({"ok": False, "error": e.msg}, e.code)
+        # Tolerant parse: strip markdown fences, take first { .. last }.
+        raw = reply.strip()
+        if raw.startswith("```"):
+            raw = re.sub(r"^```[a-zA-Z]*\s*", "", raw)
+            raw = re.sub(r"\s*```$", "", raw)
+        i, j = raw.find("{"), raw.rfind("}")
+        parsed = None
+        if i >= 0 and j > i:
+            try:
+                parsed = json.loads(raw[i:j + 1])
+            except Exception:
+                parsed = None
+        if not isinstance(parsed, dict):
+            return self._json({"ok": False,
+                               "error": "AI reply was not valid JSON",
+                               "raw": reply[:500]})
+        return self._json({"ok": True, "payload": parsed, "model": model,
+                           "ai_generated": True, "pages_analyzed": used})
 
 
 def main() -> int:
