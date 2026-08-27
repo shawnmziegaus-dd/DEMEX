@@ -44,6 +44,18 @@ Endpoints
                                             pages_analyzed} (AI scope-item
                                            suggestions from plan-sheet text;
                                            never auto-applied)
+  POST /api/vision-takeoff {pdf,pages?,project?,hints?}
+                                        -> {ok, payload:{line_items,
+                                            sheet_summary, scale_found,
+                                            scope_narrative, risks,
+                                            exclusions_suggested},
+                                            model, ai_generated,
+                                            pages_analyzed, disclaimer}
+                                           (AI VISION takeoff over rendered
+                                           plan-sheet images; quantities only
+                                           where derivable from printed
+                                           evidence -- otherwise qty null +
+                                           needs_measure. Never auto-applied)
 
 Security model (all localhost-only, defense in depth):
   * Every request must carry a Host header of localhost / 127.0.0.1 / [::1]
@@ -109,6 +121,18 @@ SVC_VOCAB = (
 
 # Text handed to the model per analyze-plan call is capped at this many chars.
 PLAN_TEXT_CAP = 12000
+
+# /api/vision-takeoff page rendering knobs. Pages render at up to ~2.2x
+# (targeting a long edge of ~2500 px, within the 2200-2800 px sweet spot for
+# reading plan-sheet text) and any PNG over the byte cap is re-rendered
+# smaller so each image stays well inside the Messages API image limits.
+VISION_PAGE_DEFAULT = 4                      # pages analyzed when none given
+VISION_PAGE_CAP = 6                          # hard cap on pages per request
+VISION_TARGET_LONG_PX = 2500.0               # aim: long edge ~2200-2800 px
+VISION_MAX_SCALE = 2.2                       # never upscale beyond ~2.2x
+VISION_MIN_SCALE = 0.35                      # floor for giant E-size sheets
+VISION_PNG_BYTE_CAP = int(4.5 * 1024 * 1024)  # re-render smaller above this
+VISION_HINTS_CAP = 2000                      # chars of estimator hints kept
 
 
 # --------------------------------------------------------------------------- #
@@ -239,12 +263,18 @@ class _AIError(Exception):
 
 
 def call_ai(prompt: str, max_tokens: int = 600,
-            system: str | None = None) -> tuple[str, str]:
+            system: str | None = None,
+            content: list | None = None) -> tuple[str, str]:
     """Send one prompt to the Anthropic Messages API; return (text, model).
 
-    Shared by /api/ai and /api/analyze-plan. The key comes from
-    ANTHROPIC_API_KEY (loaded from .env by load_dotenv() at startup) and is
-    never logged or echoed. Raises _AIError with a UI-safe message + status.
+    Shared by /api/ai, /api/analyze-plan and /api/vision-takeoff. The key
+    comes from ANTHROPIC_API_KEY (loaded from .env by load_dotenv() at
+    startup) and is never logged or echoed. Raises _AIError with a UI-safe
+    message + status.
+
+    When `content` is given it is used verbatim as the user message content
+    (a Messages-API content-block list, e.g. image + text blocks for vision
+    calls) and `prompt` is ignored; existing text-only callers are unchanged.
     """
     key = (os.environ.get("ANTHROPIC_API_KEY") or "").strip()
     if not key:
@@ -253,7 +283,8 @@ def call_ai(prompt: str, max_tokens: int = 600,
     payload = {
         "model": model,
         "max_tokens": max_tokens,
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": [{"role": "user",
+                      "content": content if content is not None else prompt}],
     }
     if system:
         payload["system"] = system
@@ -264,8 +295,11 @@ def call_ai(prompt: str, max_tokens: int = 600,
                  "x-api-key": key,
                  "anthropic-version": "2023-06-01"},
         method="POST")
+    # Vision (content-block) calls carry images and larger outputs; give
+    # them longer on the wire than plain text prompts.
+    timeout = 180 if content is not None else 60
     try:
-        with urllib.request.urlopen(req, timeout=60) as resp:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
             data = json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
         # Pass the API's own error message through (it never contains the
@@ -304,6 +338,64 @@ def extract_plan_text(pdf_path: str,
             chunks.append("--- page %d ---\n%s"
                           % (p, reader.pages[p - 1].extract_text() or ""))
     return "\n".join(chunks), used
+
+
+def render_plan_pages(pdf_path: str,
+                      pages: list[int] | None = None) -> list[dict]:
+    """Render 1-based plan pages to base64 PNGs via pypdfium2.
+
+    Defaults to the first VISION_PAGE_DEFAULT pages; out-of-range page
+    numbers are skipped (mirrors extract_plan_text). Scale targets a long
+    edge of ~VISION_TARGET_LONG_PX px, clamped to
+    [VISION_MIN_SCALE, VISION_MAX_SCALE]; any PNG that still exceeds
+    VISION_PNG_BYTE_CAP is re-rendered at a progressively lower scale.
+    Returns [{"page", "b64", "px": [w, h], "bytes"}] for the pages actually
+    rendered. pypdfium2/Pillow are imported here -- not at module level -- so
+    the bridge still runs without them; the caller turns ImportError into 503.
+    """
+    import base64
+    import io
+    import pypdfium2 as pdfium
+    from PIL import Image  # noqa: F401  (bitmap.to_pil() needs Pillow)
+
+    def _png(page, scale: float) -> tuple[bytes, tuple[int, int]]:
+        bitmap = page.render(scale=scale)
+        pil = bitmap.to_pil().convert("RGB")
+        buf = io.BytesIO()
+        pil.save(buf, format="PNG")
+        return buf.getvalue(), pil.size
+
+    doc = pdfium.PdfDocument(pdf_path)
+    try:
+        n = len(doc)
+        want = pages if pages else list(range(1, min(VISION_PAGE_DEFAULT, n) + 1))
+        out = []
+        for p in want:
+            if not (isinstance(p, int) and not isinstance(p, bool)
+                    and 1 <= p <= n):
+                continue
+            page = doc[p - 1]
+            try:
+                w_pts, h_pts = page.get_size()
+                long_pts = max(w_pts, h_pts) or 1.0
+                scale = max(VISION_MIN_SCALE,
+                            min(VISION_MAX_SCALE,
+                                VISION_TARGET_LONG_PX / long_pts))
+                data, px = _png(page, scale)
+                tries = 0
+                while len(data) > VISION_PNG_BYTE_CAP and tries < 3:
+                    scale *= 0.7          # ~2x fewer pixels per retry
+                    data, px = _png(page, scale)
+                    tries += 1
+            finally:
+                page.close()
+            out.append({"page": p,
+                        "b64": base64.b64encode(data).decode("ascii"),
+                        "px": [px[0], px[1]],
+                        "bytes": len(data)})
+        return out
+    finally:
+        doc.close()
 
 
 def _corrections_db() -> sqlite3.Connection:
@@ -604,6 +696,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self._corrections_post(body)
         if path == "analyze-plan":
             return self._analyze_plan(body)
+        if path == "vision-takeoff":
+            return self._vision_takeoff(body)
         return self._json({"ok": False, "error": "Unknown endpoint: " + path}, 404)
 
     # ---- endpoints ----
@@ -971,6 +1065,143 @@ class Handler(SimpleHTTPRequestHandler):
                                "raw": reply[:500]})
         return self._json({"ok": True, "payload": parsed, "model": model,
                            "ai_generated": True, "pages_analyzed": used})
+
+    def _vision_takeoff(self, body):
+        """AI VISION takeoff over rendered plan-sheet images (never auto-applied).
+
+        Body: {"pdf": path, "pages": [1-based page numbers] (default first
+        VISION_PAGE_DEFAULT, hard cap VISION_PAGE_CAP), "project": optional
+        name, "hints": optional free text from the estimator}. Renders the
+        pages to PNG with pypdfium2, sends them to the model as image content
+        blocks, and returns line items where a quantity is stated ONLY when
+        it is derivable from printed evidence (counts, printed dimensions,
+        schedules, stated areas); scope that is visible but not quantifiable
+        comes back with qty null + needs_measure true. The estimator reviews
+        everything -- nothing is auto-applied.
+        """
+        pdf = body.get("pdf")
+        if not pdf:
+            return self._json({"ok": False, "error": "pdf is required."}, 400)
+        pdf = resolve_pdf_path(str(pdf))
+        if pdf is None:
+            return self._json({"ok": False,
+                               "error": "pdf path outside allowed directories"},
+                              400)
+        if not os.path.isfile(pdf):
+            return self._json({"ok": False, "error": "pdf not found"}, 400)
+        pages = body.get("pages")
+        if pages is not None:
+            if not isinstance(pages, list):
+                return self._json({"ok": False,
+                                   "error": "pages must be a list of page "
+                                            "numbers"}, 400)
+            try:
+                pages = [int(p) for p in pages]
+            except (TypeError, ValueError):
+                return self._json({"ok": False,
+                                   "error": "pages must be a list of page "
+                                            "numbers"}, 400)
+            if len(pages) > VISION_PAGE_CAP:
+                return self._json({"ok": False,
+                                   "error": "at most %d pages per "
+                                            "vision-takeoff request"
+                                            % VISION_PAGE_CAP}, 400)
+        project = str(body.get("project") or "").strip()
+        hints = str(body.get("hints") or "").strip()[:VISION_HINTS_CAP]
+        # Render BEFORE the key check so a 503 from call_ai() proves the whole
+        # render pipeline ran (and so render errors surface even unconfigured).
+        try:
+            rendered = render_plan_pages(pdf, pages)
+        except ImportError:
+            return self._json({"ok": False,
+                               "error": "pypdfium2/Pillow are not installed "
+                                        "-- run 'pip install -r "
+                                        "requirements.txt' to enable "
+                                        "/api/vision-takeoff"}, 503)
+        except Exception as e:
+            return self._json({"ok": False,
+                               "error": "Could not render PDF pages: %s" % e},
+                              400)
+        if not rendered:
+            return self._json({"ok": False,
+                               "error": "No valid pages to render (check the "
+                                        "requested page numbers)."}, 400)
+        used = [r["page"] for r in rendered]
+        instructions = (
+            "You are a senior commercial demolition estimator performing a "
+            "takeoff from the plan-sheet images above.\n"
+            "Project: %s\n"
+            "Pages shown (1-based): %s\n"
+            "Estimator hints: %s\n\n"
+            "Allowed svc ids (use ONLY these, verbatim):\n%s\n\n"
+            "For each sheet: identify the sheet type and the drawing scale "
+            "(from the title block, graphic scale bar, or dimension strings). "
+            "Read the demolition notes, keynotes, legends and schedules.\n\n"
+            "Produce demolition takeoff line items. A line item may carry a "
+            "QUANTITY ONLY where it is derivable from printed evidence on "
+            "the sheets: counting discrete items (doors, fixtures, "
+            "diffusers, keynote tags), printed dimensions, room/area "
+            "schedules, or explicitly stated areas. For scope that is "
+            "visible but NOT quantifiable from printed evidence, include "
+            "the line with qty null and needs_measure true. NEVER estimate "
+            "a quantity by eyeballing distances on the drawing.\n\n"
+            "Return STRICT JSON only -- no markdown fences, no commentary -- "
+            "with exactly this shape:\n"
+            '{"sheet_summary":"<what sheets these are>",'
+            '"scale_found":"<scale(s) found or null>",'
+            '"scope_narrative":"<2-3 sentence narrative of the demolition '
+            'scope>",'
+            '"line_items":[{"item":"<short human label>",'
+            '"svc":"<one allowed svc id>","unit":"SF|LF|EA",'
+            '"qty":<number or null>,"needs_measure":<true|false>,'
+            '"confidence":"high|medium|low",'
+            '"basis":"<exactly where the number came from: which '
+            'note/keynote/dimension/schedule/count and on which sheet; for '
+            'needs_measure lines, what was seen>",'
+            '"sheet_ref":"<sheet id or page>"}],'
+            '"risks":["<risk>"],'
+            '"exclusions_suggested":["<exclusion>"]}\n\n'
+            "Rules: every qty must trace to printed evidence named in basis; "
+            "qty null whenever needs_measure is true; include only scope "
+            "with visible evidence on these sheets; never invent scope."
+            % (project or "(unnamed)",
+               used,
+               hints or "(none)",
+               ", ".join(SVC_VOCAB)))
+        content = []
+        for r in rendered:
+            content.append({"type": "text",
+                            "text": "--- page %d ---" % r["page"]})
+            content.append({"type": "image",
+                            "source": {"type": "base64",
+                                       "media_type": "image/png",
+                                       "data": r["b64"]}})
+        content.append({"type": "text", "text": instructions})
+        try:
+            reply, model = call_ai("", max_tokens=4000, content=content)
+        except _AIError as e:
+            return self._json({"ok": False, "error": e.msg}, e.code)
+        # Tolerant parse: strip markdown fences, take first { .. last }.
+        raw = reply.strip()
+        if raw.startswith("```"):
+            raw = re.sub(r"^```[a-zA-Z]*\s*", "", raw)
+            raw = re.sub(r"\s*```$", "", raw)
+        i, j = raw.find("{"), raw.rfind("}")
+        parsed = None
+        if i >= 0 and j > i:
+            try:
+                parsed = json.loads(raw[i:j + 1])
+            except Exception:
+                parsed = None
+        if not isinstance(parsed, dict):
+            return self._json({"ok": False,
+                               "error": "AI reply was not valid JSON",
+                               "raw": reply[:500]})
+        return self._json({"ok": True, "payload": parsed, "model": model,
+                           "ai_generated": True, "pages_analyzed": used,
+                           "disclaimer": "AI vision takeoff -- verify every "
+                                         "quantity; needs_measure lines have "
+                                         "no quantity by design"})
 
 
 def main() -> int:

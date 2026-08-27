@@ -1285,6 +1285,42 @@ function ProjectBridgeActions(props) {
       setBusy('');
     }).catch(fail);
   }
+  function runVisionTakeoff() {
+    // AI reads the rendered drawings themselves (notes, keynotes, dimensions,
+    // schedules) and returns a full quantity list. Rules enforced server-side:
+    // a quantity only exists where printed evidence supports it (counts,
+    // dimensions, schedules) — everything else comes back qty-null and
+    // flagged needs_measure. Every line carries its basis. Nothing is priced
+    // or accepted without the estimator seeing it.
+    if (busy) return;
+    setBusy('vision');
+    DX.toast('Locating plans…', 'ok');
+    bridgeCall('plans?project=' + encodeURIComponent(p.name)).then(function (d) {
+      var plans = d.payload && d.payload.plans || [];
+      if (!plans.length) throw new Error('No plan PDFs found for this project.');
+      // prefer the clean (non-marked-up) set for an independent AI read
+      var clean = plans.filter(function (x) { return !/marked.?up/i.test(x.path || x.name || ''); })[0] || plans[0];
+      DX.toast('AI reading the drawings — this can take a minute…', 'ok');
+      return bridgeCall('vision-takeoff', { body: { pdf: clean.path, project: p.name } });
+    }).then(function (d) {
+      var pay = d.payload || {};
+      var lines = pay.line_items || [];
+      if (!lines.length) throw new Error('AI returned no line items — try specific pages or check this is a demo sheet.');
+      var eq = lines.map(function (l) {
+        return { item: l.item || l.svc, svc: l.svc || '', unit: l.unit || '', qty: (l.qty != null ? +l.qty : 0),
+          location: l.sheet_ref || '', notes: (l.needs_measure ? 'NEEDS MEASURE — no printed evidence for a quantity. ' : '') + 'AI vision (' + (l.confidence || 'unrated') + '): ' + (l.basis || '') };
+      });
+      var withQty = lines.filter(function (l) { return l.qty != null; }).length;
+      var needMeasure = lines.length - withQty;
+      DX.commit({ type: 'updateProject', id: id, patch: {
+        estimated_quantities: eq, estQty: eq,
+        ai_takeoff_baseline: { source: 'vision-takeoff', ts: new Date().toISOString(), estQty: JSON.parse(JSON.stringify(eq)) },
+        ai_vision_summary: { sheet_summary: pay.sheet_summary, scale_found: pay.scale_found, scope_narrative: pay.scope_narrative, risks: pay.risks || [], exclusions_suggested: pay.exclusions_suggested || [], pages: d.pages_analyzed, model: d.model, ts: new Date().toISOString() }
+      } });
+      DX.toast('AI takeoff: ' + withQty + ' quantified line(s), ' + needMeasure + ' flagged NEEDS MEASURE — verify every number', needMeasure ? 'err' : 'ok');
+      setBusy('');
+    }).catch(fail);
+  }
   function runScopeAI() {
     // AI reads the plan-sheet text (notes, keynotes, schedules) and suggests
     // scope ITEMS only — no quantities, nothing auto-applied. Estimator reviews
@@ -1340,6 +1376,8 @@ function ProjectBridgeActions(props) {
   }, busy === 'takeoff' ? 'Running…' : 'Run Visual Takeoff'), /*#__PURE__*/React.createElement(Btn, {
     ghost: true, onClick: runMarkupExtract, style: { opacity: busy === 'markup' ? 0.6 : 1 }
   }, busy === 'markup' ? 'Reading markups…' : 'Extract Bluebeam Markups'), /*#__PURE__*/React.createElement(Btn, {
+    ghost: true, onClick: runVisionTakeoff, style: { opacity: busy === 'vision' ? 0.6 : 1, borderColor: C.purple, color: C.purple }
+  }, busy === 'vision' ? 'AI reading drawings…' : 'AI Vision Takeoff (beta)'), /*#__PURE__*/React.createElement(Btn, {
     ghost: true, onClick: runScopeAI, style: { opacity: busy === 'scope' ? 0.6 : 1 }
   }, busy === 'scope' ? 'AI reading…' : 'AI Scope Suggestions'), /*#__PURE__*/React.createElement(Btn, {
     ghost: true, onClick: runPricing, style: { opacity: busy === 'pricing' ? 0.6 : 1 }
@@ -1378,6 +1416,19 @@ function CorrectionStats(props) {
         /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 12, color: r.avg > 0 ? C.green : C.red2 } },
           "AI runs " + (r.avg > 0 ? 'low' : 'high') + " by " + Math.abs(Math.round(r.avg * 10) / 10) + "% avg"));
     }) : /*#__PURE__*/React.createElement("div", { style: { fontSize: 11.5, color: C.t3 } }, "Only removals/additions so far — quantity adjustments will show per-service drift here."));
+}
+function AIVisionSummary(props) {
+  var s = (props.p || {}).ai_vision_summary;
+  if (!s) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    style: { marginTop: 14, padding: '12px 14px', background: C.panel2, border: '0.5px solid ' + C.line, borderLeft: '2px solid ' + C.purple, borderRadius: 10 }
+  }, /*#__PURE__*/React.createElement("div", { style: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 } },
+    /*#__PURE__*/React.createElement("span", { className: "syne", style: { fontWeight: 800, fontSize: 12.5 } }, "AI vision takeoff summary"),
+    /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 10, color: C.t3 } }, "AI-generated · pages " + (s.pages || []).join(', ') + (s.scale_found ? ' · scale ' + s.scale_found : ' · scale not found') + " · verify every quantity")),
+    s.sheet_summary ? /*#__PURE__*/React.createElement("div", { style: { fontSize: 12, color: C.t2, marginBottom: 4 } }, s.sheet_summary) : null,
+    s.scope_narrative ? /*#__PURE__*/React.createElement("div", { style: { fontSize: 12, color: C.t1, marginBottom: 4 } }, s.scope_narrative) : null,
+    (s.risks || []).length ? /*#__PURE__*/React.createElement("div", { style: { fontSize: 11.5, color: C.gold, marginTop: 4 } }, "Risks: " + s.risks.join(' · ')) : null,
+    (s.exclusions_suggested || []).length ? /*#__PURE__*/React.createElement("div", { style: { fontSize: 11.5, color: C.t3, marginTop: 4 } }, "Suggested exclusions: " + s.exclusions_suggested.join(' · ')) : null);
 }
 function AIScopeSuggestions(props) {
   // Advisory AI scope items from plan-sheet text (via /api/analyze-plan).
@@ -3848,6 +3899,8 @@ function ProjectModal({
     }
   }, p.notes)) : null, /*#__PURE__*/React.createElement(ProjectBridgeActions, {
     id: id,
+    p: p
+  }), /*#__PURE__*/React.createElement(AIVisionSummary, {
     p: p
   }), /*#__PURE__*/React.createElement(AIScopeSuggestions, {
     id: id,
