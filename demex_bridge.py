@@ -44,18 +44,25 @@ Endpoints
                                             pages_analyzed} (AI scope-item
                                            suggestions from plan-sheet text;
                                            never auto-applied)
-  POST /api/vision-takeoff {pdf,pages?,project?,hints?}
+  POST /api/vision-takeoff {pdf,pages?,project?,hints?,tiled?}
                                         -> {ok, payload:{line_items,
                                             sheet_summary, scale_found,
                                             scope_narrative, risks,
                                             exclusions_suggested},
                                             model, ai_generated,
-                                            pages_analyzed, disclaimer}
+                                            pages_analyzed, tiled,
+                                            images_sent, disclaimer}
                                            (AI VISION takeoff over rendered
                                            plan-sheet images; quantities only
                                            where derivable from printed
                                            evidence -- otherwise qty null +
-                                           needs_measure. Never auto-applied)
+                                           needs_measure. Never auto-applied.
+                                           tiled adds 4 overlapping zoomed
+                                           quadrant crops per page for dense
+                                           sheets: defaults true for 1-2
+                                           pages, false for 3+; explicit
+                                           value wins, capped at
+                                           VISION_MAX_IMAGES images/request)
 
 Security model (all localhost-only, defense in depth):
   * Every request must carry a Host header of localhost / 127.0.0.1 / [::1]
@@ -133,6 +140,23 @@ VISION_MAX_SCALE = 2.2                       # never upscale beyond ~2.2x
 VISION_MIN_SCALE = 0.35                      # floor for giant E-size sheets
 VISION_PNG_BYTE_CAP = int(4.5 * 1024 * 1024)  # re-render smaller above this
 VISION_HINTS_CAP = 2000                      # chars of estimator hints kept
+
+# Tiled vision mode: dense sheets (medical renos etc.) defeat a single
+# full-page image -- keynote tags become unreadable. When tiled, each page is
+# sent as the normal full view PLUS 4 overlapping quadrant crops. Each
+# quadrant covers VISION_TILE_FRAC of the page's width/height, leaving a
+# (2*FRAC - 1) = 10% overlap band in the middle, and is cut from ONE
+# high-detail render (crop with PIL, never re-render per tile) whose scale
+# targets a tile long edge of ~VISION_TILE_TARGET_LONG_PX (~2x the effective
+# resolution of the full view). VISION_PNG_BYTE_CAP still applies per image
+# (oversize images are progressively downscaled). Total images per request
+# (pages x 5 when tiled) are hard-capped at VISION_MAX_IMAGES, so tiled mode
+# effectively allows 2 pages; the default therefore turns tiling on only for
+# 1-2 page requests.
+VISION_TILE_FRAC = 0.55                      # quadrant covers 55% of w/h
+VISION_TILE_TARGET_LONG_PX = 2400.0          # tile long edge ~2200-2600 px
+VISION_TILE_MAX_SCALE = 8.0                  # sanity clamp, high-detail render
+VISION_MAX_IMAGES = 10                       # images per request, hard cap
 
 
 # --------------------------------------------------------------------------- #
@@ -340,30 +364,78 @@ def extract_plan_text(pdf_path: str,
     return "\n".join(chunks), used
 
 
+def _pdf_page_count(pdf_path: str) -> int:
+    """Page count via pypdfium2 (imported here; ImportError -> caller's 503)."""
+    import pypdfium2 as pdfium
+    doc = pdfium.PdfDocument(pdf_path)
+    try:
+        return len(doc)
+    finally:
+        doc.close()
+
+
 def render_plan_pages(pdf_path: str,
-                      pages: list[int] | None = None) -> list[dict]:
+                      pages: list[int] | None = None,
+                      tiled: bool = False) -> list[dict]:
     """Render 1-based plan pages to base64 PNGs via pypdfium2.
 
     Defaults to the first VISION_PAGE_DEFAULT pages; out-of-range page
     numbers are skipped (mirrors extract_plan_text). Scale targets a long
     edge of ~VISION_TARGET_LONG_PX px, clamped to
-    [VISION_MIN_SCALE, VISION_MAX_SCALE]; any PNG that still exceeds
-    VISION_PNG_BYTE_CAP is re-rendered at a progressively lower scale.
-    Returns [{"page", "b64", "px": [w, h], "bytes"}] for the pages actually
-    rendered. pypdfium2/Pillow are imported here -- not at module level -- so
-    the bridge still runs without them; the caller turns ImportError into 503.
+    [VISION_MIN_SCALE, VISION_MAX_SCALE]; any PNG that exceeds
+    VISION_PNG_BYTE_CAP is progressively shrunk.
+
+    Non-tiled: one full-view image per page, kind "full".
+    Tiled: per page, the page is rendered ONCE at high detail (scale targets
+    a tile long edge of ~VISION_TILE_TARGET_LONG_PX px, i.e. ~2x the full
+    view's effective resolution), then the full view is a PIL downscale of
+    that render and 4 overlapping quadrant tiles (each VISION_TILE_FRAC of
+    width/height -> 10% overlap band in the middle) are PIL crops of it --
+    never a re-render per tile. Tile entries carry kind "top-left" /
+    "top-right" / "bottom-left" / "bottom-right" plus their crop "box"
+    [l, t, r, b] in high-render pixels; order per page is full view first,
+    then the 4 tiles.
+
+    Returns [{"page", "kind", "b64", "px": [w, h], "bytes", "box"?}] for the
+    images actually rendered. pypdfium2/Pillow are imported here -- not at
+    module level -- so the bridge still runs without them; the caller turns
+    ImportError into 503.
     """
     import base64
     import io
     import pypdfium2 as pdfium
-    from PIL import Image  # noqa: F401  (bitmap.to_pil() needs Pillow)
+    from PIL import Image
+
+    def _encode(pil) -> bytes:
+        buf = io.BytesIO()
+        pil.save(buf, format="PNG")
+        return buf.getvalue()
 
     def _png(page, scale: float) -> tuple[bytes, tuple[int, int]]:
         bitmap = page.render(scale=scale)
         pil = bitmap.to_pil().convert("RGB")
-        buf = io.BytesIO()
-        pil.save(buf, format="PNG")
-        return buf.getvalue(), pil.size
+        return _encode(pil), pil.size
+
+    def _shrink_to_cap(pil) -> tuple[bytes, tuple[int, int]]:
+        """Encode; while over the byte cap, downscale ~30% per try (max 3)."""
+        data = _encode(pil)
+        tries = 0
+        while len(data) > VISION_PNG_BYTE_CAP and tries < 3:
+            w, h = pil.size
+            pil = pil.resize((max(1, int(w * 0.7)), max(1, int(h * 0.7))),
+                             Image.LANCZOS)
+            data = _encode(pil)
+            tries += 1
+        return data, pil.size
+
+    def _entry(page_no: int, kind: str, data: bytes,
+               px: tuple[int, int], box=None) -> dict:
+        d = {"page": page_no, "kind": kind,
+             "b64": base64.b64encode(data).decode("ascii"),
+             "px": [px[0], px[1]], "bytes": len(data)}
+        if box is not None:
+            d["box"] = list(box)
+        return d
 
     doc = pdfium.PdfDocument(pdf_path)
     try:
@@ -378,21 +450,48 @@ def render_plan_pages(pdf_path: str,
             try:
                 w_pts, h_pts = page.get_size()
                 long_pts = max(w_pts, h_pts) or 1.0
-                scale = max(VISION_MIN_SCALE,
-                            min(VISION_MAX_SCALE,
-                                VISION_TARGET_LONG_PX / long_pts))
-                data, px = _png(page, scale)
-                tries = 0
-                while len(data) > VISION_PNG_BYTE_CAP and tries < 3:
-                    scale *= 0.7          # ~2x fewer pixels per retry
-                    data, px = _png(page, scale)
-                    tries += 1
+                full_scale = max(VISION_MIN_SCALE,
+                                 min(VISION_MAX_SCALE,
+                                     VISION_TARGET_LONG_PX / long_pts))
+                if tiled:
+                    # ONE high-detail render per page; full view + tiles are
+                    # derived from it with PIL below (after page.close()).
+                    hi_scale = max(full_scale,
+                                   min(VISION_TILE_MAX_SCALE,
+                                       VISION_TILE_TARGET_LONG_PX
+                                       / (VISION_TILE_FRAC * long_pts)))
+                    hi = page.render(scale=hi_scale).to_pil().convert("RGB")
+                else:
+                    data, px = _png(page, full_scale)
+                    tries = 0
+                    while len(data) > VISION_PNG_BYTE_CAP and tries < 3:
+                        full_scale *= 0.7   # ~2x fewer pixels per retry
+                        data, px = _png(page, full_scale)
+                        tries += 1
             finally:
                 page.close()
-            out.append({"page": p,
-                        "b64": base64.b64encode(data).decode("ascii"),
-                        "px": [px[0], px[1]],
-                        "bytes": len(data)})
+            if not tiled:
+                out.append(_entry(p, "full", data, px))
+                continue
+            # Full view: downscale the high render to the normal full-view
+            # size instead of re-rendering.
+            fw = max(1, int(round(w_pts * full_scale)))
+            fh = max(1, int(round(h_pts * full_scale)))
+            full_img = (hi.resize((fw, fh), Image.LANCZOS)
+                        if (fw, fh) != hi.size else hi)
+            data, px = _shrink_to_cap(full_img)
+            out.append(_entry(p, "full", data, px))
+            # 4 overlapping quadrant crops (crop, then check byte size).
+            W, H = hi.size
+            lw = int(round(W * VISION_TILE_FRAC))
+            lh = int(round(H * VISION_TILE_FRAC))
+            x1, y1 = W - lw, H - lh          # right/bottom tiles start at 45%
+            for kind, box in (("top-left", (0, 0, lw, lh)),
+                              ("top-right", (x1, 0, W, lh)),
+                              ("bottom-left", (0, y1, lw, H)),
+                              ("bottom-right", (x1, y1, W, H))):
+                tdata, tpx = _shrink_to_cap(hi.crop(box))
+                out.append(_entry(p, kind, tdata, tpx, box=box))
         return out
     finally:
         doc.close()
@@ -1071,8 +1170,13 @@ class Handler(SimpleHTTPRequestHandler):
 
         Body: {"pdf": path, "pages": [1-based page numbers] (default first
         VISION_PAGE_DEFAULT, hard cap VISION_PAGE_CAP), "project": optional
-        name, "hints": optional free text from the estimator}. Renders the
-        pages to PNG with pypdfium2, sends them to the model as image content
+        name, "hints": optional free text from the estimator, "tiled":
+        optional bool -- defaults true when 1-2 pages are requested/resolved,
+        false for 3+ (cost control); an explicit value always wins}. Renders
+        the pages to PNG with pypdfium2 (tiled mode adds 4 overlapping zoomed
+        quadrant crops per page so dense sheets' keynote tags stay readable;
+        total images hard-capped at VISION_MAX_IMAGES per request -> 400),
+        sends them to the model as image content
         blocks, and returns line items where a quantity is stated ONLY when
         it is derivable from printed evidence (counts, printed dimensions,
         schedules, stated areas); scope that is visible but not quantifiable
@@ -1108,10 +1212,45 @@ class Handler(SimpleHTTPRequestHandler):
                                             % VISION_PAGE_CAP}, 400)
         project = str(body.get("project") or "").strip()
         hints = str(body.get("hints") or "").strip()[:VISION_HINTS_CAP]
+        tiled = body.get("tiled")
+        if tiled is not None and not isinstance(tiled, bool):
+            return self._json({"ok": False,
+                               "error": "tiled must be true or false"}, 400)
+        # Resolve which pages will actually render so the tiled default
+        # (true for 1-2 pages, false for 3+) and the image cap are computed
+        # on real pages, then enforce the cap BEFORE any rendering happens.
+        try:
+            n_doc = _pdf_page_count(pdf)
+        except ImportError:
+            return self._json({"ok": False,
+                               "error": "pypdfium2/Pillow are not installed "
+                                        "-- run 'pip install -r "
+                                        "requirements.txt' to enable "
+                                        "/api/vision-takeoff"}, 503)
+        except Exception as e:
+            return self._json({"ok": False,
+                               "error": "Could not read PDF: %s" % e}, 400)
+        if pages:
+            resolved = [p for p in pages if 1 <= p <= n_doc]
+        else:
+            resolved = list(range(1, min(VISION_PAGE_DEFAULT, n_doc) + 1))
+        if tiled is None:
+            tiled = 0 < len(resolved) <= 2
+        per_page = 5 if tiled else 1        # full view + 4 quadrant tiles
+        if len(resolved) * per_page > VISION_MAX_IMAGES:
+            return self._json(
+                {"ok": False,
+                 "error": "at most %d images per vision-takeoff request; "
+                          "tiled mode sends %d per page (full sheet + 4 "
+                          "zoomed tiles), so %d pages would send %d -- "
+                          "request at most %d pages or set \"tiled\": false"
+                          % (VISION_MAX_IMAGES, per_page, len(resolved),
+                             len(resolved) * per_page,
+                             VISION_MAX_IMAGES // per_page)}, 400)
         # Render BEFORE the key check so a 503 from call_ai() proves the whole
         # render pipeline ran (and so render errors surface even unconfigured).
         try:
-            rendered = render_plan_pages(pdf, pages)
+            rendered = render_plan_pages(pdf, pages, tiled=tiled)
         except ImportError:
             return self._json({"ok": False,
                                "error": "pypdfium2/Pillow are not installed "
@@ -1126,13 +1265,29 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json({"ok": False,
                                "error": "No valid pages to render (check the "
                                         "requested page numbers)."}, 400)
-        used = [r["page"] for r in rendered]
+        used = list(dict.fromkeys(r["page"] for r in rendered))
+        tiling_note = ""
+        if tiled:
+            tiling_note = (
+                "Each page appears as one FULL SHEET image followed by four "
+                "ZOOMED quadrant tiles (top-left, top-right, bottom-left, "
+                "bottom-right) at roughly 2x detail. COUNT tags/symbols "
+                "(keynote tags, fixtures, doors, diffusers) on the zoomed "
+                "tiles -- they are the legible copies -- and use the full "
+                "view for context, geometry and the title block. The tiles "
+                "OVERLAP: a ~10 percent band through the middle of the sheet "
+                "appears on two adjacent tiles, so an item in that band "
+                "shows up on two tiles -- count each item ONCE by its "
+                "position on the sheet, never twice. Report the per-keynote "
+                "counts you derived (e.g. 'keynote 3 x 12 across tiles') in "
+                "the basis fields.\n\n")
         instructions = (
             "You are a senior commercial demolition estimator performing a "
             "takeoff from the plan-sheet images above.\n"
             "Project: %s\n"
             "Pages shown (1-based): %s\n"
             "Estimator hints: %s\n\n"
+            "%s"                             # tiling note ("" when not tiled)
             "Allowed svc ids (use ONLY these, verbatim):\n%s\n\n"
             "For each sheet: identify the sheet type and the drawing scale "
             "(from the title block, graphic scale bar, or dimension strings). "
@@ -1167,11 +1322,18 @@ class Handler(SimpleHTTPRequestHandler):
             % (project or "(unnamed)",
                used,
                hints or "(none)",
+               tiling_note,
                ", ".join(SVC_VOCAB)))
         content = []
         for r in rendered:
-            content.append({"type": "text",
-                            "text": "--- page %d ---" % r["page"]})
+            kind = r.get("kind", "full")
+            if not tiled:
+                label = "--- page %d ---" % r["page"]
+            elif kind == "full":
+                label = "--- page %d (full sheet) ---" % r["page"]
+            else:
+                label = "--- page %d, tile %s (zoomed) ---" % (r["page"], kind)
+            content.append({"type": "text", "text": label})
             content.append({"type": "image",
                             "source": {"type": "base64",
                                        "media_type": "image/png",
@@ -1199,6 +1361,7 @@ class Handler(SimpleHTTPRequestHandler):
                                "raw": reply[:500]})
         return self._json({"ok": True, "payload": parsed, "model": model,
                            "ai_generated": True, "pages_analyzed": used,
+                           "tiled": tiled, "images_sent": len(rendered),
                            "disclaimer": "AI vision takeoff -- verify every "
                                          "quantity; needs_measure lines have "
                                          "no quantity by design"})

@@ -793,10 +793,37 @@ def slugify(value: str, maxlen: int = 60) -> str:
     return (value or "project")[:maxlen].strip("-")
 
 
+def dedupe_attachment_path(dest: Path, payload: bytes) -> Path:
+    """Resolve slug collisions between attachments saved to the same folder.
+
+    Returns `dest` if it doesn't exist yet, or if the existing file already
+    holds this exact content (safe reuse). Otherwise appends _2, _3, ...
+    before the extension until a free (or content-identical) path is found.
+    """
+    def _same_content(p: Path) -> bool:
+        try:
+            if p.stat().st_size != len(payload):
+                return False
+            return hashlib.sha256(p.read_bytes()).digest() == \
+                hashlib.sha256(payload).digest()
+        except OSError:
+            return False
+
+    if not dest.exists() or _same_content(dest):
+        return dest
+    n = 2
+    while True:
+        cand = dest.with_name(f"{dest.stem}_{n}{dest.suffix}")
+        if not cand.exists() or _same_content(cand):
+            return cand
+        n += 1
+
+
 def matched_keyword(text: str) -> str:
-    low = text.lower()
+    # Word-boundary match so short keywords like "ITB" don't fire inside
+    # arbitrary words (e.g. "exhibitb"). First match wins, list order kept.
     for kw in KEYWORDS:
-        if kw.lower() in low:
+        if re.search(r"\b" + re.escape(kw) + r"\b", text, re.IGNORECASE):
             return kw
     return ""
 
@@ -895,7 +922,7 @@ def run(args: argparse.Namespace) -> int:
                 with conn:  # one transaction per message
                     for fname, payload in attachments:
                         safe = slugify(Path(fname).stem) + ".pdf"
-                        dest = proj_dir / safe
+                        dest = dedupe_attachment_path(proj_dir / safe, payload)
                         dest.write_bytes(payload)
                         insert_attachment(conn, pid, message_id, fname, str(dest))
                         log.info("    saved attachment %s", dest)
