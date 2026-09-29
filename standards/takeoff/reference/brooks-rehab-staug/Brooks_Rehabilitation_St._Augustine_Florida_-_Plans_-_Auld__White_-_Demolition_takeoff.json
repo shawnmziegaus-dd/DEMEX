@@ -1,0 +1,328 @@
+{
+  "schema": "demex_takeoff_markup/v1",
+  "source_pdf": "Brooks_Rehabilitation_St._Augustine_Florida_-_Plans_-_Auld__White_-_Demolition.pdf",
+  "pages": 14,
+  "extracted_at": "2026-09-29T17:12:48+00:00",
+  "legend_version": "1.1",
+  "legend_profile": "interior",
+  "counts": {
+    "measurements": 14,
+    "area": 0,
+    "length": 0,
+    "count": 14,
+    "needs_review": 14,
+    "unmapped_colour": 0,
+    "unconfirmed_legend": 0
+  },
+  "skipped_annotations": {
+    "/Link": 54
+  },
+  "rollup": [
+    {
+      "svc": null,
+      "unit": "EA",
+      "scope": "UNMAPPED - colour not on legend",
+      "in_scope": true,
+      "confidence": "probable",
+      "qty": 14.0,
+      "annotations": 14
+    }
+  ],
+  "measurements": [
+    {
+      "page": 1,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "SubmittalStamp",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNMAPPED - colour not on legend",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "lgiles",
+      "needs_review": 1
+    },
+    {
+      "page": 2,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "SubmittalStamp",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNMAPPED - colour not on legend",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "lgiles",
+      "needs_review": 1
+    },
+    {
+      "page": 3,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "SubmittalStamp",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNMAPPED - colour not on legend",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "lgiles",
+      "needs_review": 1
+    },
+    {
+      "page": 4,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "SubmittalStamp",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNMAPPED - colour not on legend",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "lgiles",
+      "needs_review": 1
+    },
+    {
+      "page": 5,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "SubmittalStamp",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNMAPPED - colour not on legend",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "lgiles",
+      "needs_review": 1
+    },
+    {
+      "page": 6,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "SubmittalStamp",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNMAPPED - colour not on legend",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "lgiles",
+      "needs_review": 1
+    },
+    {
+      "page": 7,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "SubmittalStamp",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNMAPPED - colour not on legend",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "lgiles",
+      "needs_review": 1
+    },
+    {
+      "page": 8,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "SubmittalStamp",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNMAPPED - colour not on legend",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "lgiles",
+      "needs_review": 1
+    },
+    {
+      "page": 9,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "SubmittalStamp",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNMAPPED - colour not on legend",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "lgiles",
+      "needs_review": 1
+    },
+    {
+      "page": 10,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "SubmittalStamp",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNMAPPED - colour not on legend",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "lgiles",
+      "needs_review": 1
+    },
+    {
+      "page": 11,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "SubmittalStamp",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNMAPPED - colour not on legend",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "lgiles",
+      "needs_review": 1
+    },
+    {
+      "page": 12,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "SubmittalStamp",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNMAPPED - colour not on legend",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "lgiles",
+      "needs_review": 1
+    },
+    {
+      "page": 13,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "SubmittalStamp",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNMAPPED - colour not on legend",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "lgiles",
+      "needs_review": 1
+    },
+    {
+      "page": 14,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "SubmittalStamp",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNMAPPED - colour not on legend",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "lgiles",
+      "needs_review": 1
+    }
+  ],
+  "est_qty": []
+}

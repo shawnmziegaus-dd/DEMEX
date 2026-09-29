@@ -1,0 +1,150 @@
+{
+  "schema": "demex_takeoff_markup/v1",
+  "source_pdf": "1911_-REC_YARD-CAMERA-100_DWGS_19059_-_SA_Casey_-_Demolition_-_Marked_Up.pdf",
+  "pages": 18,
+  "extracted_at": "2026-09-29T17:12:47+00:00",
+  "legend_version": "1.1",
+  "legend_profile": "site_civil",
+  "counts": {
+    "measurements": 5,
+    "area": 5,
+    "length": 0,
+    "count": 0,
+    "needs_review": 0,
+    "unmapped_colour": 0,
+    "unconfirmed_legend": 0
+  },
+  "skipped_annotations": {
+    "/Square": 614
+  },
+  "rollup": [
+    {
+      "svc": "structure_demo",
+      "unit": "SF",
+      "scope": "Structure demolition / limits of work footprint",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "qty": 98250.42,
+      "annotations": 5
+    }
+  ],
+  "measurements": [
+    {
+      "page": 4,
+      "kind": "area",
+      "qty": 45441.85,
+      "unit": "SF",
+      "label": "45,441.85 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Structure demolition / limits of work footprint",
+      "svc": "structure_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 5,
+      "kind": "area",
+      "qty": 7587.27,
+      "unit": "SF",
+      "label": "7,587.27 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Structure demolition / limits of work footprint",
+      "svc": "structure_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 5,
+      "kind": "area",
+      "qty": 463.12,
+      "unit": "SF",
+      "label": "463.12 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Structure demolition / limits of work footprint",
+      "svc": "structure_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "area",
+      "qty": 18576.48,
+      "unit": "SF",
+      "label": "18,576.48 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Structure demolition / limits of work footprint",
+      "svc": "structure_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "area",
+      "qty": 26181.7,
+      "unit": "SF",
+      "label": "26,181.7 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Structure demolition / limits of work footprint",
+      "svc": "structure_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    }
+  ],
+  "est_qty": [
+    {
+      "item": "Structure demolition / limits of work footprint",
+      "desc": "Structure demolition / limits of work footprint",
+      "svc": "structure_demo",
+      "scope_type": "demolition",
+      "qty": 98250.42,
+      "unit": "SF",
+      "source": "1911_-REC_YARD-CAMERA-100_DWGS_19059_-_SA_Casey_-_Demolition_-_Marked_Up.pdf",
+      "needs_review": 0
+    }
+  ]
+}

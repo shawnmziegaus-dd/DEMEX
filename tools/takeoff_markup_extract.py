@@ -179,6 +179,10 @@ def extract(pdf_path: str, legend: dict, tol: float = 0.30, profile_name: str = 
 
     for page_no, page in enumerate(reader.pages, start=1):
         annots = page.get("/Annots") or []
+        # Some writers store /Annots behind an indirect reference; resolve it
+        # before iterating or pypdf hands back a non-iterable IndirectObject.
+        if hasattr(annots, "get_object"):
+            annots = annots.get_object() or []
         for ref in annots:
             try:
                 a = ref.get_object()

@@ -1,0 +1,90 @@
+{
+  "schema": "demex_takeoff_markup/v1",
+  "source_pdf": "NC25-026_Restroom_Installation_with_an_Attached_Porch_-_Wilson_Neck_Boat_Ramp_-_K_G_Construction_-_Marked_Up.pdf",
+  "pages": 135,
+  "extracted_at": "2026-09-29T17:12:50+00:00",
+  "legend_version": "1.1",
+  "legend_profile": "site_civil",
+  "counts": {
+    "measurements": 2,
+    "area": 2,
+    "length": 0,
+    "count": 0,
+    "needs_review": 0,
+    "unmapped_colour": 0,
+    "unconfirmed_legend": 0
+  },
+  "skipped_annotations": {
+    "/Link": 7,
+    "/Widget": 123,
+    "/Square": 497,
+    "/FreeText": 2
+  },
+  "rollup": [
+    {
+      "svc": "structure_demo",
+      "unit": "SF",
+      "scope": "Structure demolition / limits of work footprint",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "qty": 978.19,
+      "annotations": 2
+    }
+  ],
+  "measurements": [
+    {
+      "page": 49,
+      "kind": "area",
+      "qty": 308.58,
+      "unit": "SF",
+      "label": "308.58 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Structure demolition / limits of work footprint",
+      "svc": "structure_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 49,
+      "kind": "area",
+      "qty": 669.61,
+      "unit": "SF",
+      "label": "669.61 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Structure demolition / limits of work footprint",
+      "svc": "structure_demo",
+      "in_scope": true,
+      "confidence": "confirmed",
+      "author": "Conference Room",
+      "needs_review": 0
+    }
+  ],
+  "est_qty": [
+    {
+      "item": "Structure demolition / limits of work footprint",
+      "desc": "Structure demolition / limits of work footprint",
+      "svc": "structure_demo",
+      "scope_type": "demolition",
+      "qty": 978.19,
+      "unit": "SF",
+      "source": "NC25-026_Restroom_Installation_with_an_Attached_Porch_-_Wilson_Neck_Boat_Ramp_-_K_G_Construction_-_Marked_Up.pdf",
+      "needs_review": 0
+    }
+  ]
+}

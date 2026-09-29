@@ -1,0 +1,453 @@
+{
+  "schema": "demex_takeoff_markup/v1",
+  "source_pdf": "OC_-_Public_Works_BLDG_2_Interior_Renovations_Plans_Orlando_Florida_-_Marked_Up_-_SA_Casey.pdf",
+  "pages": 15,
+  "extracted_at": "2026-09-29T17:12:50+00:00",
+  "legend_version": "1.1",
+  "legend_profile": "interior",
+  "counts": {
+    "measurements": 19,
+    "area": 13,
+    "length": 6,
+    "count": 0,
+    "needs_review": 0,
+    "unmapped_colour": 0,
+    "unconfirmed_legend": 0
+  },
+  "skipped_annotations": {
+    "/Square": 1933
+  },
+  "rollup": [
+    {
+      "svc": "concrete_flat",
+      "unit": "SF",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "in_scope": true,
+      "confidence": "probable",
+      "qty": 3366.58,
+      "annotations": 13
+    },
+    {
+      "svc": null,
+      "unit": "LF",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "in_scope": true,
+      "confidence": "probable",
+      "qty": 281.11,
+      "annotations": 6
+    }
+  ],
+  "measurements": [
+    {
+      "page": 6,
+      "kind": "area",
+      "qty": 1423.6,
+      "unit": "SF",
+      "label": "1,423.6 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "area",
+      "qty": 92.24,
+      "unit": "SF",
+      "label": "92.24 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "area",
+      "qty": 500.15,
+      "unit": "SF",
+      "label": "500.15 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "area",
+      "qty": 204.49,
+      "unit": "SF",
+      "label": "204.49 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "area",
+      "qty": 82.2,
+      "unit": "SF",
+      "label": "82.2 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "area",
+      "qty": 9.35,
+      "unit": "SF",
+      "label": "9.35 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "area",
+      "qty": 97.48,
+      "unit": "SF",
+      "label": "97.48 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "area",
+      "qty": 100.59,
+      "unit": "SF",
+      "label": "100.59 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "area",
+      "qty": 107.41,
+      "unit": "SF",
+      "label": "107.41 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "area",
+      "qty": 69.02,
+      "unit": "SF",
+      "label": "69.02 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "area",
+      "qty": 59.73,
+      "unit": "SF",
+      "label": "59.73 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "area",
+      "qty": 413.92,
+      "unit": "SF",
+      "label": "413.92 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "area",
+      "qty": 206.4,
+      "unit": "SF",
+      "label": "206.4 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "length",
+      "qty": 63.85,
+      "unit": "LF",
+      "label": "63'-10 1/4\"",
+      "measurement": "Perimeter Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "length",
+      "qty": 83.67,
+      "unit": "LF",
+      "label": "83'-8\"",
+      "measurement": "Perimeter Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "length",
+      "qty": 17.96,
+      "unit": "LF",
+      "label": "17'-11 1/2\"",
+      "measurement": "Perimeter Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "length",
+      "qty": 40.4,
+      "unit": "LF",
+      "label": "40'-4 3/4\"",
+      "measurement": "Perimeter Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "length",
+      "qty": 41.92,
+      "unit": "LF",
+      "label": "41'-11\"",
+      "measurement": "Perimeter Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 6,
+      "kind": "length",
+      "qty": 33.31,
+      "unit": "LF",
+      "label": "33'-3 3/4\"",
+      "measurement": "Perimeter Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    }
+  ],
+  "est_qty": [
+    {
+      "item": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "desc": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "scope_type": "demolition",
+      "qty": 3366.58,
+      "unit": "SF",
+      "source": "OC_-_Public_Works_BLDG_2_Interior_Renovations_Plans_Orlando_Florida_-_Marked_Up_-_SA_Casey.pdf",
+      "needs_review": 0
+    }
+  ]
+}

@@ -39,6 +39,12 @@ _backups_*/
 # Agent memory / local tooling
 .claude/
 
+# Reference-takeoff source PDFs (large marked-up plan sets kept as local files
+# only; the extracted *_takeoff.json + meta.json carry the data). The two
+# original reference PDFs were committed before this rule and stay tracked -
+# .gitignore never un-tracks an already-committed file.
+standards/takeoff/reference/**/*.pdf
+
 # Sensitive business-data exports & generated analysis artifacts
 demex_full_history_import.json
 demex_itb_import_*.json

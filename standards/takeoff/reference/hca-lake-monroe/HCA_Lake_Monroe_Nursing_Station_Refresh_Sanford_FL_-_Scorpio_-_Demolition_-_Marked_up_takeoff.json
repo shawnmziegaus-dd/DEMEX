@@ -1,0 +1,222 @@
+{
+  "schema": "demex_takeoff_markup/v1",
+  "source_pdf": "HCA_Lake_Monroe_Nursing_Station_Refresh_Sanford_FL_-_Scorpio_-_Demolition_-_Marked_up.pdf",
+  "pages": 8,
+  "extracted_at": "2026-09-29T17:12:49+00:00",
+  "legend_version": "1.1",
+  "legend_profile": "interior",
+  "counts": {
+    "measurements": 8,
+    "area": 1,
+    "length": 7,
+    "count": 0,
+    "needs_review": 0,
+    "unmapped_colour": 0,
+    "unconfirmed_legend": 0
+  },
+  "skipped_annotations": {
+    "/Link": 39
+  },
+  "rollup": [
+    {
+      "svc": "concrete_flat",
+      "unit": "SF",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "in_scope": true,
+      "confidence": "probable",
+      "qty": 469.44,
+      "annotations": 1
+    },
+    {
+      "svc": null,
+      "unit": "LF",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "in_scope": true,
+      "confidence": "probable",
+      "qty": 123.85,
+      "annotations": 7
+    }
+  ],
+  "measurements": [
+    {
+      "page": 5,
+      "kind": "length",
+      "qty": 23.1,
+      "unit": "LF",
+      "label": "23'-1 1/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 5,
+      "kind": "length",
+      "qty": 5.98,
+      "unit": "LF",
+      "label": "5'-11 3/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 5,
+      "kind": "length",
+      "qty": 6.35,
+      "unit": "LF",
+      "label": "6'-4 1/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 5,
+      "kind": "length",
+      "qty": 69.88,
+      "unit": "LF",
+      "label": "69'-10 1/2\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 5,
+      "kind": "area",
+      "qty": 469.44,
+      "unit": "SF",
+      "label": "469.44 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 5,
+      "kind": "length",
+      "qty": 4.35,
+      "unit": "LF",
+      "label": "4'-4 1/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 5,
+      "kind": "length",
+      "qty": 6.94,
+      "unit": "LF",
+      "label": "6'-11 1/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 5,
+      "kind": "length",
+      "qty": 7.25,
+      "unit": "LF",
+      "label": "7'-3\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    }
+  ],
+  "est_qty": [
+    {
+      "item": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "desc": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "scope_type": "demolition",
+      "qty": 469.44,
+      "unit": "SF",
+      "source": "HCA_Lake_Monroe_Nursing_Station_Refresh_Sanford_FL_-_Scorpio_-_Demolition_-_Marked_up.pdf",
+      "needs_review": 0
+    }
+  ]
+}

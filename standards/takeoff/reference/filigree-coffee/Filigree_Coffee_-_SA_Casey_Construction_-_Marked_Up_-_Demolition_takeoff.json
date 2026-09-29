@@ -1,0 +1,302 @@
+{
+  "schema": "demex_takeoff_markup/v1",
+  "source_pdf": "Filigree_Coffee_-_SA_Casey_Construction_-_Marked_Up_-_Demolition.pdf",
+  "pages": 3,
+  "extracted_at": "2026-09-29T17:12:48+00:00",
+  "legend_version": "1.1",
+  "legend_profile": "interior",
+  "counts": {
+    "measurements": 11,
+    "area": 1,
+    "length": 6,
+    "count": 4,
+    "needs_review": 4,
+    "unmapped_colour": 0,
+    "unconfirmed_legend": 4
+  },
+  "skipped_annotations": {},
+  "rollup": [
+    {
+      "svc": "concrete_flat",
+      "unit": "SF",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "in_scope": true,
+      "confidence": "probable",
+      "qty": 759.25,
+      "annotations": 1
+    },
+    {
+      "svc": "count",
+      "unit": "EA",
+      "scope": "Door, frame and opening removal (count)",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "qty": 4.0,
+      "annotations": 4
+    },
+    {
+      "svc": null,
+      "unit": "LF",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "in_scope": true,
+      "confidence": "probable",
+      "qty": 69.97,
+      "annotations": 6
+    }
+  ],
+  "measurements": [
+    {
+      "page": 2,
+      "kind": "length",
+      "qty": 17.54,
+      "unit": "LF",
+      "label": "17'-6 1/2\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 2,
+      "kind": "length",
+      "qty": 10.31,
+      "unit": "LF",
+      "label": "10'-3 3/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 2,
+      "kind": "length",
+      "qty": 27.1,
+      "unit": "LF",
+      "label": "27'-1 1/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 2,
+      "kind": "length",
+      "qty": 10.27,
+      "unit": "LF",
+      "label": "10'-3 1/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 2,
+      "kind": "length",
+      "qty": 3.33,
+      "unit": "LF",
+      "label": "3'-4\"",
+      "measurement": "Length Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 2,
+      "kind": "length",
+      "qty": 1.42,
+      "unit": "LF",
+      "label": "1'-5\"",
+      "measurement": "Length Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 2,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Door, frame and opening removal (count)",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 2,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Door, frame and opening removal (count)",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 2,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Door, frame and opening removal (count)",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 2,
+      "kind": "count",
+      "qty": 1.0,
+      "unit": "EA",
+      "label": null,
+      "measurement": "Highlight",
+      "color_rgb": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "color_hex": "#FFFF00",
+      "color_name": "Yellow",
+      "scope": "Door, frame and opening removal (count)",
+      "svc": "count",
+      "in_scope": true,
+      "confidence": "unconfirmed",
+      "author": "Conference Room",
+      "needs_review": 1
+    },
+    {
+      "page": 3,
+      "kind": "area",
+      "qty": 759.25,
+      "unit": "SF",
+      "label": "759.25 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    }
+  ],
+  "est_qty": [
+    {
+      "item": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "desc": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "scope_type": "demolition",
+      "qty": 759.25,
+      "unit": "SF",
+      "source": "Filigree_Coffee_-_SA_Casey_Construction_-_Marked_Up_-_Demolition.pdf",
+      "needs_review": 0
+    },
+    {
+      "item": "Door, frame and opening removal (count)",
+      "desc": "Door, frame and opening removal (count)",
+      "svc": "count",
+      "scope_type": "demolition",
+      "qty": 4.0,
+      "unit": "EA",
+      "source": "Filigree_Coffee_-_SA_Casey_Construction_-_Marked_Up_-_Demolition.pdf",
+      "needs_review": 1
+    }
+  ]
+}

@@ -219,6 +219,78 @@ def load_references(cur, now: str) -> tuple[int, int]:
     return refs, meas
 
 
+def discover_references(cur, now: str) -> tuple[int, int]:
+    """Auto-register reference sets that live on disk but are not in REFERENCES.
+
+    Any standards/takeoff/reference/<slug>/ directory containing a *_takeoff.json
+    is registered as ref_id "ref_takeoff_" + slug (kebab -> snake), reading
+    title/gc/discipline/notes from the folder's meta.json when present.
+    The curated REFERENCES entries always win: their ref_ids are skipped here.
+    """
+    import glob
+
+    legend_version = json.load(open(LEGEND, encoding="utf-8"))["version"]
+    curated_ids = {r["ref_id"] for r in REFERENCES}
+    curated_jsons = {os.path.normpath(os.path.join(REPO, r["takeoff_json"])) for r in REFERENCES}
+    refs = meas = 0
+    for d in sorted(os.listdir(REF_DIR)):
+        slug_dir = os.path.join(REF_DIR, d)
+        if not os.path.isdir(slug_dir):
+            continue
+        ref_id = "ref_takeoff_" + d.replace("-", "_")
+        if ref_id in curated_ids:
+            continue
+        tjs = [p for p in sorted(glob.glob(os.path.join(slug_dir, "*_takeoff.json")))
+               if os.path.normpath(p) not in curated_jsons]
+        if not tjs:
+            continue  # e.g. a NOTE.md-only folder (no measurement annotations found)
+        tj = tjs[0]
+        if len(tjs) > 1:
+            print(f"  ! {d}: {len(tjs)} takeoff JSONs, using {os.path.basename(tj)}")
+        t = json.load(open(tj, encoding="utf-8"))
+
+        meta_path = os.path.join(slug_dir, "meta.json")
+        meta = {}
+        if os.path.exists(meta_path):
+            try:
+                meta = json.load(open(meta_path, encoding="utf-8"))
+            except (json.JSONDecodeError, OSError) as e:
+                print(f"  ! {d}/meta.json unreadable ({e}), registering without it")
+
+        pdf_rel = None
+        src = t.get("source_pdf") or meta.get("source_pdf")
+        if src and os.path.exists(os.path.join(slug_dir, src)):
+            pdf_rel = os.path.relpath(os.path.join(slug_dir, src), REPO)
+
+        notes = meta.get("notes") or ""
+        if meta.get("gc"):
+            notes = (notes + " " if notes else "") + f"GC: {meta['gc']}."
+        notes = (notes + " " if notes else "") + f"Auto-discovered from {os.path.relpath(slug_dir, REPO)}."
+
+        cur.execute(
+            "INSERT OR REPLACE INTO reference_takeoffs (ref_id,title,discipline,sheet,owner,engineer,"
+            "issue_date,engineer_project_no,pdf,takeoff_json,marked_up_in,legend_version,is_gold_standard,"
+            "measurement_count,rollup,est_qty,notes,loaded_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (ref_id, meta.get("title") or d, meta.get("discipline_guess"), None, None, None,
+             meta.get("ingested"), None, pdf_rel, os.path.relpath(tj, REPO),
+             "Bluebeam Revu", legend_version, 0, t["counts"]["measurements"],
+             json.dumps(t["rollup"]), json.dumps(t.get("est_qty", [])), notes, now),
+        )
+        refs += 1
+        cur.execute("DELETE FROM takeoff_measurements WHERE ref_id = ?", (ref_id,))
+        for m in t["measurements"]:
+            cur.execute(
+                "INSERT INTO takeoff_measurements (ref_id,project_id,page,kind,qty,unit,label,color_hex,"
+                "color_name,svc,scope,in_scope,author,source_pdf,needs_review) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (ref_id, None, m.get("page"), m.get("kind"), m.get("qty"), m.get("unit"),
+                 m.get("label"), m.get("color_hex"), m.get("color_name"), m.get("svc"),
+                 m.get("scope"), int(m.get("in_scope", True)),
+                 m.get("author"), t.get("source_pdf"), int(m.get("needs_review", 0))),
+            )
+            meas += 1
+    return refs, meas
+
+
 def load_integrations(cur, now: str) -> int:
     if not os.path.exists(REGISTRY):
         print("  ! integrations/registry.json not found - run integrations/_scaffold.py first")
@@ -249,12 +321,13 @@ def main() -> int:
 
     n_legend = load_legend(cur, now)
     n_refs, n_meas = load_references(cur, now)
+    n_disc, n_disc_meas = discover_references(cur, now)
     n_int = load_integrations(cur, now)
     con.commit()
 
     print(f"takeoff_legend        {n_legend} rows")
-    print(f"reference_takeoffs    {n_refs} rows")
-    print(f"takeoff_measurements  {n_meas} rows")
+    print(f"reference_takeoffs    {n_refs} curated + {n_disc} auto-discovered")
+    print(f"takeoff_measurements  {n_meas} curated + {n_disc_meas} auto-discovered")
     print(f"integrations          {n_int} rows")
 
     print("\ngold-standard takeoff on file:")
