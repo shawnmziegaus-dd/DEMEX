@@ -1,0 +1,22 @@
+{
+ "schema": "demex_takeoff_markup/v1",
+ "source_pdf": "MACA_AL_Flooring_Finish_Plan_Markup.pdf",
+ "pages": null,
+ "extracted_at": "2026-10-27T19:20:42+00:00",
+ "legend_version": "1.1",
+ "legend_profile": "flooring",
+ "counts": {
+  "measurements": 0,
+  "area": 0,
+  "length": 0,
+  "count": 0,
+  "needs_review": 0,
+  "unmapped_colour": 0,
+  "unconfirmed_legend": 0
+ },
+ "skipped_annotations": {},
+ "rollup": [],
+ "measurements": [],
+ "est_qty": [],
+ "method": "Highlight-only finish plan markup for a submittal book (no SF requested). LVT-1, SDT-1, RB-1, PFT-1 + wall tile CWT-1/CWT-2; PC-1/SC-1 concrete not in scope."
+}

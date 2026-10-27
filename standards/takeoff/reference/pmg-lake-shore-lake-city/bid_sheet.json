@@ -1,0 +1,317 @@
+{
+ "schema": "demex_bid_sheet/v1",
+ "bid_no": "",
+ "bid_date": "2026-10-27",
+ "status": "estimated - not yet submitted",
+ "project_name": "Palms Medical Group / Lake Shore Hospital Authority remodel, Lake City FL",
+ "address": "351 NE Franklin St, Lake City, FL 32055",
+ "gc": "(GC TBD) - Owner: Lake Shore Hospital Authority",
+ "due": "",
+ "project_type": "Open Shop",
+ "scope": "DEMOLITION",
+ "currency": "USD",
+ "prices": {
+  "demo_base": 52141,
+  "alt1_ext_cmu": 8056,
+  "alt2_sawcut": 1525,
+  "alt3_mastic": 9245,
+  "flooring_waynes": 57898,
+  "combined_base": 110039
+ },
+ "base_bid": 52141,
+ "linked_takeoff": "pmg-lake-shore-lake-city_takeoff.json",
+ "linked_markup": "PMG_Lake_Shore_Markups.pdf",
+ "estimate_workbook": "PMG_Lake_Shore_Estimate.xlsx",
+ "proposal_doc": null,
+ "scope_of_work_and_exclusions": [
+  "DEMOLITION SCOPE OF WORK (Disassemble Dynamics)",
+  "1. Complete interior demolition of all items in the building except roof drains above ceiling, main MDP and panels; remove interior partitions to deck, +/-850 LF (A1 Demo Note)",
+  "2. Remove drywall on exterior walls down to fur channel, +/-3,500 SF (A1 Demo Note)",
+  "3. Remove ceilings and grid throughout, incl. M100 data room ceiling only, +/-7,700 SF (A1, M100 Note)",
+  "4. Remove existing floor finishes throughout, +/-7,590 SF (A1 Demo Note)",
+  "5. Remove doors, frames and hardware, +/-40 EA; casework, countertops and reception desk, +/-100 LF (A1)",
+  "6. Remove plumbing fixtures, +/-30 EA, after capping by plumbing contractor (A1)",
+  "7. Remove light fixtures, devices, conduit and wire back to the nearest junction box; HVAC ductwork, diffusers, grilles and hangers (A1 Demo Note)",
+  "8. Remove existing storefront and glazing at new entrance and center section for new exterior door, +/-60 LF (A1, A1.1)",
+  "9. Remove existing curb and gutter 274 LF, asphalt pavement 1,574 SF, concrete 489 SF (Site Demo Notes 1, 2, 3)",
+  "10. Remove existing trees incl. stump grinding, 8 EA (Site Demo Note 4)",
+  "11. Protect X-Ray 120, MDP/panels and roof drains in place; legally dispose of all debris; leave broom clean",
+  "ALTERNATES",
+  "Alt #1: Remove exterior CMU walls at angled entries, +/-67 LF x +/-12' (A1 'Demo exterior CMU wall')",
+  "Alt #2: Sawcut asphalt / concrete / curb at site removal limits",
+  "Alt #3: Grind / remove mastic after flooring removal",
+  "DEMOLITION EXCLUSIONS",
+  "- X-Ray 120 (no demo this room); MDP, panels and roof drains to remain",
+  "- All patching, repair, floor leveling and prep for new finishes; utility disconnects/caps by trades",
+  "- Removal of conduit/wire beyond the nearest junction box or back to panel",
+  "- Shoring limited to non-load-bearing masonry; load-bearing shoring, design and engineering excluded; lintels/jamb reinforcement excluded",
+  "- Hazardous materials survey/abatement; erosion control, grading, utilities and new site work",
+  "- Terms: plans only, zero retainage, net 30, price valid 90 days; additional mobilization $3,250",
+  "FLOORING SCOPE (Wayne's Carpet Plus)",
+  "1. Furnish & install Mohawk 559 Anodized Lapis carpet tile in rooms per Finish Schedule incl. corridors, +/-4,948 SF",
+  "2. Furnish & install Flexco Natural Elements American Cherry 610 LVT in rooms per Finish Schedule, +/-3,147 SF",
+  "3. Furnish & install 2x2 sheet ceramic shower floor tile in ADA Tlt 124, +/-13 SF (color with PMG)",
+  "4. Floor prep - patch/skim allowance; transition strips between dissimilar floors (max 1/8\")",
+  "FLOORING EXCLUSIONS",
+  "- Wood base WM618 / WM725, quarter round, chair rail and crown (trim carpentry); moisture mitigation beyond allowance; furniture moving"
+ ],
+ "line_items": [
+  {
+   "id": "D1",
+   "section": "BASE BID - INTERIOR SELECTIVE DEMOLITION (COMPLETE GUT)",
+   "desc": "Remove interior partitions (stud & drywall) to deck, incl. framing",
+   "ref": "A1 complete demo note",
+   "qty": 850,
+   "unit": "LF"
+  },
+  {
+   "id": "D2",
+   "section": "BASE BID - INTERIOR SELECTIVE DEMOLITION (COMPLETE GUT)",
+   "desc": "Remove drywall on exterior walls down to fur channel",
+   "ref": "A1 complete demo note",
+   "qty": 3500,
+   "unit": "SF"
+  },
+  {
+   "id": "D3",
+   "section": "BASE BID - INTERIOR SELECTIVE DEMOLITION (COMPLETE GUT)",
+   "desc": "Remove ceilings & grid throughout (incl. M100 data room ceiling only)",
+   "ref": "A1; M100 note; Ceiling Removal markup",
+   "qty": 7700,
+   "unit": "SF"
+  },
+  {
+   "id": "D4",
+   "section": "BASE BID - INTERIOR SELECTIVE DEMOLITION (COMPLETE GUT)",
+   "desc": "Remove existing floor finishes (DDD-owned scraper)",
+   "ref": "A1; Floor Removal markup",
+   "qty": 7590,
+   "unit": "SF"
+  },
+  {
+   "id": "D5",
+   "section": "BASE BID - INTERIOR SELECTIVE DEMOLITION (COMPLETE GUT)",
+   "desc": "Remove doors, frames & hardware",
+   "ref": "A1",
+   "qty": 40,
+   "unit": "EA"
+  },
+  {
+   "id": "D6",
+   "section": "BASE BID - INTERIOR SELECTIVE DEMOLITION (COMPLETE GUT)",
+   "desc": "Remove casework, countertops & reception desk",
+   "ref": "A1",
+   "qty": 100,
+   "unit": "LF"
+  },
+  {
+   "id": "D7",
+   "section": "BASE BID - INTERIOR SELECTIVE DEMOLITION (COMPLETE GUT)",
+   "desc": "Remove plumbing fixtures (WC, lav/exam sinks, shower, mop sink) - after cap by plumber",
+   "ref": "A1",
+   "qty": 30,
+   "unit": "EA"
+  },
+  {
+   "id": "D8",
+   "section": "BASE BID - INTERIOR SELECTIVE DEMOLITION (COMPLETE GUT)",
+   "desc": "Remove light fixtures, devices, conduit & wire back to nearest J-box (MDP & panels remain)",
+   "ref": "A1 complete demo note",
+   "qty": 7700,
+   "unit": "SF"
+  },
+  {
+   "id": "D9",
+   "section": "BASE BID - INTERIOR SELECTIVE DEMOLITION (COMPLETE GUT)",
+   "desc": "Remove HVAC ductwork, diffusers, grilles & hangers (roof drains remain)",
+   "ref": "A1 complete demo note",
+   "qty": 7700,
+   "unit": "SF"
+  },
+  {
+   "id": "D10",
+   "section": "BASE BID - INTERIOR SELECTIVE DEMOLITION (COMPLETE GUT)",
+   "desc": "Remove existing storefront & glazing (new entrance + center section)",
+   "ref": "A1, A1.1",
+   "qty": 60,
+   "unit": "LF"
+  },
+  {
+   "id": "D11",
+   "section": "BASE BID - INTERIOR SELECTIVE DEMOLITION (COMPLETE GUT)",
+   "desc": "Load-out, protection of X-ray 120 & MDP, broom clean",
+   "ref": "A1",
+   "qty": 1,
+   "unit": "LS"
+  },
+  {
+   "id": "D12",
+   "section": "BASE BID - INTERIOR SELECTIVE DEMOLITION (COMPLETE GUT)",
+   "desc": "Small equipment rental - debris carts & rolling scaffolds (2) for ceiling / high work",
+   "ref": "-",
+   "qty": 16,
+   "unit": "DAY"
+  },
+  {
+   "id": "D13",
+   "section": "BASE BID - INTERIOR SELECTIVE DEMOLITION (COMPLETE GUT)",
+   "desc": "Consumables - saw blades, debris bags, poly, floor protection, PPE",
+   "ref": "-",
+   "qty": 1,
+   "unit": "LS"
+  },
+  {
+   "id": "D14",
+   "section": "BASE BID - INTERIOR SELECTIVE DEMOLITION (COMPLETE GUT)",
+   "desc": "C&D disposal - 30 yd dumpsters",
+   "ref": "-",
+   "qty": 8,
+   "unit": "PULL"
+  },
+  {
+   "id": "S1",
+   "section": "BASE BID - SITE DEMOLITION",
+   "desc": "Remove existing asphalt pavement",
+   "ref": "Site Demo Note 2",
+   "qty": 1574,
+   "unit": "SF"
+  },
+  {
+   "id": "S2",
+   "section": "BASE BID - SITE DEMOLITION",
+   "desc": "Remove existing concrete",
+   "ref": "Site Demo Note 3",
+   "qty": 489,
+   "unit": "SF"
+  },
+  {
+   "id": "S3",
+   "section": "BASE BID - SITE DEMOLITION",
+   "desc": "Remove existing curb & gutter",
+   "ref": "Site Demo Note 1",
+   "qty": 274,
+   "unit": "LF"
+  },
+  {
+   "id": "S4",
+   "section": "BASE BID - SITE DEMOLITION",
+   "desc": "Remove existing trees incl. stump grinding & haul-off",
+   "ref": "Site Demo Note 4",
+   "qty": 8,
+   "unit": "EA"
+  },
+  {
+   "id": "S5",
+   "section": "BASE BID - SITE DEMOLITION",
+   "desc": "Skid steer w/ breaker (3 days) + mini-ex (2 days) + stump grinder (2 days)",
+   "ref": "-",
+   "qty": 1,
+   "unit": "LS"
+  },
+  {
+   "id": "S6",
+   "section": "BASE BID - SITE DEMOLITION",
+   "desc": "Concrete / asphalt disposal - 20 yd dumpsters (+/-72 tons)",
+   "ref": "-",
+   "qty": 3,
+   "unit": "PULL"
+  },
+  {
+   "id": "S7",
+   "section": "BASE BID - SITE DEMOLITION",
+   "desc": "Tree / vegetative debris haul-off",
+   "ref": "-",
+   "qty": 2,
+   "unit": "LOAD"
+  },
+  {
+   "id": "A1.1",
+   "section": "ALTERNATE #1 - EXTERIOR CMU WALL REMOVAL (ANGLED ENTRIES)",
+   "desc": "Remove exterior CMU walls at angled entries (+/-67 LF x +/-12')",
+   "ref": "A1 'Demo exterior CMU wall'",
+   "qty": 804,
+   "unit": "SF"
+  },
+  {
+   "id": "A1.2",
+   "section": "ALTERNATE #1 - EXTERIOR CMU WALL REMOVAL (ANGLED ENTRIES)",
+   "desc": "Wall saw / chainsaw rental & blades",
+   "ref": "-",
+   "qty": 2,
+   "unit": "DAY"
+  },
+  {
+   "id": "A1.3",
+   "section": "ALTERNATE #1 - EXTERIOR CMU WALL REMOVAL (ANGLED ENTRIES)",
+   "desc": "CMU disposal - 20 yd dumpsters",
+   "ref": "-",
+   "qty": 2,
+   "unit": "PULL"
+  },
+  {
+   "id": "A2.1",
+   "section": "ALTERNATE #2 - SAWCUTTING AT SITE DEMO LIMITS",
+   "desc": "Sawcut asphalt / concrete / curb at removal limits",
+   "ref": "Site Demo",
+   "qty": 200,
+   "unit": "LF"
+  },
+  {
+   "id": "A3.1",
+   "section": "ALTERNATE #3 - MASTIC REMOVAL / GRINDING OF EXISTING FLOOR",
+   "desc": "Grind / remove mastic after flooring removal",
+   "ref": "A1",
+   "qty": 7590,
+   "unit": "SF"
+  },
+  {
+   "id": "F1",
+   "section": "WAYNE'S CARPET PLUS - FLOORING ESTIMATE",
+   "desc": "Carpet tile - Mohawk 559 Anodized Lapis (CT rooms + corridors)",
+   "ref": null,
+   "qty": 4948,
+   "unit": "SF"
+  },
+  {
+   "id": "F2",
+   "section": "WAYNE'S CARPET PLUS - FLOORING ESTIMATE",
+   "desc": "LVT - Flexco Natural Elements American Cherry 610 (glue-down)",
+   "ref": null,
+   "qty": 3147,
+   "unit": "SF"
+  },
+  {
+   "id": "F3",
+   "section": "WAYNE'S CARPET PLUS - FLOORING ESTIMATE",
+   "desc": "2x2 sheet ceramic shower floor tile - ADA Tlt 124",
+   "ref": null,
+   "qty": 13,
+   "unit": "SF"
+  },
+  {
+   "id": "F4",
+   "section": "WAYNE'S CARPET PLUS - FLOORING ESTIMATE",
+   "desc": "Floor prep - patch / skim after demo (allowance)",
+   "ref": null,
+   "qty": 8095,
+   "unit": "SF"
+  },
+  {
+   "id": "F5",
+   "section": "WAYNE'S CARPET PLUS - FLOORING ESTIMATE",
+   "desc": "Transition strips between dissimilar floors (max 1/8\")",
+   "ref": null,
+   "qty": 30,
+   "unit": "EA"
+  },
+  {
+   "id": "F6",
+   "section": "WAYNE'S CARPET PLUS - FLOORING ESTIMATE",
+   "desc": "Freight / delivery",
+   "ref": null,
+   "qty": 1,
+   "unit": "LS"
+  }
+ ],
+ "pricing_basis": "DDD standing inputs: $25/MH flat, crew 6, 8-hr shifts, $1,000/crew-day profit, 5% contingency; mobilization not in price ($3,250 additional mob in terms)"
+}

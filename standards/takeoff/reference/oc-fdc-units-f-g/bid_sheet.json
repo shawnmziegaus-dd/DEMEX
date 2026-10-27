@@ -1,0 +1,388 @@
+{
+ "schema": "demex_bid_sheet/v1",
+ "bid_no": "",
+ "bid_date": "2026-10-27",
+ "status": "estimated - not yet submitted",
+ "project_name": "OC Corrections FDC Isolation Cell Renovations Units F & G, Orlando FL",
+ "address": "3503 Vision Blvd, Orlando, FL",
+ "gc": "S.A. Casey Construction (Solicitation Y25-790-RC)",
+ "due": "2026-10-13 (PASSED - confirm extension)",
+ "project_type": "Open Shop",
+ "scope": "DEMOLITION",
+ "currency": "USD",
+ "prices": {
+  "base": 55390,
+  "alt1_cmu": 45266,
+  "alt2_slab": 12087,
+  "alt3_openings": 11347,
+  "alt4_grind": 2155,
+  "alt5_neg_air": 5950,
+  "total": 132194
+ },
+ "base_bid": 55390,
+ "linked_takeoff": "oc-fdc-units-f-g_takeoff.json",
+ "linked_markup": "FDC_Units_FG_Demo_Markup.pdf",
+ "estimate_workbook": "FDC_Units_FG_Demo_Bid_Breakout.xlsx",
+ "proposal_doc": null,
+ "scope_of_work_and_exclusions": [
+  "DEMOLITION SCOPE OF WORK",
+  "Remove existing detention plumbing fixtures and all accessories - 16 WC, 16 lavatories, 2 combination fixtures (Plan Note D07, Plumbing Note 1)",
+  "Remove existing restroom / shower partitions and shower drains, Units F & G (Plan Note D04, Plumbing Note 3)",
+  "Remove existing plaster ceilings in hatched areas incl. security mesh where present, +/-1,065 SF (Plan Legend, RFI #29)",
+  "Remove existing door, frame and all accessories, Unit F, 1 EA (Plan Note D09)",
+  "Remove all above-slab sanitary and vent piping in hatched areas incl. 4\" sanitary line up to and including the 4\" VTR, Units F & G (Plumbing Notes 1, 5)",
+  "Remove all domestic plumbing in chases and walls incl. valves, fixtures and associated controls, surface-mounted stainless steel pipe enclosures in their entirety, and the existing valve control cabinet (Plumbing Notes 1, 2, 3)",
+  "Remove existing AHUs and portions of supply and outdoor air ductwork as required for new AHUs, 2 EA (Mech Note 2, Elec Note 2)",
+  "Remove existing RTUs and return duct transitions after chilled water and condensate piping are disconnected by mechanical, 2 EA (Mech Note 2)",
+  "Remove existing roof exhaust and supply fans, curbs and security bars to remain, 4 EA (Mech Notes 1, 2, 3)",
+  "Remove existing supply / return grilles and associated ductwork, hangers, straps and supports, incl. 12x12 exhaust duct to 2nd floor (Mech Notes 1, 7, 9)",
+  "Remove 2\" CHWS&R piping back to 3\" reducer, supports to remain, Unit G (Mech Note 3)",
+  "Remove sprinkler branch piping and heads shown for demolition, +/-360 LF, after drain-down by the fire protection contractor (FPD111, FPD112)",
+  "Remove existing light fixtures, 80 EA (ED111F/G, ED112F/G)",
+  "Remove AHU and exhaust fan disconnect switches, devices, cabling and conduit back to the nearest junction box, after make-safe by electrician (Elec Notes 1, 2; ED113F/G Note 1)",
+  "Remove existing fire alarm devices shown for demolition, 24 EA (FAD111F/G, FAD112F/G)",
+  "Carry all debris down from Level 2 by stair (no elevator), haul out nightly; account for all tools and debris at end of each shift per Corrections requirements (RFI #40, #43; Spec 01 1100 1.9)",
+  "Provide tacky mats, poly at openings and HEPA vacuums; leave work areas broom clean at the end of each shift (Spec 02 4113 1.4.G; Gen. Note W)",
+  "Legally dispose of all demolition debris off-site; owner retains first right of refusal on salvage per joint damage survey (Gen. Notes D, L; Spec 02 4113 3.5)",
+  "ALTERNATES",
+  "ALTERNATE #1: Remove 8\" solid grouted CMU chase walls - Level 1 +/-166 LF (+/-1,770 SF) and Level 2 +/-62 LF (+/-560 SF); cut dowels flush where slab remains, following EOR field review (Struct Notes 1, 4; Plan Notes D01, D02)",
+  "ALTERNATE #2: Sawcut and remove 4\" slab-on-grade, thickened slab, footings and continuous bars, Unit F +/-555 SF / Unit G +/-569 SF (Struct Note 3; Plan Notes D11, D13; SD501 A4, A6)",
+  "ALTERNATE #3: Wall / slab cuts for new plumbing 9 EA, partial wall demo for new door 1 EA, 12\" openings in precast wall panels 4 EA, precast mezzanine slab openings 2 EA, roof panel / metal deck openings 3 EA, incl. GPR / X-ray scanning allowance (Plan Notes D03, D10; SD112F/G, SD121, SD501; RFI #32)",
+  "ALTERNATE #4: Grind dowels / wall base down 1/2\" minimum below top of slab where slab remains (Struct Note 4)",
+  "ALTERNATE #5: Negative air machines and full-height poly dust containment, Units F & G",
+  "ALTERNATE #6: Daytime work (Spec 01 2300 Alternate No. 1) - DDD price unchanged (flat labor rate)",
+  "EXCLUSIONS",
+  "- All patching, repair, slab repair per specs, roof patching, curbs and caps, fireproofing repair, and prep for new finishes (Spec 01 7329; Mech Note 2; RFI #21)",
+  "- Excavation, trenching and backfill below slab; disconnecting / capping / grout-abandoning underslab and below-grade piping (Plumbing Notes 2, 4, 5)",
+  "- Disconnect, cap and make-safe of all utilities - electrical, plumbing, chilled water, sprinkler drain-down and impairment, and fire alarm system programming / bypass by the respective trades",
+  "- Removal of conduit and wiring beyond the nearest junction box or back to the panel / source (Elec Gen. Note 4)",
+  "- Shoring: included is limited to non-load-bearing masonry; load-bearing wall shoring, shoring design, structural engineering, PE survey and stamped drawings excluded (RFI #46; Spec 02 4113 3.1.C; S001)",
+  "- Furnishing / installing lintels, bearing plates, jamb reinforcement, security bars at penetrations, and grouting (RFI #76)",
+  "- Plywood / steel security covers at openings left overnight, temporary partitions and guardrails by GC (01 1100 1.9)",
+  "- Hazardous materials (asbestos, lead, PCB ballasts) identification, abatement or disposal - no survey provided",
+  "- Crane or rooftop rigging for RTUs / fans; detention equipment and security systems (RFI #79, #82)",
+  "- Domestic Water Piping Replacement project (FDC_DW drawings) and ACT grid / tile removal and replacement",
+  "- Items to remain: existing fixtures to remain (Plumbing Note 6), existing lights in dayroom, equipment within NIC rooms, roof curbs and security bars",
+  "TERMS",
+  "- Bid based on plans and specifications only; quantities scaled and +/- (field verify).",
+  "- Zero retainage; net 30; price valid 90 days.",
+  "- Mobilization not included in unit pricing; each additional mobilization (e.g., Unit F and Unit G phased separately) $3,250.",
+  "- Night work Mon-Fri included at no premium; weekend work only with Corrections' written approval.",
+  "- Security time, escorts and FDLE background checks for DDD crew included as listed; delays from inmate movement, lockdowns or denied access are by change order."
+ ],
+ "line_items": [
+  {
+   "id": "B1",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Remove detention plumbing fixtures & all accessories (WC, lav, combo fixture)",
+   "ref": "AD201F/G D07; PD111F/G KN1",
+   "qty": 34,
+   "unit": "EA"
+  },
+  {
+   "id": "B2",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Remove restroom / shower partitions & shower drains",
+   "ref": "AD201F/G D04; PD111F/G KN3",
+   "qty": 2,
+   "unit": "LS"
+  },
+  {
+   "id": "B3",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Remove existing plaster ceiling (incl. security mesh where present)",
+   "ref": "AD201F/G legend; RFI #29",
+   "qty": 1065,
+   "unit": "SF"
+  },
+  {
+   "id": "B4",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Remove door, frame & all accessories",
+   "ref": "AD201F D09",
+   "qty": 1,
+   "unit": "EA"
+  },
+  {
+   "id": "B5",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Remove above-slab sanitary/vent piping incl. 4\" line to VTR & VTR",
+   "ref": "PD111F/G KN1, KN5",
+   "qty": 450,
+   "unit": "LF"
+  },
+  {
+   "id": "B6",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Remove domestic piping, valves & controls in chases / walls",
+   "ref": "PD112F/G KN2",
+   "qty": 500,
+   "unit": "LF"
+  },
+  {
+   "id": "B7",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Remove surface-mounted SS pipe enclosures (entire) & valve control cabinet",
+   "ref": "PD112F/G KN1, KN3",
+   "qty": 3,
+   "unit": "EA"
+  },
+  {
+   "id": "B8",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Remove AHU + supply & OA ductwork as req'd for new AHU",
+   "ref": "MD111F/G KN2; ED111G KN2",
+   "qty": 2,
+   "unit": "EA"
+  },
+  {
+   "id": "B9",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Remove RTU + return duct transition (piping disconnected by mech)",
+   "ref": "MD112F/G KN2",
+   "qty": 2,
+   "unit": "EA"
+  },
+  {
+   "id": "B10",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Remove roof exhaust / supply fans (curbs & security bars remain)",
+   "ref": "MD113F/G KN1-3",
+   "qty": 4,
+   "unit": "EA"
+  },
+  {
+   "id": "B11",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Remove ductwork, 12x12 exhaust duct, supply & return grilles, hangers",
+   "ref": "MD111F/G, MD112F/G",
+   "qty": 300,
+   "unit": "LF"
+  },
+  {
+   "id": "B12",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Remove 2\" CHWS&R piping back to 3\" reducer (supports remain)",
+   "ref": "MD111G KN3",
+   "qty": 40,
+   "unit": "LF"
+  },
+  {
+   "id": "B13",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Remove sprinkler branch piping & heads (after drain-down by FP)",
+   "ref": "FPD111, FPD112",
+   "qty": 360,
+   "unit": "LF"
+  },
+  {
+   "id": "B14",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Remove light fixtures",
+   "ref": "ED111F/G, ED112F/G",
+   "qty": 80,
+   "unit": "EA"
+  },
+  {
+   "id": "B15",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Remove AHU / EF disconnects, devices, conduit & wire back to nearest J-box",
+   "ref": "ED111G, ED112G, ED113F/G; ED Gen. Note 2",
+   "qty": 1,
+   "unit": "LS"
+  },
+  {
+   "id": "B16",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Remove fire alarm devices (system kept live by FA contractor)",
+   "ref": "FAD111F/G, FAD112F/G",
+   "qty": 24,
+   "unit": "EA"
+  },
+  {
+   "id": "B17",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Debris carry-down from Level 2 (no elevator), daily haul-out, tool / debris accounting",
+   "ref": "RFI #40, #43; 01 1100 1.9",
+   "qty": 1,
+   "unit": "LS"
+  },
+  {
+   "id": "B18",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Dust & noise control: tacky mats, poly at openings, HEPA vacs, broom clean nightly",
+   "ref": "02 4113 1.4.G; AD201 Gen. Note W",
+   "qty": 1,
+   "unit": "LS"
+  },
+  {
+   "id": "B19",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "Security onboarding: FDLE Level 1 checks & badging / orientation",
+   "ref": "01 1100 1.9",
+   "qty": 1,
+   "unit": "LS"
+  },
+  {
+   "id": "B20",
+   "section": "BASE BID - SELECTIVE DEMOLITION (ARCHITECTURAL, MECHANICAL, PLUMBING, FIRE PROTECTION, ELECTRICAL, FIRE ALARM)",
+   "desc": "C&D debris disposal - 30 yd dumpsters",
+   "ref": "02 4113 3.5",
+   "qty": 4,
+   "unit": "PULL"
+  },
+  {
+   "id": "A1.1",
+   "section": "ALTERNATE #1 - CMU WALL REMOVAL (8\" SOLID GROUTED)",
+   "desc": "Remove 8\" solid grouted CMU chase walls - Level 1 (+/-166 LF x 10'-8\")",
+   "ref": "SD111F/G Note 4; AD201F/G D01",
+   "qty": 1770,
+   "unit": "SF"
+  },
+  {
+   "id": "A1.2",
+   "section": "ALTERNATE #1 - CMU WALL REMOVAL (8\" SOLID GROUTED)",
+   "desc": "Remove 8\" solid grouted CMU walls - Level 2 (+/-62 LF x 9')",
+   "ref": "SD112F/G Note 4; AD202F/G D02",
+   "qty": 560,
+   "unit": "SF"
+  },
+  {
+   "id": "A1.3",
+   "section": "ALTERNATE #1 - CMU WALL REMOVAL (8\" SOLID GROUTED)",
+   "desc": "Cut dowels flush at walls where slab remains",
+   "ref": "SD111F/G Note 4; SD501 A1",
+   "qty": 60,
+   "unit": "LF"
+  },
+  {
+   "id": "A1.4",
+   "section": "ALTERNATE #1 - CMU WALL REMOVAL (8\" SOLID GROUTED)",
+   "desc": "Concrete chainsaw / wall saw rental + blades/chains",
+   "ref": "-",
+   "qty": 12,
+   "unit": "DAY"
+  },
+  {
+   "id": "A1.5",
+   "section": "ALTERNATE #1 - CMU WALL REMOVAL (8\" SOLID GROUTED)",
+   "desc": "CMU disposal - 20 yd concrete dumpsters (+/-93 tons)",
+   "ref": "-",
+   "qty": 4,
+   "unit": "PULL"
+  },
+  {
+   "id": "A2.1",
+   "section": "ALTERNATE #2 - SLAB-ON-GRADE, THICKENED SLAB & FOOTING REMOVAL",
+   "desc": "Sawcut slab-on-grade perimeter (4\" SOG)",
+   "ref": "SD111F/G Notes 3; AD D11, D13",
+   "qty": 420,
+   "unit": "LF"
+  },
+  {
+   "id": "A2.2",
+   "section": "ALTERNATE #2 - SLAB-ON-GRADE, THICKENED SLAB & FOOTING REMOVAL",
+   "desc": "Break & remove 4\" slab-on-grade",
+   "ref": "SD111F/G (F +/-555 SF, G +/-569 SF)",
+   "qty": 1124,
+   "unit": "SF"
+  },
+  {
+   "id": "A2.3",
+   "section": "ALTERNATE #2 - SLAB-ON-GRADE, THICKENED SLAB & FOOTING REMOVAL",
+   "desc": "Remove thickened slab, footings & cont. bars at chase walls",
+   "ref": "SD501 A4, A6",
+   "qty": 8,
+   "unit": "CY"
+  },
+  {
+   "id": "A2.4",
+   "section": "ALTERNATE #2 - SLAB-ON-GRADE, THICKENED SLAB & FOOTING REMOVAL",
+   "desc": "Walk-behind slab saw + electric breakers rental, blades",
+   "ref": "-",
+   "qty": 4,
+   "unit": "DAY"
+  },
+  {
+   "id": "A2.5",
+   "section": "ALTERNATE #2 - SLAB-ON-GRADE, THICKENED SLAB & FOOTING REMOVAL",
+   "desc": "Concrete disposal - 20 yd dumpsters (+/-44 tons)",
+   "ref": "-",
+   "qty": 2,
+   "unit": "PULL"
+  },
+  {
+   "id": "A3.1",
+   "section": "ALTERNATE #3 - CONCRETE / PRECAST CUTTING, CORING & OPENINGS",
+   "desc": "Wall / slab cuts for new plumbing",
+   "ref": "AD201F D03 (4), AD201G (3), AD202F/G (2)",
+   "qty": 9,
+   "unit": "EA"
+  },
+  {
+   "id": "A3.2",
+   "section": "ALTERNATE #3 - CONCRETE / PRECAST CUTTING, CORING & OPENINGS",
+   "desc": "Partial CMU wall demo for new door opening",
+   "ref": "AD201F D10",
+   "qty": 1,
+   "unit": "EA"
+  },
+  {
+   "id": "A3.3",
+   "section": "ALTERNATE #3 - CONCRETE / PRECAST CUTTING, CORING & OPENINGS",
+   "desc": "12\" deep openings in existing 10\" precast wall panels",
+   "ref": "SD111F/G, SD112F/G, SD501 1",
+   "qty": 4,
+   "unit": "EA"
+  },
+  {
+   "id": "A3.4",
+   "section": "ALTERNATE #3 - CONCRETE / PRECAST CUTTING, CORING & OPENINGS",
+   "desc": "Precast mezzanine slab openings at duct (max 9\"x9\")",
+   "ref": "SD112F/G",
+   "qty": 2,
+   "unit": "EA"
+  },
+  {
+   "id": "A3.5",
+   "section": "ALTERNATE #3 - CONCRETE / PRECAST CUTTING, CORING & OPENINGS",
+   "desc": "Holes in prestressed precast roof panels (max 9\"x9\") + metal deck opening",
+   "ref": "SD121; SD501 1",
+   "qty": 3,
+   "unit": "EA"
+  },
+  {
+   "id": "A3.6",
+   "section": "ALTERNATE #3 - CONCRETE / PRECAST CUTTING, CORING & OPENINGS",
+   "desc": "Core drill / wall saw rental",
+   "ref": "-",
+   "qty": 3,
+   "unit": "DAY"
+  },
+  {
+   "id": "A3.7",
+   "section": "ALTERNATE #3 - CONCRETE / PRECAST CUTTING, CORING & OPENINGS",
+   "desc": "GPR / X-ray scanning sub (load-bearing & prestressed elements)",
+   "ref": "RFI #32; S502; 01 7329",
+   "qty": 1,
+   "unit": "LS"
+  },
+  {
+   "id": "A4.1",
+   "section": "ALTERNATE #4 - GRIND DOWELS 1/2\" BELOW TOP OF SLAB",
+   "desc": "Grind dowels / wall base 1/2\" min below slab (repair by others)",
+   "ref": "SD111F/G Note 4",
+   "qty": 60,
+   "unit": "LF"
+  },
+  {
+   "id": "A5.1",
+   "section": "ALTERNATE #5 - NEGATIVE AIR & FULL-HEIGHT DUST CONTAINMENT",
+   "desc": "Negative air machines (2) + full-height poly containment per unit",
+   "ref": "02 4113 1.4.G; Gen. Note W",
+   "qty": 2,
+   "unit": "UNIT"
+  }
+ ],
+ "pricing_basis": "DDD standing inputs: $25/MH flat, crew 6, 8-hr shifts, $1,000/crew-day profit, 5% contingency; mobilization not in price ($3,250 additional mob in terms)"
+}

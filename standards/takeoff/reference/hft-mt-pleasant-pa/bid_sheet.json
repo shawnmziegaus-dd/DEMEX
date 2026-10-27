@@ -1,0 +1,327 @@
+{
+ "schema": "demex_bid_sheet/v1",
+ "bid_no": "",
+ "bid_date": "2026-10-27",
+ "status": "estimated - not yet submitted",
+ "project_name": "Harbor Freight Tools, 819 Crossroads Plaza, Mount Pleasant PA",
+ "address": "819 Crossroads Plaza, Mount Pleasant, PA 15666",
+ "gc": "Marco Contractors (Jayne Baxter; job key hft8841)",
+ "due": "2026-10-27 10:00 AM ET (PASSED)",
+ "project_type": "Open Shop",
+ "scope": "DEMOLITION",
+ "currency": "USD",
+ "prices": {
+  "base": 51100,
+  "alt1_cmu": 7186,
+  "alt2_trench": 3979,
+  "alt3_sawcut": 2451,
+  "alt4_floor_cutouts": 2425,
+  "alt5_mastic_grind": 20137
+ },
+ "base_bid": 51100,
+ "linked_takeoff": "hft-mt-pleasant-pa_takeoff.json",
+ "linked_markup": "HFT_Mt_Pleasant_Demo_Markup.pdf",
+ "estimate_workbook": "HFT_Mt_Pleasant_Demo_Bid.xlsx",
+ "proposal_doc": null,
+ "scope_of_work_and_exclusions": [
+  "DEMOLITION SCOPE OF WORK",
+  "1. Remove all existing floor finishes throughout the HFT space, +/-18,060 SF (Plan Note 215, Gen. Note 16)",
+  "2. Remove fixtures (fixed or free-standing) and all abandoned equipment throughout the HFT space (Plan Notes 202, 203)",
+  "3. Remove light fixtures completely throughout the HFT space (Plan Note 212)",
+  "4. Remove abandoned electrical equipment not to be re-used incl. junction boxes, conduit and wiring, and unused wires and hangers, back to the nearest junction box (Plan Note 205, A2.0)",
+  "5. Remove exposed metal studs completely, +/-74 LF (+/-58'-8\" and +/-14'-10\") (Plan Note 207)",
+  "6. Remove existing gyp. bd. wall and associated furring (Plan Note 209)",
+  "7. Remove (2) existing overhead doors and frames and (1) hollow metal door and frame (Plan Notes 218, 221, 240)",
+  "8. Remove existing storefront doors and storefront system at new bi-parting entry, +/-12'-0\" W x 10'-0\" H, and portion of storefront +/-5'-2\" W; knee wall to remain (Plan Notes 211, 219)",
+  "9. Remove existing canopy and all associated attachments at north door (Plan Note 247)",
+  "10. Remove existing signage (Plan Note 223)",
+  "11. Remove existing receiving platform, rail, canopy, ramp and all associated attachments, +/-871 SF (Plan Note 208)",
+  "12. Remove asphalt for new concrete pad and receiving enclosure, +/-911 SF, and existing sloped asphalt, +/-176 SF (Plan Notes 224, 227)",
+  "13. Remove concrete walk for new concrete ramp, frost slab, sidewalk and egress ramp, +/-916 SF (Plan Notes 225, 226, 228, 234)",
+  "14. Remove existing bollards completely, 4 EA (Plan Note 246)",
+  "15. Remove all debris from site and legally dispose; leave broom clean (Gen. Notes 2, 5, 21)",
+  "ALTERNATES",
+  "Alt #1: Cut and remove CMU to expand OH door opening to 8'-0\" x 10'-0\", masonry at bi-parting entry, (2) new 3'-4\" x 7'-4\" HM door openings, and remove 8\" CMU infill, +/-150 SF (Plan Notes 218, 219, 220, 236)",
+  "Alt #2: Sawcut and remove slab for plumbing trench, approx. 370 SF (Plan Note 217)",
+  "Alt #3: Sawcut asphalt and concrete walk at site removal limits, +/-280 LF (Plan Notes 224-228, 234)",
+  "Alt #4: Cut out remaining floor outlets, drains and holes (allowance 10 EA) and sawcut/remove interior concrete curb +/-12 LF (Plan Notes 216, 249)",
+  "Alt #5: Grind / remove mastic after flooring removal (Plan Note 215)",
+  "EXCLUSIONS",
+  "- Roofing, roof deck openings and capped curb removal at new RTUs (Plan Notes 213, 214) - by landlord's roofing contractor / mechanical contractor",
+  "- Mechanical, plumbing, fire protection and electrical demolition by those trades (Gen. Notes 13, 14; M1.0, P1.0, E-sheets), except light fixtures and abandoned electrical back to the nearest junction box",
+  "- Removal of conduit and wiring beyond the nearest junction box or back to panel/source; utility disconnects, caps and off-hours shutdowns",
+  "- All patching, repair and prep: masonry wall patch, slab patch and prep for new finishes, concrete infill, opening prep for new masonry infill, demising wall prep, column paint prep (Plan Notes 201, 206-209, 211, 215-221, 236, 247, 249)",
+  "- Shoring included is limited to non-load-bearing masonry; load-bearing wall shoring, shoring design, structural engineering and stamped drawings excluded. NOTE: D1.0 states GC shoring must be in the bid with no exclusions",
+  "- Furnishing and installing lintels, bearing plates, jamb reinforcement and grouting; new masonry infill",
+  "- Excavation for new ramps, frost slab and sidewalks beyond removal of existing paving; private utility locates; slab X-ray / GPR scanning (Gen. Note 20)",
+  "- Downspout repair / rework (Plan Notes 245, 248); asphalt patching, seal coat and striping",
+  "- Items to remain (Plan Notes 200, 201, 206, 210, 222, 229-233, 235, 237-239, 241-245, 250, 251) and telco demarc",
+  "- Hazardous materials survey and abatement (Gen. Note 6)",
+  "- Bid assumes landlord scope complete prior to DDD mobilization; anything incomplete is by change order",
+  "- Terms: plans only, zero retainage, net 30, price valid 90 days; additional mobilization $3,250",
+  "OPEN ITEMS TO CONFIRM",
+  "- Bid date was 10/27/26 10:00 AM ET - confirm Marco will still accept a late number",
+  "- Travel job (~900 mi from Lake City): lodging & per diem included (toggle on Inputs); mobilization terms may need to exceed the standard $3,250",
+  "- Existing floor finish type and light fixture count not shown - verify at walk; receiving platform construction not detailed",
+  "- PA dumpster and equipment rates are placeholders - confirm locally"
+ ],
+ "line_items": [
+  {
+   "id": "D1",
+   "section": "BASE BID - INTERIOR DEMOLITION",
+   "desc": "Remove all existing floor finishes throughout (DDD-owned scraper)",
+   "ref": "Note 215; Gen. Note 16",
+   "qty": 18060,
+   "unit": "SF"
+  },
+  {
+   "id": "D2",
+   "section": "BASE BID - INTERIOR DEMOLITION",
+   "desc": "Remove fixtures (fixed or free-standing) and abandoned equipment throughout",
+   "ref": "Notes 202, 203",
+   "qty": 18060,
+   "unit": "SF"
+  },
+  {
+   "id": "D3",
+   "section": "BASE BID - INTERIOR DEMOLITION",
+   "desc": "Remove light fixtures completely throughout HFT space (high-bay / strip at +/-16'-18')",
+   "ref": "Note 212",
+   "qty": 150,
+   "unit": "EA"
+  },
+  {
+   "id": "D4",
+   "section": "BASE BID - INTERIOR DEMOLITION",
+   "desc": "Remove abandoned electrical (j-boxes, conduit, wire) and unused wires/hangers back to nearest J-box",
+   "ref": "Note 205; A2.0",
+   "qty": 18060,
+   "unit": "SF"
+  },
+  {
+   "id": "D5",
+   "section": "BASE BID - INTERIOR DEMOLITION",
+   "desc": "Remove exposed metal studs completely (+/-58'-8\" west wall, +/-14'-10\" east), +/-16' high",
+   "ref": "Note 207",
+   "qty": 74,
+   "unit": "LF"
+  },
+  {
+   "id": "D6",
+   "section": "BASE BID - INTERIOR DEMOLITION",
+   "desc": "Remove existing gyp. bd. wall and associated furring (+/-2' section, north wall)",
+   "ref": "Note 209",
+   "qty": 1,
+   "unit": "EA"
+  },
+  {
+   "id": "D7",
+   "section": "BASE BID - INTERIOR DEMOLITION",
+   "desc": "Remove existing overhead doors & frames (west wall)",
+   "ref": "Notes 218, 240",
+   "qty": 2,
+   "unit": "EA"
+  },
+  {
+   "id": "D8",
+   "section": "BASE BID - INTERIOR DEMOLITION",
+   "desc": "Remove existing hollow metal door & frame (north wall)",
+   "ref": "Note 221",
+   "qty": 1,
+   "unit": "EA"
+  },
+  {
+   "id": "D9",
+   "section": "BASE BID - INTERIOR DEMOLITION",
+   "desc": "Remove storefront doors & system at new bi-parting entry (+/-12'-0\") and storefront portion (+/-5'-2\"), knee wall to remain",
+   "ref": "Notes 211, 219",
+   "qty": 17,
+   "unit": "LF"
+  },
+  {
+   "id": "D10",
+   "section": "BASE BID - INTERIOR DEMOLITION",
+   "desc": "Remove existing canopy and attachments at north door",
+   "ref": "Note 247",
+   "qty": 1,
+   "unit": "EA"
+  },
+  {
+   "id": "D11",
+   "section": "BASE BID - INTERIOR DEMOLITION",
+   "desc": "Remove existing exterior signage (coordinate with landlord)",
+   "ref": "Note 223",
+   "qty": 1,
+   "unit": "LS"
+  },
+  {
+   "id": "D12",
+   "section": "BASE BID - INTERIOR DEMOLITION",
+   "desc": "Load-out, protection of items to remain (telco demarc, fire riser, gas meter, elec. equipment), broom clean",
+   "ref": "Gen. Notes 2, 11",
+   "qty": 1,
+   "unit": "LS"
+  },
+  {
+   "id": "D13",
+   "section": "BASE BID - INTERIOR DEMOLITION",
+   "desc": "26' scissor lift for lights / studs / signage",
+   "ref": "-",
+   "qty": 8,
+   "unit": "DAY"
+  },
+  {
+   "id": "D14",
+   "section": "BASE BID - INTERIOR DEMOLITION",
+   "desc": "Consumables - blades, debris carts, bags, poly, PPE",
+   "ref": "-",
+   "qty": 1,
+   "unit": "LS"
+  },
+  {
+   "id": "D15",
+   "section": "BASE BID - INTERIOR DEMOLITION",
+   "desc": "C&D disposal - 30 yd dumpsters",
+   "ref": "Gen. Note 5",
+   "qty": 6,
+   "unit": "PULL"
+  },
+  {
+   "id": "S1",
+   "section": "BASE BID - EXTERIOR / SITE DEMOLITION",
+   "desc": "Remove existing receiving platform, rail, canopy, ramp and all attachments (west)",
+   "ref": "Note 208",
+   "qty": 871,
+   "unit": "SF"
+  },
+  {
+   "id": "S2",
+   "section": "BASE BID - EXTERIOR / SITE DEMOLITION",
+   "desc": "Remove asphalt for new concrete pad and receiving enclosure (west, net of platform)",
+   "ref": "Note 224",
+   "qty": 911,
+   "unit": "SF"
+  },
+  {
+   "id": "S3",
+   "section": "BASE BID - EXTERIOR / SITE DEMOLITION",
+   "desc": "Remove existing sloped asphalt (east)",
+   "ref": "Note 227",
+   "qty": 176,
+   "unit": "SF"
+  },
+  {
+   "id": "S4",
+   "section": "BASE BID - EXTERIOR / SITE DEMOLITION",
+   "desc": "Remove concrete walk for new egress ramp, accessible ramp, frost slab and sidewalk (east)",
+   "ref": "Notes 225, 226, 228, 234",
+   "qty": 916,
+   "unit": "SF"
+  },
+  {
+   "id": "S5",
+   "section": "BASE BID - EXTERIOR / SITE DEMOLITION",
+   "desc": "Remove existing bollards completely",
+   "ref": "Note 246",
+   "qty": 4,
+   "unit": "EA"
+  },
+  {
+   "id": "S6",
+   "section": "BASE BID - EXTERIOR / SITE DEMOLITION",
+   "desc": "Skid steer w/ breaker (4 days) + mini-excavator (3 days) incl. delivery",
+   "ref": "-",
+   "qty": 1,
+   "unit": "LS"
+  },
+  {
+   "id": "S7",
+   "section": "BASE BID - EXTERIOR / SITE DEMOLITION",
+   "desc": "Concrete / asphalt disposal - 20 yd dumpsters (+/-45 tons)",
+   "ref": "-",
+   "qty": 4,
+   "unit": "PULL"
+  },
+  {
+   "id": "A1.1",
+   "section": "ALTERNATE #1 - CMU OPENINGS & INFILL REMOVAL",
+   "desc": "Cut & remove CMU: expand OH door opening to 8'x10' (218), masonry at bi-parting entry (219), (2) new 3'-4\"x7'-4\" HM openings (220), remove 8\" CMU infill (236)",
+   "ref": "Notes 218, 219, 220, 236",
+   "qty": 150,
+   "unit": "SF"
+  },
+  {
+   "id": "A1.2",
+   "section": "ALTERNATE #1 - CMU OPENINGS & INFILL REMOVAL",
+   "desc": "Wall saw / chainsaw rental & blades",
+   "ref": "-",
+   "qty": 3,
+   "unit": "DAY"
+  },
+  {
+   "id": "A1.3",
+   "section": "ALTERNATE #1 - CMU OPENINGS & INFILL REMOVAL",
+   "desc": "CMU disposal - 20 yd dumpster",
+   "ref": "-",
+   "qty": 1,
+   "unit": "PULL"
+  },
+  {
+   "id": "A2.1",
+   "section": "ALTERNATE #2 - PLUMBING TRENCH SAWCUT & SLAB REMOVAL",
+   "desc": "Sawcut slab for plumbing trench",
+   "ref": "Note 217",
+   "qty": 270,
+   "unit": "LF"
+  },
+  {
+   "id": "A2.2",
+   "section": "ALTERNATE #2 - PLUMBING TRENCH SAWCUT & SLAB REMOVAL",
+   "desc": "Break & remove trench slab (approx. 370 SF per plan; +/-374 SF scaled) - excavation by plumber",
+   "ref": "Note 217",
+   "qty": 374,
+   "unit": "SF"
+  },
+  {
+   "id": "A2.3",
+   "section": "ALTERNATE #2 - PLUMBING TRENCH SAWCUT & SLAB REMOVAL",
+   "desc": "Concrete disposal - 20 yd dumpster",
+   "ref": "-",
+   "qty": 1,
+   "unit": "PULL"
+  },
+  {
+   "id": "A3.1",
+   "section": "ALTERNATE #3 - SAWCUTTING AT SITE REMOVAL LIMITS",
+   "desc": "Sawcut asphalt / concrete walk at removal limits",
+   "ref": "Notes 224-228, 234",
+   "qty": 280,
+   "unit": "LF"
+  },
+  {
+   "id": "A4.1",
+   "section": "ALTERNATE #4 - FLOOR CUT-OUTS & INTERIOR CURB",
+   "desc": "Cut out remaining floor outlets, drains, holes (allowance 10 EA) - concrete infill by others",
+   "ref": "Note 216",
+   "qty": 10,
+   "unit": "EA"
+  },
+  {
+   "id": "A4.2",
+   "section": "ALTERNATE #4 - FLOOR CUT-OUTS & INTERIOR CURB",
+   "desc": "Sawcut and remove interior concrete curb",
+   "ref": "Note 249",
+   "qty": 12,
+   "unit": "LF"
+  },
+  {
+   "id": "A5.1",
+   "section": "ALTERNATE #5 - MASTIC REMOVAL / GRINDING AFTER FLOORING REMOVAL",
+   "desc": "Grind / remove mastic after flooring removal (HFT vendor polishing by others)",
+   "ref": "Note 215",
+   "qty": 18060,
+   "unit": "SF"
+  }
+ ],
+ "pricing_basis": "DDD standing inputs: $25/MH flat, crew 6, 8-hr shifts, $1,000/crew-day profit, 5% contingency; mobilization not in price ($3,250 additional mob in terms)"
+}
