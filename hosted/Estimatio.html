@@ -1,3 +1,4 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Estimatio</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -80,6 +81,10 @@ tr:hover td{background:rgba(255,255,255,.015);} td.r,th.r{text-align:right;}
 .chart .bar{cursor:pointer;} .chart .bar:hover rect{filter:brightness(1.2);}
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--fg2);} .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
 .steps{display:inline-flex;gap:4px;} .steps i{width:18px;height:6px;border-radius:3px;background:var(--panel2);} .steps i.on{background:var(--blue);box-shadow:0 0 6px var(--glow);}
+.chatgrid{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);} @media (max-width:760px){.chatgrid{grid-template-columns:1fr;}}
+.chat{display:flex;flex-direction:column;min-height:520px;} .msgs{flex:1;overflow-y:auto;max-height:560px;display:flex;flex-direction:column;gap:10px;padding:4px 2px;}
+.msg{display:flex;flex-direction:column;max-width:88%;} .msg.user{align-self:flex-end;align-items:flex-end;} .msg .bubble{padding:9px 12px;border-radius:12px;white-space:pre-wrap;line-height:1.45;} .msg.user .bubble{background:var(--deep);color:#fff;} .msg.assistant .bubble{background:var(--panel2);border:1px solid var(--line);}
+.msg .chg{font-size:11px;color:var(--teal);margin-top:4px;}
 .kbd{font:11px var(--mono);border:1px solid var(--line2);border-radius:4px;padding:1px 5px;color:var(--fg2);}
 @media (prefers-reduced-motion:no-preference){.proj,.btn{transition:background .12s,border-color .12s;}}
 </style>
@@ -205,31 +210,6 @@ var CLOUD = (function(){
   return st;
 })();
 
-
-/* ---------- Server adapter (DEMEX bridge in server mode) ----------
-   When Estimatio is served by the DEMEX server (/estimatio/), projects, rates and
-   settings are saved to the shared app_state table so every device sees the same
-   data. Off (no-op) when opened as a plain file or on the claude.ai page. */
-var SERVER=(function(){
-  var st={on:false,data:null,version:0,pending:null,timer:null,busy:false,ready:false};
-  function tok(){ return fetch('/api/token').then(function(r){return r.json();}).then(function(d){return d.token;}).catch(function(){return '';}); }
-  function put(){
-    st.timer=null; var DB=st.pending; st.pending=null; if(!DB||st.busy){ if(DB){ st.pending=DB; st.timer=setTimeout(put,500); } return; }
-    st.busy=true;
-    tok().then(function(t){ return fetch('/api/state',{method:'POST',headers:{'Content-Type':'application/json','X-DEMEX-Token':t||''},body:JSON.stringify({app:'estimatio',data:DB,version:st.version})}); })
-    .then(function(r){ return r.json().then(function(d){ return {r:r,d:d}; }); })
-    .then(function(x){ if(x.r.status===409){ st.version=x.d.version; toast('Another device saved first — reload to pick up its changes','err'); } else if(x.d&&x.d.ok){ st.version=x.d.version; } })
-    .catch(function(){}).then(function(){ st.busy=false; });
-  }
-  st.save=function(DB){ if(!st.on) return; st.pending=DB; if(st.timer) clearTimeout(st.timer); st.timer=setTimeout(put,600); };
-  st.ready_p = (location.protocol==='file:') ? Promise.resolve(st) : fetch('/api/mode').then(function(r){return r.json();}).then(function(m){
-    if(!m||!m.server) return st;
-    st.on=true;
-    return fetch('/api/state?app=estimatio').then(function(r){return r.json();}).then(function(d){ if(d&&d.ok&&d.payload){ st.data=d.payload; st.version=d.version||0; } else if(d&&d.ok){ st.version=d.version||0; } return st; });
-  }).catch(function(){ return st; });
-  return st;
-})();
-
 /* ---------- Store ---------- */
 var KEY='estimatio_db_v1', DB=null, subs=[];
 function uid(p){ return p+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
@@ -245,12 +225,11 @@ function ensure(){
   DB.v=1;
 }
 function load(){
-  if(SERVER.data) DB=clone(SERVER.data);
-  else if(CLOUD.data) DB=clone(CLOUD.data);
+  if(CLOUD.data) DB=clone(CLOUD.data);
   else { try{ var raw=localStorage.getItem(KEY); DB=raw?JSON.parse(raw):{}; }catch(e){ DB={}; } }
   ensure(); if(CLOUD.db) CLOUD.adopt(DB); save(); return DB;
 }
-function save(){ try{ localStorage.setItem(KEY,JSON.stringify(DB)); }catch(e){} try{ if(CLOUD.db) CLOUD.save(DB); }catch(e){} try{ SERVER.save(DB); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(DB)); }catch(e){} try{ if(CLOUD.db) CLOUD.save(DB); }catch(e){} }
 function emit(){ subs.slice().forEach(function(f){ try{f();}catch(e){} }); }
 function subscribe(f){ subs.push(f); return function(){ subs=subs.filter(function(x){return x!==f;}); }; }
 function commit(fn){ fn(DB); save(); emit(); }
@@ -261,7 +240,7 @@ function money(n){ return '$'+(Math.round((+n||0)*100)/100).toLocaleString(undef
 function money0(n){ return '$'+Math.round(+n||0).toLocaleString(); }
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 function proj(id){ return DB.projects.filter(function(p){return p.id===id;})[0]||null; }
-function newProject(){ return {id:uid('es'),name:'',client:{name:'',contact:'',email:'',phone:''},address:'',trade:'flooring',scope:'',dueAt:'',status:'draft',bidNo:'',estQty:[],estimate:null,proposal:{intro:'',inclusions:'',exclusions:'',notes:''},createdAt:new Date().toISOString(),demexSentAt:null};
+function newProject(){ return {id:uid('es'),name:'',client:{name:'',contact:'',email:'',phone:''},address:'',trade:'flooring',scope:'',dueAt:'',status:'draft',bidNo:'',estQty:[],estimate:null,proposal:{intro:'',inclusions:'',exclusions:'',notes:''},createdAt:new Date().toISOString(),demexSentAt:null,corrections:[],chat:[]};
 }
 /* Estimate math: direct = Σ qty×(labor rate + material $/unit); OH on direct; profit on direct+OH; tax on materials (or all). */
 function calc(p){
@@ -331,7 +310,7 @@ function Input(props){ return h('input',Object.assign({},props,{onChange:functio
 
 function App(){
   var booted=useState(false), route=useState({view:'dashboard'}), r=route[0], nav=route[1];
-  useEffect(function(){ Promise.all([CLOUD.ready_p,SERVER.ready_p]).then(function(){ load(); booted[1](true); if(CLOUD.hosted&&CLOUD.readOnly) toast('You have view-only access to this Estimatio','err'); }); },[]);
+  useEffect(function(){ CLOUD.ready_p.then(function(){ load(); booted[1](true); if(CLOUD.hosted&&CLOUD.readOnly) toast('You have view-only access to this Estimatio','err'); }); },[]);
   useEffect(function(){ var f=function(){ var hsh=(location.hash||'').replace('#',''); if(hsh==='rates'||hsh==='settings'||hsh==='projects'||hsh==='dashboard') nav({view:hsh}); }; f(); window.addEventListener('hashchange',f); return function(){ window.removeEventListener('hashchange',f); }; },[]);
   var db=useDB();
   if(!booted[0]) return h('div',{style:{padding:'80px 0',textAlign:'center'}},h('div',{className:'brand',style:{justifyContent:'center'}},h('img',{src:LENS,alt:''}),'estimatio'),h('div',{className:'dim',style:{marginTop:10}},'Loading your estimates…'));
@@ -343,7 +322,7 @@ function App(){
       h('nav',null,['dashboard','projects','rates','settings'].map(function(v){ return h('button',{key:v,'aria-current':r.view===v||(v==='projects'&&r.view==='project')?'page':undefined,onClick:function(){go(v);}},v[0].toUpperCase()+v.slice(1)); })),
       h('div',{className:'spacer'}),
       h('span',{className:'ai '+(CLOUD.sample?'':'off'),title:CLOUD.sample?'AI suggestions available':'AI not available in this view'},h('i'),CLOUD.sample?'AI online':'AI offline'),
-      SERVER.on? h('span',{className:'pill ok'},'saved to server'):CLOUD.hosted? h('span',{className:'pill '+(CLOUD.db?(CLOUD.readOnly?'warn':'ok'):'err')},CLOUD.db?(CLOUD.readOnly?'view only':'saved to cloud'):'not saved — sign in'):h('span',{className:'pill warn'},'local only')),
+      CLOUD.hosted? h('span',{className:'pill '+(CLOUD.db?(CLOUD.readOnly?'warn':'ok'):'err')},CLOUD.db?(CLOUD.readOnly?'view only':'saved to cloud'):'not saved — sign in'):h('span',{className:'pill warn'},'local only')),
     h('main',null,
       r.view==='dashboard'&&h(Dashboard,{go:go}),
       r.view==='projects'&&h(Projects,{go:go,filter:r.filter}),
@@ -376,7 +355,7 @@ function Projects(props){
       h('select',{id:'filter',value:f[0],onChange:function(e){f[1](e.target.value);},style:{maxWidth:180}},['all','flooring','demolition','both','draft','estimated','sent','won','lost'].map(function(o){return h('option',{key:o,value:o},o);}))),
     ps.length? h('div',{className:'list'},ps.map(function(p){ var c=calc(p); return h('div',{key:p.id,className:'proj',onClick:function(){props.go('project',p.id);},role:'button',tabIndex:0,onKeyDown:function(e){if(e.key==='Enter')props.go('project',p.id);}},
         h('div',null,h('div',{className:'t'},p.name||'Untitled project',' ',h('span',{className:'trade '+p.trade},p.trade)),h('div',{className:'s'},(p.client.name||'No client')+(p.address?' · '+p.address:'')+(p.dueAt?' · due '+p.dueAt:''))),
-        h('div',{style:{textAlign:'right'}},h('div',{className:'num',style:{fontWeight:600}},c.sell?money0(c.sell):'—'),h('div',{className:'s'},p.status+(p.demexSentAt?' · in DEMEX':'')))); }))
+        h('div',{style:{textAlign:'right'}},h('div',{className:'num',style:{fontWeight:600}},c.sell?money0(c.sell):'—'),h('div',{className:'s'},p.status+(p.demexSentAt?' · in DEMEX':'')+((p.corrections||[]).length?' · '+p.corrections.length+' corrections':'')))); }))
     : h('div',{className:'empty'},h('b',null,'No projects yet'),'Start with “New project”, paste the scope, and Estimatio drafts the takeoff lines for you to price.'));
 }
 
@@ -454,7 +433,7 @@ function ProjectView(props){
     h('div',{className:'row',style:{justifyContent:'space-between',marginBottom:10}},
       h('h1',null,p.name||'Untitled project'),
       h('div',{className:'row'},h('div',{className:'num',style:{font:'600 22px var(--display)'}},money0(c.sell)),h('span',{className:'dim'},'total'))),
-    h('div',{className:'tabs',role:'tablist'},[['scope','Scope'],['takeoff','Takeoff & pricing'],['estimate','Estimate'],['proposal','Proposal']].map(function(t){ return h('button',{key:t[0],role:'tab','aria-selected':tab[0]===t[0],onClick:function(){tab[1](t[0]);}},t[1]); })),
+    h('div',{className:'tabs',role:'tablist'},[['scope','Scope'],['takeoff','Takeoff & pricing'],['estimate','Estimate'],['proposal','Proposal'],['chat','✦ Ask Estimatio']].map(function(t){ return h('button',{key:t[0],role:'tab','aria-selected':tab[0]===t[0],onClick:function(){tab[1](t[0]);}},t[1]); })),
     tab[0]==='scope'&&h('div',{className:'grid g2'},
       h('div',{className:'card grid'},h('h2',null,'Project'),
         h(Field,{id:'name',label:'Project name'},h(Input,{id:'name',value:p.name,onChange:function(v){patch('name',v);}})),
@@ -473,7 +452,8 @@ function ProjectView(props){
         h('div',{className:'card'},h('h2',null,'Danger zone'),h('p',{className:'muted',style:{marginTop:0}},'Deleting removes this project from the shared data for everyone.'),h('button',{className:'btn danger small',onClick:del},confirmDel[0]?'Click again to confirm delete':'Delete project')))),
     tab[0]==='takeoff'&&h(Takeoff,{p:p}),
     tab[0]==='estimate'&&h(Estimate,{p:p}),
-    tab[0]==='proposal'&&h(Proposal,{p:p}));
+    tab[0]==='proposal'&&h(Proposal,{p:p}),
+    tab[0]==='chat'&&h(Chat,{p:p}));
 }
 
 function Takeoff(props){
@@ -552,6 +532,150 @@ function Proposal(props){
     h('div',{className:'prop',dangerouslySetInnerHTML:{__html:proposalHTML(p,true)}}));
 }
 
+/* ---------- Correction chat: talk to the bid; Claude edits takeoff lines, prices and proposal text via page tools ---------- */
+function markupMult(){ var s=DB.settings; return (1+(+s.overheadPct||0)/100)*(1+(+s.profitPct||0)/100); }
+function effRate(l){ return (l.rate!=null&&l.rate!=='')?+l.rate:rateOf(l.svc); }
+function lineSell(l){ return lineTotal(l)*markupMult(); }
+function snapshotOf(p){ return clone({name:p.name,address:p.address,bidNo:p.bidNo,dueAt:p.dueAt,status:p.status,scope:p.scope,trade:p.trade,client:p.client,estQty:p.estQty,proposal:p.proposal}); }
+function projectStateText(p){
+  var c=calc(p), m=markupMult();
+  var L=(p.estQty||[]).map(function(l,i){ var ri=rinfo(l.svc); return '#'+i+' | '+l.svc+' ('+ri.label+') | qty '+(+l.qty||0)+' '+(ri.unit||'')+' | rate $'+effRate(l).toFixed(2)+'/'+(ri.unit||'unit')+(+l.mat?' + mat $'+(+l.mat).toFixed(2):'')+' | priced on proposal at '+money0(lineSell(l))+' | note: '+(l.note||''); }).join('\n');
+  var pr=p.proposal||{};
+  return 'PROJECT: '+p.name+'\nClient: '+(p.client&&p.client.name||'')+' | Address: '+p.address+' | Trade: '+p.trade+' | Status: '+p.status+' | Bid #: '+(p.bidNo||'-')+' | Due: '+(p.dueAt||'-')+
+    '\nScope summary: '+(p.scope||'')+
+    '\nPricing: proposal total = sum(qty x (rate + material)) x '+m.toFixed(4)+' (overhead '+DB.settings.overheadPct+'% then profit '+DB.settings.profitPct+'%). Current total '+money(c.sell)+'.'+
+    '\nTAKEOFF / PRICE LINES (index | catalog id | qty | rate | proposal $ | note):\n'+(L||'(none)')+
+    '\nPROPOSAL INCLUSIONS (one per line):\n'+(pr.inclusions||'(none)')+
+    '\nPROPOSAL EXCLUSIONS (one per line):\n'+(pr.exclusions||'(company default)')+
+    '\nPROPOSAL NOTES / ALTERNATES:\n'+(pr.notes||'(none)');
+}
+var CHAT_RULES='You are the correction assistant inside Estimatio, the estimating app for Disassemble Dynamics (commercial selective demolition) and Wayne\'s Carpet Plus (flooring). The estimator is reviewing ONE project and types corrections to its takeoff quantities, prices, scope lines and proposal wording. Make the change with the tools - never just describe it. Rules: (1) Only change what the estimator asked for; never invent quantities or prices they did not give or that the data does not support. (2) If the request is ambiguous (which line? what number?), ask ONE short question and change nothing. (3) Line indexes come from the list below and shift after add/remove - call get_project if you need fresh indexes. (4) When the estimator gives a dollar amount for an item, use set_line_price (it back-solves the rate so the proposal shows that amount). When they give a new overall bid total, use scale_to_total. (5) Scope and exclusion wording: keep the DDD style - plain sentence, keynote reference at the END in parentheses like "(Plan Note 4)"; demolition and removal only, never patch/repair/prep language in inclusions. (6) After acting, reply in 1-3 plain-English sentences: what changed and the new proposal total. No markdown tables.';
+var CATALOG_TEXT=function(){ return 'CATALOG (id | label | unit): '+DB.rates.map(function(r){return r.id+' | '+r.label+' | '+r.unit;}).join('; '); };
+
+function chatExecutors(pid, request, log){
+  function P(){ var x=proj(pid); if(!x) throw new Error('Project not found'); return x; }
+  function idx(i){ var x=P(); var n=Math.round(+i); if(!(n>=0&&n<(x.estQty||[]).length)) throw new Error('No line #'+i+' - call get_project for current indexes'); return n; }
+  function record(kind,target,before,after){ var entry={at:new Date().toISOString(),by:'chat',kind:kind,target:target,before:before,after:after,request:String(request||'').slice(0,300)};
+    commit(function(){ var x=proj(pid); x.corrections=(x.corrections||[]).concat([entry]).slice(-200); }); log(entry); }
+  function change(kind,target,fn){ var x=P(); var snap=snapshotOf(x); var before=null, after=null;
+    commit(function(){ var y=proj(pid); var r=fn(y); before=r&&r[0]; after=r&&r[1]; });
+    UNDO.push({pid:pid,snap:snap,label:kind+' '+target}); record(kind,target,before,after);
+    return {ok:true,change:kind+' '+target,new_total:money(calc(P()).sell)}; }
+  function lineView(l){ return {svc:l.svc,qty:+l.qty||0,rate:+effRate(l).toFixed(4),mat:+l.mat||0,proposal_amount:Math.round(lineSell(l)),note:l.note||''}; }
+  return {
+    get_project:function(){ return projectStateText(P()); },
+    update_line:function(a){ var i=idx(a.index); return change('update_line','#'+i,function(y){ var l=y.estQty[i], b=lineView(l);
+      if(a.svc!=null){ if(!rinfo(String(a.svc)).unit) throw new Error('Unknown catalog id '+a.svc); l.svc=String(a.svc); }
+      if(a.qty!=null){ var q=+a.qty; if(!(q>=0)) throw new Error('qty must be a number >= 0'); l.qty=q; }
+      if(a.rate!=null){ var r=+a.rate; if(!(r>=0)) throw new Error('rate must be a number >= 0'); l.rate=r; }
+      if(a.mat!=null){ var m=+a.mat; if(!(m>=0)) throw new Error('mat must be a number >= 0'); l.mat=m; }
+      if(a.note!=null) l.note=String(a.note);
+      return [b,lineView(l)]; }); },
+    set_line_price:function(a){ var i=idx(a.index), price=+a.price; if(!(price>=0)) throw new Error('price must be a number >= 0');
+      return change('set_line_price','#'+i,function(y){ var l=y.estQty[i], b=lineView(l), q=+l.qty||0; if(!q){ l.qty=1; q=1; }
+        l.rate=+(price/markupMult()/q - (+l.mat||0)).toFixed(4); if(l.rate<0) l.rate=0; return [b,lineView(l)]; }); },
+    add_line:function(a){ var svc=String(a.svc||''); if(!rinfo(svc).unit) throw new Error('Unknown catalog id '+svc+' - use one from the catalog (count for misc items)');
+      var q=+a.qty; if(!(q>0)) throw new Error('qty must be > 0');
+      return change('add_line',svc,function(y){ var l={svc:svc,qty:q,rate:'',mat:'',note:String(a.note||'')+' (added via chat)'};
+        if(a.price!=null&&a.price!==''){ l.rate=+((+a.price)/markupMult()/q).toFixed(4); } else if(a.rate!=null&&a.rate!==''){ l.rate=+a.rate; }
+        y.estQty=(y.estQty||[]).concat([l]); return [null,lineView(l)]; }); },
+    remove_line:function(a){ var i=idx(a.index); return change('remove_line','#'+i,function(y){ var b=lineView(y.estQty[i]); y.estQty=y.estQty.filter(function(_,j){return j!==i;}); return [b,null]; }); },
+    scale_to_total:function(a){ var t=+a.total; if(!(t>0)) throw new Error('total must be > 0'); var cur=calc(P()).sell; if(!(cur>0)) throw new Error('Project has no priced lines to scale');
+      var f=t/cur; return change('scale_to_total',money0(t),function(y){ var b=money0(cur); y.estQty.forEach(function(l){ l.rate=+(effRate(l)*f).toFixed(4); if(+l.mat) l.mat=+((+l.mat)*f).toFixed(4); }); return [b,money0(t)]; }); },
+    update_project:function(a){ var f=String(a.field||''), v=a.value==null?'':String(a.value);
+      var ok={name:1,address:1,bidNo:1,dueAt:1,status:1,scope:1,trade:1,client_name:1,client_contact:1,client_email:1,client_phone:1}; if(!ok[f]) throw new Error('Unknown field '+f);
+      if(f==='status'&&STATUSES.indexOf(v)<0) throw new Error('status must be one of '+STATUSES.join(', '));
+      if(f==='trade'&&TRADES.indexOf(v)<0) throw new Error('trade must be one of '+TRADES.join(', '));
+      return change('update_project',f,function(y){ var b; if(f.indexOf('client_')===0){ var k=f.slice(7); y.client=y.client||{}; b=y.client[k]; y.client[k]=v; } else { b=y[f]; y[f]=v; } return [b,v]; }); },
+    edit_proposal:function(a){ var sec=String(a.section||''), act=String(a.action||''), text=a.text==null?'':String(a.text), match=a.match==null?'':String(a.match);
+      if(['inclusions','exclusions','notes','intro'].indexOf(sec)<0) throw new Error('section must be inclusions, exclusions, notes or intro');
+      return change('edit_proposal',sec,function(y){ y.proposal=Object.assign({},y.proposal||{}); var cur=y.proposal[sec]||(sec==='exclusions'?DB.company.exclusions:'')||''; var lines=cur.split('\n').filter(function(s){return s.trim();});
+        var find=function(){ var m=match.toLowerCase(); var k=lines.findIndex(function(s){return m&&s.toLowerCase().indexOf(m)>=0;}); if(k<0) throw new Error('No '+sec+' line contains "'+match+'"'); return k; };
+        if(act==='replace_all') lines=text.split('\n').filter(function(s){return s.trim();});
+        else if(act==='add_item') lines.push(text);
+        else if(act==='remove_item') lines.splice(find(),1);
+        else if(act==='replace_item') lines[find()]=text;
+        else throw new Error('action must be replace_all, add_item, remove_item or replace_item');
+        y.proposal[sec]=lines.join('\n'); return [cur,y.proposal[sec]]; }); }
+  };
+}
+var UNDO=[];
+function chatTools(ex){
+  return [
+    {name:'get_project',description:'Returns the current project state as text: fields, every takeoff/price line with its index, and the proposal sections. Call after adding/removing lines to get fresh indexes.',execute:function(){ return ex.get_project(); }},
+    {name:'update_line',description:'Change one takeoff/price line by index: any of svc (catalog id), qty, rate (labor $/unit before markup), mat ($/unit), note. Returns the before/after and the new proposal total.',
+     inputSchema:{type:'object',properties:{index:{type:'integer'},svc:{type:'string'},qty:{type:'number'},rate:{type:'number'},mat:{type:'number'},note:{type:'string'}},required:['index']},execute:function(a){ return ex.update_line(a); }},
+    {name:'set_line_price',description:'Set the dollar amount a line shows on the proposal (markup included); back-solves the rate. Use when the estimator says an item should cost $X.',
+     inputSchema:{type:'object',properties:{index:{type:'integer'},price:{type:'number'}},required:['index','price']},execute:function(a){ return ex.set_line_price(a); }},
+    {name:'add_line',description:'Add a takeoff/price line. svc must be a catalog id (use "count" for misc lump-sum items). Give price (proposal $ incl. markup) or rate (pre-markup $/unit); omit both to use the catalog rate.',
+     inputSchema:{type:'object',properties:{svc:{type:'string'},qty:{type:'number'},price:{type:'number'},rate:{type:'number'},note:{type:'string'}},required:['svc','qty','note']},execute:function(a){ return ex.add_line(a); }},
+    {name:'remove_line',description:'Remove one takeoff/price line by index.',inputSchema:{type:'object',properties:{index:{type:'integer'}},required:['index']},execute:function(a){ return ex.remove_line(a); }},
+    {name:'scale_to_total',description:'Scale every line proportionally so the proposal total equals the given dollar amount. Use only when the estimator gives a new overall bid price.',
+     inputSchema:{type:'object',properties:{total:{type:'number'}},required:['total']},execute:function(a){ return ex.scale_to_total(a); }},
+    {name:'update_project',description:'Change a project field: name, address, bidNo, dueAt (YYYY-MM-DD), status (draft|estimated|sent|won|lost), scope, trade (flooring|demolition|both), client_name, client_contact, client_email, client_phone.',
+     inputSchema:{type:'object',properties:{field:{type:'string'},value:{type:'string'}},required:['field','value']},execute:function(a){ return ex.update_project(a); }},
+    {name:'edit_proposal',description:'Edit a proposal section (inclusions, exclusions, notes, intro). Sections are lists, one item per line. action: add_item (append text), remove_item (line containing match), replace_item (line containing match becomes text), replace_all (text becomes the whole section).',
+     inputSchema:{type:'object',properties:{section:{type:'string'},action:{type:'string'},text:{type:'string'},match:{type:'string'}},required:['section','action']},execute:function(a){ return ex.edit_proposal(a); }}
+  ];
+}
+
+function Chat(props){
+  var p=props.p, pid=p.id;
+  var msgs=useState(function(){ return (p.chat||[]).slice(-40); }), draft=useState(''), busy=useState(false), live=useState(''), err=useState(''), changes=useState([]), canTools=useState(null);
+  var ctl=React.useRef(null), endRef=React.useRef(null);
+  useEffect(function(){ if(CLOUD.sample&&CLOUD.sample.limits){ CLOUD.sample.limits().then(function(l){ canTools[1](!!(l&&l.tools)); }).catch(function(){ canTools[1](false); }); } else canTools[1](false); },[]);
+  useEffect(function(){ if(endRef.current) endRef.current.scrollIntoView({block:'nearest'}); },[msgs[0].length,live[0]]);
+  function persist(list){ commit(function(){ var x=proj(pid); if(x) x.chat=list.slice(-40).map(function(m){ return {role:m.role,content:m.content,at:m.at,changes:m.changes}; }); }); }
+  function send(text){
+    text=(text||draft[0]).trim(); if(!text||busy[0]) return;
+    if(!CLOUD.sample){ err[1](CLOUD.hosted?'Allow "Ask Claude" for this page to use the chat.':'The chat works on the hosted Estimatio page.'); return; }
+    var userMsg={role:'user',content:text,at:new Date().toISOString()}; var list=msgs[0].concat([userMsg]); msgs[1](list); draft[1](''); err[1](''); busy[1](true); live[1](''); changes[1]([]);
+    var made=[]; var ex=chatExecutors(pid,text,function(e){ made.push(e.kind+' '+e.target); changes[1](made.slice()); });
+    var ctx=CHAT_RULES+'\n\n'+CATALOG_TEXT()+'\n\n'+projectStateText(proj(pid));
+    var hist=list.slice(-12).map(function(m){ return {role:m.role,content:m.content}; });
+    var input=[{role:'user',content:ctx}].concat(hist);
+    ctl.current=new AbortController();
+    var done=function(reply){ var am={role:'assistant',content:reply,at:new Date().toISOString(),changes:made.slice()}; var nl=list.concat([am]); msgs[1](nl); persist(nl); busy[1](false); live[1](''); };
+    var fail=function(e){ busy[1](false); live[1](''); var code=e&&e.code;
+      if(code==='cancelled'){ var nl=list.concat([{role:'assistant',content:(e.text||'')+' (stopped)',at:new Date().toISOString(),changes:made.slice()}]); msgs[1](nl); persist(nl); return; }
+      err[1](code==='not_granted'||code==='sampling_disabled'?'Claude is not allowed for this page - allow "Ask Claude" in the artifact permissions to use the chat.':code==='rate_limited'?'Too many requests right now - try again in a minute.':'The assistant could not finish ('+(code||'error')+'). Any changes already made stay - check the lines.');
+      if(made.length){ var nl2=list.concat([{role:'assistant',content:'(interrupted after making changes)',at:new Date().toISOString(),changes:made.slice()}]); msgs[1](nl2); persist(nl2); } };
+    if(canTools[0]){
+      CLOUD.sample(input,{tools:chatTools(ex),cache:false,modelTier:'default',signal:ctl.current.signal,onText:function(u){ live[1](u.text); }}).then(function(r){ done(r.text); }).catch(fail);
+    } else {
+      var spec='\n\nThis view cannot run tools. Reply with ONLY JSON: {"reply":"<1-3 sentences>","ops":[{"tool":"update_line|set_line_price|add_line|remove_line|scale_to_total|update_project|edit_proposal","args":{...}}]}. Tool argument names: update_line {index,svc?,qty?,rate?,mat?,note?}; set_line_price {index,price}; add_line {svc,qty,price?,rate?,note}; remove_line {index}; scale_to_total {total}; update_project {field,value}; edit_proposal {section,action,text?,match?}. Apply removals last, highest index first.';
+      input[0]={role:'user',content:ctx+spec};
+      CLOUD.sample.json(input,{cache:false,modelTier:'default',signal:ctl.current.signal}).then(function(out){ var notes=[];
+        (out&&out.ops||[]).forEach(function(o){ try{ var f=ex[o.tool]; if(!f||o.tool==='get_project') throw new Error('unknown tool '+o.tool); f(o.args||{}); }catch(e){ notes.push(e.message); } });
+        done(String(out&&out.reply||'Done.')+(notes.length?' (Could not apply: '+notes.join('; ')+')':'')); }).catch(fail);
+    }
+  }
+  function undoLast(){ var u=null; for(var i=UNDO.length-1;i>=0;i--){ if(UNDO[i].pid===pid){ u=UNDO.splice(i,1)[0]; break; } } if(!u){ toast('Nothing to undo in this session','err'); return; }
+    commit(function(){ var x=proj(pid); Object.assign(x,clone(u.snap)); x.corrections=(x.corrections||[]).concat([{at:new Date().toISOString(),by:'chat',kind:'undo',target:u.label,before:null,after:null,request:'Undo'}]); });
+    toast('Undid: '+u.label); }
+  var c=calc(p), corr=(p.corrections||[]).slice(-8).reverse(), hasUndo=UNDO.some(function(u){return u.pid===pid;});
+  var examples=['Change the dumpsters to 5 pulls','Set the light fixture line to $2,500','Add an exclusion: roof patching by others (Plan Note 12)','Make the base bid $18,000','Remove the track light line'];
+  return h('div',{className:'grid chatgrid'},
+    h('div',{className:'card chat'},
+      h('div',{className:'row',style:{justifyContent:'space-between'}},h('h2',{style:{margin:0}},'✦ Ask Estimatio'),h('span',{className:'ai '+(CLOUD.sample?'':'off')},h('i'),CLOUD.sample?(canTools[0]===false?'AI online · JSON mode':'AI online'):'AI offline')),
+      h('p',{className:'dim',style:{margin:'4px 0 10px'}},'Type a correction in plain English. Estimatio edits the takeoff, prices and proposal, and logs every change as a correction for the learning loop.'),
+      h('div',{className:'msgs',role:'log','aria-live':'polite'},
+        msgs[0].length?null:h('div',{className:'dim'},h('div',{style:{marginBottom:8}},'Try:'),examples.map(function(x){ return h('button',{key:x,className:'btn ghost small',style:{margin:'0 6px 6px 0'},onClick:function(){ draft[1](x); }},x); })),
+        msgs[0].map(function(m,i){ return h('div',{key:i,className:'msg '+m.role},h('div',{className:'bubble'},m.content),m.changes&&m.changes.length?h('div',{className:'chg'},'Changed: '+m.changes.join(' · ')):null); }),
+        busy[0]?h('div',{className:'msg assistant'},h('div',{className:'bubble'},live[0]||'Thinking…'),changes[0].length?h('div',{className:'chg'},'Changing: '+changes[0].join(' · ')):null):null,
+        h('div',{ref:endRef})),
+      err[0]?h('div',{className:'pill err',style:{whiteSpace:'normal',margin:'8px 0'}},err[0]):null,
+      h('div',{className:'row',style:{marginTop:10,alignItems:'flex-end',flexWrap:'nowrap'}},
+        h('textarea',{id:'chatbox','aria-label':'Correction',rows:2,placeholder:'e.g. "Ceiling demo is 2,600 SF, not 2,371" or "add an exclusion for floor prep"',value:draft[0],onChange:function(e){draft[1](e.target.value);},onKeyDown:function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); send(); } },style:{minHeight:52}}),
+        busy[0]?h('button',{className:'btn',onClick:function(){ if(ctl.current) ctl.current.abort(); }},'Stop'):h('button',{className:'btn primary',onClick:function(){send();},disabled:!draft[0].trim()},'Send'))),
+    h('div',{className:'grid',style:{alignContent:'start'}},
+      h('div',{className:'card'},h('div',{className:'row',style:{justifyContent:'space-between'}},h('h2',{style:{margin:0}},'Live bid'),h('span',{className:'num',style:{font:'600 18px var(--display)'}},money0(c.sell))),
+        h('div',{className:'tablewrap',style:{marginTop:8,maxHeight:360,overflowY:'auto'}},h('table',null,h('tbody',null,(p.estQty||[]).map(function(l,i){ var ri=rinfo(l.svc); return h('tr',{key:i},h('td',{className:'dim num',style:{width:28}},'#'+i),h('td',null,h('div',null,ri.label),h('div',{className:'dim',style:{fontSize:11}},(l.note||'').slice(0,90))),h('td',{className:'r num',style:{whiteSpace:'nowrap'}},(+l.qty||0).toLocaleString()+' '+(ri.unit||'')),h('td',{className:'r num'},money0(lineSell(l)))); }))))),
+      h('div',{className:'card'},h('div',{className:'row',style:{justifyContent:'space-between'}},h('h2',{style:{margin:0}},'Correction log'),h('button',{className:'btn small',onClick:undoLast,disabled:!hasUndo},'Undo last change')),
+        corr.length? corr.map(function(e,i){ return h('div',{key:i,className:'total',style:{fontSize:12}},h('span',null,h('b',null,e.kind.replace(/_/g,' ')),' ',e.target,h('div',{className:'dim'},String(e.request||'').slice(0,70))),h('span',{className:'dim num'},String(e.at).slice(5,16).replace('T',' '))); })
+        : h('div',{className:'dim'},'No corrections yet. Every change made here is saved with what you asked for, so DEMEX can learn from it.'))));
+}
+
 function Rates(){
   var q=useState('');
   var rows=DB.rates.filter(function(r){ return !q[0]||(r.label+' '+r.cat+' '+r.id).toLowerCase().indexOf(q[0].toLowerCase())>=0; });
@@ -606,3 +730,5 @@ function Settings(){
 ReactDOM.createRoot(document.getElementById('root')).render(h(App,null));
 })();
 </script>
+
+</body></html>
