@@ -439,6 +439,7 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
     if(!p.scope_type)p.scope_type=deriveScopeType(p);
     if(!Array.isArray(p.estimated_quantities))p.estimated_quantities=mapEQ(p.estQty);
     if(!Array.isArray(p.unit_rates))p.unit_rates=[];
+    if(!Array.isArray(p.chat))p.chat=[];
     if(!Array.isArray(p.bulk_pricing_thresholds))p.bulk_pricing_thresholds=[];
     // actuals ledger is source of truth; roll its sums onto the project record
     var roll=acc&&acc[p.id];
@@ -502,6 +503,18 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
         if(a.type==='setStatus'&&STATUSES.indexOf(a.status)<0)return{ok:false,error:'Invalid status.'};
         return{ok:true};
       }
+      case 'addProjectMessage':{
+        var pm=a.data||{};
+        if(!DB.projects.some(function(p){return p.id===pm.project_id;}))return{ok:false,error:'Project not found.'};
+        if(!pm.text||!String(pm.text).trim())return{ok:false,error:'Message is empty.'};
+        if(['note','user','ai'].indexOf(pm.role||'note')<0)return{ok:false,error:'Invalid message role.'};
+        return{ok:true};
+      }
+      case 'deleteProjectMessage':{
+        if(!DB.projects.some(function(p){return p.id===a.id;}))return{ok:false,error:'Project not found.'};
+        if(!a.msgId)return{ok:false,error:'No message selected.'};
+        return{ok:true};
+      }
       case 'addClient':{ if(!a.data||!a.data.name||!a.data.name.trim())return{ok:false,error:'Client name is required.'};return{ok:true};}
       case 'addFollowup':{ if(!a.data||!a.data.note||!a.data.note.trim())return{ok:false,error:'Follow-up note is required.'};return{ok:true};}
       case 'toggleFollowup':{ if(!DB.followups.some(function(f){return f.id===a.id;}))return{ok:false,error:'Follow-up not found.'};return{ok:true};}
@@ -538,6 +551,20 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
       case 'markComplete':{var pc=proj(a.id);if(pc)pc.completed=(a.value!=null?!!a.value:true);break;}
       case 'editCost':{var p3=proj(a.id);if(p3){if(a.cat==='hrs')p3.estLaborHrs=+a.value||0;else{p3.estCosts=p3.estCosts||{};p3.estCosts[a.cat]=+a.value||0;}}break;}
       case 'deleteProject':{DB.projects=DB.projects.filter(function(p){return p.id!==a.id;});break;}
+      case 'addProjectMessage':{
+        var pmp=proj(a.data.project_id);
+        if(pmp){
+          if(!Array.isArray(pmp.chat))pmp.chat=[];
+          pmp.chat.push({id:uid('msg'),role:a.data.role||'note',text:String(a.data.text).trim(),at:now()});
+          if(pmp.chat.length>400)pmp.chat=pmp.chat.slice(-400);
+        }
+        break;
+      }
+      case 'deleteProjectMessage':{
+        var dmp=proj(a.id);
+        if(dmp&&Array.isArray(dmp.chat))dmp.chat=dmp.chat.filter(function(m){return m.id!==a.msgId;});
+        break;
+      }
       case 'addClient':{var c=a.data;DB.clients.push({id:uid('cl'),name:c.name.trim(),type:c.type||'',contactName:c.contactName||'',email:c.email||'',phone:c.phone||'',address:c.address||'',notes:c.notes||'',createdAt:now()});break;}
       case 'addFollowup':{var f=a.data,pr=proj(f.project_id);DB.followups.push({id:uid('fu'),client_id:pr?pr.client_id:null,project_id:pr?pr.id:null,_proj:pr?pr.name:'',due:f.due||todayISO(),note:f.note.trim(),done:false});break;}
       case 'toggleFollowup':{var fu=DB.followups.filter(function(x){return x.id===a.id;})[0];if(fu)fu.done=!fu.done;break;}
@@ -557,6 +584,8 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
   }
   function audit(a){DB.audit=DB.audit||[];DB.audit.unshift({ts:now(),type:a.type,summary:summarize(a)});if(DB.audit.length>200)DB.audit.length=200;}
   function summarize(a){
+    if(a.type==='addProjectMessage'){var _r=(a.data||{}).role;return (_r==='ai'?'AI reply saved to project chat':_r==='user'?'Asked AI in project chat':'Note added to project chat');}
+    if(a.type==='deleteProjectMessage')return 'Deleted a project chat message';
     if(a.type==='addProject')return 'Created project "'+(a.data.name)+'"';
     if(a.type==='setStatus')return 'Status → '+a.status+' ('+(proj(a.id)||{}).name+')';
     if(a.type==='addActual')return 'Logged '+a.data.category+' $'+a.data.amount;
@@ -1962,10 +1991,52 @@ function CommandPalette({
   }, c.label)))));
 }
 
+/* ════════ AGENT SUB-AGENTS ════════
+   Every app of the Disassemble Dynamics family can register a sub-agent here. The
+   DEMEX Agent tries the sub-agents first, then its own intents, then the AI. A
+   sub-agent only reports what is actually on record -- never invented status. */
+const AGENT_SUBAGENTS = {
+  qualora: {
+    name: 'Qualora',
+    about: 'Subcontractor prequalification: applies to general contractors by email or through their prequal portals.',
+    match: /prequal|pre-qual|qualora|apply (to|with)|get approved|approved (vendor|sub)|vendor (application|packet)/,
+    run(cmd, db) {
+      const c = cmd.toLowerCase();
+      const clients = (db.clients || []).filter(cl => cl && cl.name);
+      const key = cl => cl.name.toLowerCase().split(/[,(]/)[0].trim();
+      const first = cl => key(cl).split(/\s+/)[0];
+      const named = clients.filter(cl => (key(cl).length > 3 && c.includes(key(cl))) || (first(cl).length > 3 && new RegExp('\\b' + first(cl).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b').test(c)));
+      const status = cl => cl.prequal || 'none on record';
+      const noPrequal = clients.filter(cl => !cl.prequal || cl.prequal === 'none');
+      const approved = clients.filter(cl => cl.prequal === 'approved');
+      let text;
+      if (named.length) {
+        text = named.map(cl => cl.name + ' — prequalification: ' + status(cl) + (cl.contactName ? ' (contact ' + cl.contactName + (cl.email ? ', ' + cl.email : '') + ')' : '')).join('\n') + '\n\nQualora prepares and sends the application.';
+      } else {
+        text = 'Qualora: ' + clients.length + ' GC(s) in DEMEX — ' + approved.length + ' approved, ' + noPrequal.length + ' with no prequalification on record' + (noPrequal.length ? ':\n' + noPrequal.slice(0, 8).map(cl => '• ' + cl.name).join('\n') + (noPrequal.length > 8 ? '\n• … and ' + (noPrequal.length - 8) + ' more' : '') : '.');
+      }
+      return { text, href: '/qualora/', hrefLabel: 'Open Qualora →' };
+    }
+  }
+};
+function agentSubRoute(cmd, db) {
+  const c = cmd.toLowerCase();
+  for (const k in AGENT_SUBAGENTS) {
+    const sa = AGENT_SUBAGENTS[k];
+    if (sa.match.test(c)) {
+      try { const r = sa.run(cmd, db); if (r) { r.text = '[' + sa.name + '] ' + r.text; return r; } }
+      catch (e) { return { text: sa.name + ' sub-agent error: ' + ((e && e.message) || e) }; }
+    }
+  }
+  return null;
+}
+
 /* ════════ AGENT (logic) ════════ */
 function agentRoute(cmd) {
   const db = DX.get();
   const c = cmd.toLowerCase();
+  const sub = agentSubRoute(cmd, db);
+  if (sub) return sub;
   const rev = p => DX.revenueOf(p);
   if (/draft|compose|email (for|to)|follow.?up email/.test(c)) {
     const p = db.projects.filter(x => c.includes(x.name.toLowerCase().split(',')[0]))[0] || db.projects.filter(x => x.status === 'submitted')[0];
@@ -2043,7 +2114,7 @@ function agentRoute(cmd) {
     go: 'pipeline'
   };
   if (/help|what can you/.test(c)) return {
-    text: 'I can show your pipeline, list follow-ups, analyze profitability, report win rate, surface pricing signals, draft emails, and create projects. Free-form questions run through the local bridge (ANTHROPIC_API_KEY in .env).'
+    text: 'I can show your pipeline, list follow-ups, analyze profitability, report win rate, surface pricing signals, draft emails, and create projects. Sub-agents: ' + Object.keys(AGENT_SUBAGENTS).map(k => AGENT_SUBAGENTS[k].name + ' (' + AGENT_SUBAGENTS[k].about + ')').join('; ') + '. Free-form questions run through the local bridge (ANTHROPIC_API_KEY in .env).'
   };
   return null;
 }
@@ -2073,6 +2144,8 @@ function AgentDock({
         html: r.text,
         pre: r.pre,
         mailto: r.mailto,
+        href: r.href,
+        hrefLabel: r.hrefLabel,
         go: r.go
       }]);
       if (r.openNew) onNew();
@@ -2097,7 +2170,7 @@ function AgentDock({
           winRate: DX.winRate(),
           rateSettings: DX.rateSettings()
         });
-        const res = await DX.callAI('You are DEMEX Agent for a demolition contractor. Data: ' + ctx + '\nUser: "' + cmd + '"\nReply concisely (<80 words), plain text, using the real numbers.', 500);
+        const res = await DX.callAI('You are DEMEX Agent for a demolition contractor. Sub-agents available: ' + Object.keys(AGENT_SUBAGENTS).map(k => AGENT_SUBAGENTS[k].name + ' - ' + AGENT_SUBAGENTS[k].about).join('; ') + '. Data: ' + ctx + '\nUser: "' + cmd + '"\nReply concisely (<80 words), plain text, using the real numbers.', 500);
         setLog(l => [...l.slice(0, -1), {
           who: 'agent',
           html: res || 'No response.'
@@ -2114,7 +2187,7 @@ function AgentDock({
       setBusy(false);
     }
   };
-  const chips = ['Show my pipeline', 'Who needs follow-up?', "What's my most profitable job?", 'Draft a follow-up email', 'Create project'];
+  const chips = ['Show my pipeline', 'Who needs follow-up?', "What's my most profitable job?", 'Draft a follow-up email', 'Create project', 'Prequal status (Qualora)'];
   const [val, setVal] = useState('');
   return /*#__PURE__*/React.createElement("div", {
     style: {
@@ -2209,7 +2282,21 @@ function AgentDock({
       padding: '5px 11px',
       textDecoration: 'none'
     }
-  }, "Open in email →"), m.go && /*#__PURE__*/React.createElement("div", {
+  }, "Open in email →"), m.href && /*#__PURE__*/React.createElement("a", {
+    href: m.href,
+    target: "_blank",
+    rel: "noopener",
+    style: {
+      display: 'inline-block',
+      marginTop: 8,
+      fontSize: 11,
+      color: C.red2,
+      border: '0.5px solid ' + C.line2,
+      borderRadius: 7,
+      padding: '5px 11px',
+      textDecoration: 'none'
+    }
+  }, m.hrefLabel || "Open →"), m.go && /*#__PURE__*/React.createElement("div", {
     onClick: () => nav(m.go),
     style: {
       marginTop: 8,
@@ -3755,6 +3842,148 @@ function LogCostModal({
     }
   }, "Log")));
 }
+
+/* ════════ PROJECT CHAT — notes + AI, saved with the project ════════ */
+/* One thread per job. Notes are typed by the estimator; AI turns go through
+   the same local bridge (/api/ai) as the rest of the app, so the key stays in
+   .env. Everything is stored on the project record (p.chat), so it persists,
+   exports, and travels with the job. The AI is given the job record only — it
+   is told never to invent quantities or prices. */
+function projectChatContext(p) {
+  var L = [];
+  L.push('PROJECT: ' + (p.name || '(unnamed)'));
+  var cl = DX.client(p.client_id);
+  if (cl && cl.name) L.push('General contractor / client: ' + cl.name);
+  if (p.address) L.push('Address: ' + p.address);
+  if (p.bidNo) L.push('Bid no: ' + p.bidNo);
+  L.push('Status: ' + (p.status || '—') + (p.completed ? ' (job complete)' : ''));
+  if (p.dueAt) L.push('Bid due: ' + p.dueAt);
+  if (p.type) L.push('Shop type: ' + p.type);
+  if (p.scope) L.push('Scope: ' + p.scope);
+  if (p.scope_type) L.push('Scope type: ' + p.scope_type);
+  if (p.bidAmount) L.push('Bid amount: ' + money(p.bidAmount));
+  var est = DX.estTotal(p) || {};
+  if (est.direct) L.push('Estimated direct cost: ' + money(est.direct) + ' · sell ' + money(est.sell));
+  var ec = p.estCosts || {};
+  var ecL = Object.keys(ec).filter(function (k) { return +ec[k]; }).map(function (k) { return k + ' ' + money(ec[k]); });
+  if (ecL.length) L.push('Estimated costs by category: ' + ecL.join(', '));
+  if (p.estLaborHrs) L.push('Estimated labor hours: ' + p.estLaborHrs);
+  var act = DX.actualTotal(p.id) || {};
+  if (act.sum) L.push('Actual costs logged to date: ' + money(act.sum));
+  var eq = p.estimated_quantities || p.estQty || [];
+  if (eq.length) {
+    L.push('QUANTITIES (' + eq.length + '):');
+    eq.slice(0, 40).forEach(function (q) {
+      L.push('  - ' + (q.item || q.svc || '?') + ': ' + (q.qty || 0) + ' ' + (q.unit || '') + (q.location ? ' @ ' + q.location : ''));
+    });
+    if (eq.length > 40) L.push('  …and ' + (eq.length - 40) + ' more');
+  }
+  if (p.description) L.push('DESCRIPTION: ' + String(p.description).slice(0, 1500));
+  if (p.notes) L.push('NOTES: ' + String(p.notes).slice(0, 1500));
+  return L.join('\n');
+}
+var CHAT_ROLE = {
+  note: { label: 'note', color: C.t2 },
+  user: { label: 'you → AI', color: C.blue },
+  ai: { label: 'AI', color: C.purple }
+};
+function ProjectChat(props) {
+  var id = props.id, p = props.p || {};
+  var msgs = Array.isArray(p.chat) ? p.chat : [];
+  var ts = React.useState(''), text = ts[0], setText = ts[1];
+  var bs = React.useState(false), busy = bs[0], setBusy = bs[1];
+  var endRef = React.useRef(null);
+  React.useEffect(function () {
+    var el = endRef.current;
+    if (el && el.parentNode) el.parentNode.scrollTop = el.parentNode.scrollHeight;
+  }, [msgs.length, busy]);
+  function add(role, body) {
+    return DX.commit({ type: 'addProjectMessage', data: { project_id: id, role: role, text: body } });
+  }
+  function addNote() {
+    var t = text.trim();
+    if (!t || busy) return;
+    if (add('note', t).ok) setText('');
+  }
+  function askAI() {
+    var t = text.trim();
+    if (!t || busy) return;
+    if (typeof window.bridgeCall !== 'function') { DX.toast('Bridge offline — start run_demex.bat and open http://localhost:8765/DEMEX.html', 'err'); return; }
+    if (!add('user', t).ok) return;
+    setText('');
+    setBusy(true);
+    var live = DX.proj(id) || p;
+    var history = (live.chat || []).slice(-12).map(function (m) {
+      return (m.role === 'ai' ? 'ASSISTANT' : m.role === 'note' ? 'ESTIMATOR NOTE' : 'ESTIMATOR') + ': ' + m.text;
+    }).join('\n');
+    var prompt = 'Here is the job record:\n\n' + projectChatContext(live) +
+      '\n\nConversation so far (oldest first):\n' + history +
+      "\n\nAnswer the estimator's latest message. Be specific to this job and brief.";
+    var system = 'You are the project assistant inside DEMEX, the estimating and project-management app for ' +
+      'Disassemble Dynamics, Inc., a commercial interior selective demolition contractor. You are talking to the ' +
+      'estimator/PM about one job. Rules: use only the job record and the conversation above — never invent ' +
+      'quantities, prices, dates, or scope. If something is not in the record, say what is missing and what to ' +
+      'check. When you reason from a number, name the number you used. Keep answers short and practical.';
+    window.bridgeCall('ai', { body: { prompt: prompt, system: system, max_tokens: 900 } }).then(function (d) {
+      var out = (d && d.text || '').trim();
+      if (!out) throw new Error('Empty reply from AI');
+      add('ai', out);
+      setBusy(false);
+    }).catch(function (e) {
+      DX.toast(bridgeErr(e), 'err');
+      setBusy(false);
+    });
+  }
+  var head = /*#__PURE__*/React.createElement("div", {
+    style: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "syne", style: { fontWeight: 800, fontSize: 12.5 }
+  }, "Project chat"), /*#__PURE__*/React.createElement("span", {
+    className: "mono", style: { fontSize: 10, color: C.t3 }
+  }, msgs.length ? (msgs.length + ' message' + (msgs.length > 1 ? 's' : '') + ' saved with this job') : 'notes + AI, saved with this job'));
+  var list = msgs.length ? /*#__PURE__*/React.createElement("div", {
+    style: { maxHeight: 280, overflowY: 'auto', marginBottom: 9, paddingRight: 4 }
+  }, msgs.map(function (m, ix) {
+    var r = CHAT_ROLE[m.role] || CHAT_ROLE.note;
+    return /*#__PURE__*/React.createElement("div", {
+      key: m.id || ix,
+      style: { padding: '7px 0', borderTop: ix ? '0.5px solid ' + C.line : 'none', display: 'flex', gap: 10, alignItems: 'flex-start' }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: { flex: 1, minWidth: 0 }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "mono", style: { fontSize: 10, color: r.color, marginBottom: 3 }
+    }, r.label, m.at ? ' · ' + new Date(m.at).toLocaleString() : ''), /*#__PURE__*/React.createElement("div", {
+      style: { fontSize: 12.5, color: C.t1, lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }
+    }, m.text)), /*#__PURE__*/React.createElement(Btn, {
+      ghost: true,
+      onClick: function () { if (confirm('Delete this message?')) DX.commit({ type: 'deleteProjectMessage', id: id, msgId: m.id }); },
+      style: { padding: '1px 7px', fontSize: 11, color: C.t3, flexShrink: 0 }
+    }, "×"));
+  }), /*#__PURE__*/React.createElement("div", { ref: endRef })) : null;
+  var thinking = busy ? /*#__PURE__*/React.createElement("div", {
+    className: "mono", style: { fontSize: 10.5, color: C.purple, marginBottom: 7 }
+  }, "AI is reading the job record…") : null;
+  var box = /*#__PURE__*/React.createElement("textarea", {
+    style: Object.assign({}, inputStyle, { minHeight: 64, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.5 }),
+    placeholder: "Note to yourself, or a question for the AI about this job…",
+    value: text,
+    onChange: function (e) { setText(e.target.value); }
+  });
+  var row = /*#__PURE__*/React.createElement("div", {
+    style: { display: 'flex', gap: 8, marginTop: 8, alignItems: 'center', flexWrap: 'wrap' }
+  }, /*#__PURE__*/React.createElement(Btn, {
+    ghost: true, onClick: addNote,
+    style: { padding: '5px 12px', fontSize: 11, opacity: text.trim() ? 1 : 0.5 }
+  }, "Add note"), /*#__PURE__*/React.createElement(Btn, {
+    primary: true, onClick: askAI,
+    style: { padding: '5px 12px', fontSize: 11, opacity: (text.trim() && !busy) ? 1 : 0.5 }
+  }, busy ? 'Asking…' : 'Ask AI'), /*#__PURE__*/React.createElement("span", {
+    className: "mono", style: { fontSize: 10, color: C.t3, marginLeft: 'auto' }
+  }, "AI answers are advisory — verify before bidding"));
+  return /*#__PURE__*/React.createElement("div", {
+    style: { marginTop: 14, padding: '12px 14px', background: C.panel2, border: '0.5px solid ' + C.line, borderLeft: '2px solid ' + C.blue, borderRadius: 10 }
+  }, head, list, thinking, box, row);
+}
 function ProjectModal({
   id,
   onClose
@@ -3969,6 +4198,9 @@ function ProjectModal({
     id: id,
     p: p
   }), /*#__PURE__*/React.createElement(RateAccuracyPanel, {
+    p: p
+  }), /*#__PURE__*/React.createElement(ProjectChat, {
+    id: id,
     p: p
   }), /*#__PURE__*/React.createElement("div", {
     style: {

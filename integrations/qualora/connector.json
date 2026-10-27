@@ -2,40 +2,45 @@
   "schema": "demex_connector/v1",
   "key": "qualora",
   "name": "Qualora",
-  "vendor": "UNVERIFIED",
-  "category": "unverified",
-  "status": "unverified",
-  "direction": "unknown",
-  "purpose": "PLACEHOLDER - Shawn named Qualora as an application DEMEX must tie into. No product could be identified from the codebase, the mail history or a web search, so nothing about it has been assumed. Fill in the fields below and this connector becomes real.",
+  "vendor": "Disassemble Dynamics, Inc. (in-house, DEMEX ecosystem)",
+  "category": "prequalification",
+  "status": "partial",
+  "direction": "bidirectional",
+  "purpose": "Qualora is the DDD subcontractor-prequalification product: it takes the company's information and applies to general contractors by email or through their prequalification portals, so DDD becomes an approved sub with as many GCs as can be found. It does not track bids (DEMEX does). In DEMEX it is a sub-agent of the DEMEX Agent and an app of the Disassemble Dynamics family (/qualora/).",
   "accounts": [],
   "auth": {
-    "method": "TBD",
+    "method": "shared DEMEX access key (same server, same sign-in)",
     "secrets": [],
-    "notes": "TBD"
+    "notes": "When Qualora runs on its own server, QUALORA_URL points /qualora/ at it."
   },
   "access": {
-    "protocol": "TBD",
+    "protocol": "same-origin app route on the DEMEX bridge",
     "senders": [],
-    "base": null
+    "base": "/qualora/"
   },
   "entities": {
-    "reads": [],
-    "writes": []
+    "reads": ["DEMEX clients (general contractors) and their contacts, as prequal targets"],
+    "writes": ["prequalification status per GC back onto the DEMEX client record (planned)"]
   },
-  "demex_mapping": {},
-  "code": [],
+  "demex_mapping": {
+    "clients[].prequal": "status of DDD's prequalification with that GC: none | applied | approved | expired (planned field; written by Qualora)",
+    "agent.subagents.qualora": "DEMEX Agent sub-agent: prequal / apply / Qualora commands route here"
+  },
+  "code": [
+    "demex_apps.py (app registry: /qualora/, manifest, icon, honest deployed-or-not status)",
+    "apps/qualora/index.html (served until the real build is placed at apps/qualora/app.html)",
+    "DEMEX.html AGENT_SUBAGENTS.qualora (sub-agent routing + chip in the Agent dock)"
+  ],
   "trigger": {
-    "type": "TBD",
-    "detail": "TBD"
+    "type": "user command / app launch",
+    "detail": "Agent commands matching prequal|prequalif|qualora|apply (to|with)|get approved; the Qualora tile on the hub; the Qualora chip in the Agent dock."
   },
   "known_limits": [
-    "Nothing has been implemented or inferred. Every field here is deliberately blank rather than guessed."
+    "The Qualora application build itself is not in this repository yet, so /qualora/ shows a not-deployed page and the sub-agent can only open Qualora and report prequal targets; it cannot submit applications until the build is placed.",
+    "No data flows between Qualora and DEMEX yet; the clients[].prequal field is defined but unpopulated."
   ],
   "owner_action_required": [
-    "Confirm the vendor and product URL (spelling may differ).",
-    "State what DEMEX should read from it and what, if anything, DEMEX should write back.",
-    "Say whether access is API, portal export, or email.",
-    "Then this folder gets a real connector.json and a parser under tools/."
+    "Point me at the Qualora code folder (or its URL) so it can be placed at apps/qualora/app.html or wired via QUALORA_URL."
   ],
   "paths": {
     "inbound": "integrations/qualora/inbound/",
@@ -43,5 +48,5 @@
     "logs": "integrations/qualora/logs/",
     "samples": "integrations/qualora/samples/"
   },
-  "last_verified": "2026-08-11"
+  "last_verified": "2026-10-27"
 }

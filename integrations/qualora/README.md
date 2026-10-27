@@ -1,37 +1,31 @@
 # Qualora
 
-**Key** `qualora` · **Category** unverified · **Status** `unverified` · **Direction** unknown · **Last verified** 2026-08-11
+**Key** `qualora` · **Category** prequalification · **Status** `partial` · **Direction** bidirectional · **Last verified** 2026-10-27
 
-PLACEHOLDER - Shawn named Qualora as an application DEMEX must tie into. No product could be identified from the codebase, the mail history or a web search, so nothing about it has been assumed. Fill in the fields below and this connector becomes real.
+Qualora is Disassemble Dynamics' own subcontractor-prequalification product and part of the DEMEX ecosystem.
+It takes the company's information and applies to general contractors by email or through their
+prequalification portals. It does **not** track bids — DEMEX does.
 
-## Access
+## How it sits in DEMEX
 
-- **Auth method** — TBD
-- **Notes** — TBD
-- **Protocol** — TBD
-
-## Wiring
-
-- **Code** — not built yet
-- **Trigger** — TBD: TBD
+- **App of the family** — served at `/qualora/` by the DEMEX server with its own icon and install (see `INSTALL_APPS.md`). Until the Qualora build is placed at `apps/qualora/app.html` (or `QUALORA_URL` is set) the route shows an honest "not deployed yet" page.
+- **Sub-agent of the DEMEX Agent** — commands like *prequal with Scorpio*, *who are we not prequalified with*, *open Qualora* route to the Qualora sub-agent (`AGENT_SUBAGENTS.qualora` in `DEMEX.html`). It reports which GCs in the DEMEX client list have no prequalification on record and opens Qualora.
+- **Data contract (planned)** — Qualora writes `clients[].prequal` (`none | applied | approved | expired`) back onto the DEMEX client record; DEMEX reads GC contacts as prequal targets.
 
 ## Known limits
 
-- Nothing has been implemented or inferred. Every field here is deliberately blank rather than guessed.
+- The Qualora application build is not in this repository yet; the sub-agent cannot submit applications until it is.
+- `clients[].prequal` is defined but unpopulated.
 
 ## Needs a decision from Shawn
 
-- [ ] Confirm the vendor and product URL (spelling may differ).
-- [ ] State what DEMEX should read from it and what, if anything, DEMEX should write back.
-- [ ] Say whether access is API, portal export, or email.
-- [ ] Then this folder gets a real connector.json and a parser under tools/.
+- [ ] Where the Qualora code lives (folder or URL) so it can be deployed with the family.
 
 ## Folders
 
 | Folder | Holds |
 |---|---|
-| `inbound/` | raw payloads pulled from this app (emails, exports, downloads) |
-| `outbound/` | anything DEMEX pushes back, staged for approval |
+| `inbound/` | prequal confirmations / portal exports received |
+| `outbound/` | applications staged for approval before sending |
 | `logs/` | run logs, one file per sync, `YYYY-MM-DD.log` |
-| `samples/` | one representative payload, committed, used as a parser fixture |
-
+| `samples/` | one representative payload, used as a parser fixture |
