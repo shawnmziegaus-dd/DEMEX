@@ -1,9 +1,9 @@
 {
  "title": "Aechelon Technology interior alteration, Orlando FL",
  "gc": "S.A. Casey Construction (Kelly Lehman, BuildingConnected)",
- "discipline_guess": "Interior selective demolition (office suite)",
+ "discipline_guess": "Interior selective demolition (office suite) - architectural + MEP",
  "profile_used": "interior (Claude scaled takeoff)",
- "source_pdf": "Aechelon_Demo_Markup.pdf",
+ "source_pdf": "Aechelon_Demo_Markup_R2.pdf",
  "ingested": "2026-10-27",
- "notes": "Claude takeoff + estimate, 11 measured line items (all needs_review: scaled, verify in field). Romero Trumpp Farmer A1.01 / A1.02 Permit Set 09/14/2026. 75 tagged fixtures in base; RCP Gen. Note 3 remainder as Alt 1."
+ "notes": "Claude takeoff + estimate, 16 measured line items (all needs_review: scaled, verify in field). R2: REV 1 arch (10/06/26) + MEP E1.00/M1.00/P1.00 + Addenda 1 & 2. Add #2 item 1 moved 78 fluorescent fixtures into base; REV 1 Note 7 1-hr wall 40 LF; 147 DE electrical devices; 17 flex duct, 11 grilles, split system AH-1; 24 plumbing fixtures (already in arch scope). A6.00 shows LVT-1 over existing carpet tile -> Alt 1. Lesson: R1 missed MEP sheets and the finish schedule because only A1.01/A1.02 were reviewed - always pull the full ITB set incl. addenda."
 }
