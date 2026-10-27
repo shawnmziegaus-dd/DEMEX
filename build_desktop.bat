@@ -32,6 +32,7 @@ set "D=dist\DEMEX"
 copy /y DEMEX.html "%D%\" >nul
 copy /y demex_bridge.py "%D%\" >nul
 copy /y demex_desktop.py "%D%\" >nul
+copy /y demex_apps.py "%D%\" >nul
 copy /y email_ingestor.py "%D%\" >nul
 copy /y takeoff_scalar.py "%D%\" >nul
 copy /y pricing_engine.py "%D%\" >nul
@@ -44,6 +45,8 @@ if exist demex_rate_reference.json copy /y demex_rate_reference.json "%D%\" >nul
 if exist demex_full_history_import.json copy /y demex_full_history_import.json "%D%\" >nul
 if exist learning_state.json copy /y learning_state.json "%D%\" >nul
 robocopy tools "%D%\tools" /e /xd __pycache__ >nul
+robocopy apps "%D%\apps" /e /xd __pycache__ >nul
+robocopy hosted "%D%\hosted" /e >nul
 robocopy integrations "%D%\integrations" /e /xd __pycache__ >nul
 robocopy standards "%D%\standards" /e /xd __pycache__ /xf *.pdf >nul
 REM Your live data travels with the first build so the app opens with everything in it.

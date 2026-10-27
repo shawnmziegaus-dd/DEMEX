@@ -1,0 +1,21 @@
+# Auto-deploy the DEMEX server to Fly.io whenever main changes.
+# One-time setup: GitHub repo -> Settings -> Secrets and variables -> Actions -> New secret
+#   FLY_API_TOKEN = output of:  fly tokens create deploy -x 999999h   (run in the DEMEX folder)
+name: Deploy to Fly
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**.md", "_backups_*/**", "_lt_compare/**", "desktop/**", "build_desktop.bat"]
+  workflow_dispatch:
+concurrency: deploy-group
+jobs:
+  deploy:
+    if: ${{ vars.FLY_DEPLOY_DISABLED != 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Deploy
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

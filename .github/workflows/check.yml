@@ -1,0 +1,19 @@
+# Sanity check on every push: the bridge imports, every app route answers, the backup tool dry-runs.
+name: Check
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: python -m py_compile demex_bridge.py demex_apps.py tools/github_backup.py
+      - name: Routes
+        run: |
+          DEMEX_ACCESS_KEY=ci DEMEX_BRIDGE_PORT=8799 python demex_bridge.py & sleep 2
+          for p in /hub/manifest.webmanifest /demex/sw.js /apps/pwa/icons/ddd-192.png /healthz; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8799$p); echo "$p $code"; [ "$code" = 200 ] || exit 1; done
+          curl -s -c ck -o /dev/null -d "key=ci&next=/estimatio/" http://127.0.0.1:8799/api/login
+          for a in hub demex estimatio qualora; do code=$(curl -s -b ck -o /dev/null -w "%{http_code}" http://127.0.0.1:8799/$a/); echo "/$a/ $code"; [ "$code" = 200 ] || exit 1; done
+      - run: python tools/github_backup.py --dry-run

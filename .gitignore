@@ -62,3 +62,7 @@ dist/
 _hosted/
 _lt_compare/
 *.bak-*
+
+# GitHub backup receipt (runtime state)
+backup_last.json
+demex_records.db-shm

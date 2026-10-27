@@ -205,6 +205,31 @@ var CLOUD = (function(){
   return st;
 })();
 
+
+/* ---------- Server adapter (DEMEX bridge in server mode) ----------
+   When Estimatio is served by the DEMEX server (/estimatio/), projects, rates and
+   settings are saved to the shared app_state table so every device sees the same
+   data. Off (no-op) when opened as a plain file or on the claude.ai page. */
+var SERVER=(function(){
+  var st={on:false,data:null,version:0,pending:null,timer:null,busy:false,ready:false};
+  function tok(){ return fetch('/api/token').then(function(r){return r.json();}).then(function(d){return d.token;}).catch(function(){return '';}); }
+  function put(){
+    st.timer=null; var DB=st.pending; st.pending=null; if(!DB||st.busy){ if(DB){ st.pending=DB; st.timer=setTimeout(put,500); } return; }
+    st.busy=true;
+    tok().then(function(t){ return fetch('/api/state',{method:'POST',headers:{'Content-Type':'application/json','X-DEMEX-Token':t||''},body:JSON.stringify({app:'estimatio',data:DB,version:st.version})}); })
+    .then(function(r){ return r.json().then(function(d){ return {r:r,d:d}; }); })
+    .then(function(x){ if(x.r.status===409){ st.version=x.d.version; toast('Another device saved first — reload to pick up its changes','err'); } else if(x.d&&x.d.ok){ st.version=x.d.version; } })
+    .catch(function(){}).then(function(){ st.busy=false; });
+  }
+  st.save=function(DB){ if(!st.on) return; st.pending=DB; if(st.timer) clearTimeout(st.timer); st.timer=setTimeout(put,600); };
+  st.ready_p = (location.protocol==='file:') ? Promise.resolve(st) : fetch('/api/mode').then(function(r){return r.json();}).then(function(m){
+    if(!m||!m.server) return st;
+    st.on=true;
+    return fetch('/api/state?app=estimatio').then(function(r){return r.json();}).then(function(d){ if(d&&d.ok&&d.payload){ st.data=d.payload; st.version=d.version||0; } else if(d&&d.ok){ st.version=d.version||0; } return st; });
+  }).catch(function(){ return st; });
+  return st;
+})();
+
 /* ---------- Store ---------- */
 var KEY='estimatio_db_v1', DB=null, subs=[];
 function uid(p){ return p+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
@@ -220,11 +245,12 @@ function ensure(){
   DB.v=1;
 }
 function load(){
-  if(CLOUD.data) DB=clone(CLOUD.data);
+  if(SERVER.data) DB=clone(SERVER.data);
+  else if(CLOUD.data) DB=clone(CLOUD.data);
   else { try{ var raw=localStorage.getItem(KEY); DB=raw?JSON.parse(raw):{}; }catch(e){ DB={}; } }
   ensure(); if(CLOUD.db) CLOUD.adopt(DB); save(); return DB;
 }
-function save(){ try{ localStorage.setItem(KEY,JSON.stringify(DB)); }catch(e){} try{ if(CLOUD.db) CLOUD.save(DB); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(DB)); }catch(e){} try{ if(CLOUD.db) CLOUD.save(DB); }catch(e){} try{ SERVER.save(DB); }catch(e){} }
 function emit(){ subs.slice().forEach(function(f){ try{f();}catch(e){} }); }
 function subscribe(f){ subs.push(f); return function(){ subs=subs.filter(function(x){return x!==f;}); }; }
 function commit(fn){ fn(DB); save(); emit(); }
@@ -305,7 +331,7 @@ function Input(props){ return h('input',Object.assign({},props,{onChange:functio
 
 function App(){
   var booted=useState(false), route=useState({view:'dashboard'}), r=route[0], nav=route[1];
-  useEffect(function(){ CLOUD.ready_p.then(function(){ load(); booted[1](true); if(CLOUD.hosted&&CLOUD.readOnly) toast('You have view-only access to this Estimatio','err'); }); },[]);
+  useEffect(function(){ Promise.all([CLOUD.ready_p,SERVER.ready_p]).then(function(){ load(); booted[1](true); if(CLOUD.hosted&&CLOUD.readOnly) toast('You have view-only access to this Estimatio','err'); }); },[]);
   useEffect(function(){ var f=function(){ var hsh=(location.hash||'').replace('#',''); if(hsh==='rates'||hsh==='settings'||hsh==='projects'||hsh==='dashboard') nav({view:hsh}); }; f(); window.addEventListener('hashchange',f); return function(){ window.removeEventListener('hashchange',f); }; },[]);
   var db=useDB();
   if(!booted[0]) return h('div',{style:{padding:'80px 0',textAlign:'center'}},h('div',{className:'brand',style:{justifyContent:'center'}},h('img',{src:LENS,alt:''}),'estimatio'),h('div',{className:'dim',style:{marginTop:10}},'Loading your estimates…'));
@@ -317,7 +343,7 @@ function App(){
       h('nav',null,['dashboard','projects','rates','settings'].map(function(v){ return h('button',{key:v,'aria-current':r.view===v||(v==='projects'&&r.view==='project')?'page':undefined,onClick:function(){go(v);}},v[0].toUpperCase()+v.slice(1)); })),
       h('div',{className:'spacer'}),
       h('span',{className:'ai '+(CLOUD.sample?'':'off'),title:CLOUD.sample?'AI suggestions available':'AI not available in this view'},h('i'),CLOUD.sample?'AI online':'AI offline'),
-      CLOUD.hosted? h('span',{className:'pill '+(CLOUD.db?(CLOUD.readOnly?'warn':'ok'):'err')},CLOUD.db?(CLOUD.readOnly?'view only':'saved to cloud'):'not saved — sign in'):h('span',{className:'pill warn'},'local only')),
+      SERVER.on? h('span',{className:'pill ok'},'saved to server'):CLOUD.hosted? h('span',{className:'pill '+(CLOUD.db?(CLOUD.readOnly?'warn':'ok'):'err')},CLOUD.db?(CLOUD.readOnly?'view only':'saved to cloud'):'not saved — sign in'):h('span',{className:'pill warn'},'local only')),
     h('main',null,
       r.view==='dashboard'&&h(Dashboard,{go:go}),
       r.view==='projects'&&h(Projects,{go:go,filter:r.filter}),

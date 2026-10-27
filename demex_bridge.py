@@ -130,6 +130,11 @@ ALLOWED_HOSTS |= {h.strip().lower() for h in
 ACCESS_KEY = (os.environ.get("DEMEX_ACCESS_KEY") or "").strip()
 SERVER_MODE = bool(ACCESS_KEY)
 import hashlib
+import threading
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+import demex_apps                            # app family: /hub/ /demex/ /estimatio/ /qualora/
+APP_VERSION = os.environ.get("DEMEX_VERSION") or datetime.now(timezone.utc).strftime("%Y%m%d%H%M")
 SESSION_COOKIE = "demex_session"
 def _session_value() -> str:
     return hashlib.sha256(("demex-session:" + ACCESS_KEY).encode()).hexdigest()
@@ -625,13 +630,19 @@ class Handler(SimpleHTTPRequestHandler):
             return True
         return hmac.compare_digest(self._cookies().get(SESSION_COOKIE, ""), _session_value())
 
-    def _login_page(self, bad=False):
+    @staticmethod
+    def _safe_next(p: str) -> str:
+        """Only same-origin absolute paths may be a sign-in return target."""
+        p = (p or "").strip()
+        return p if (p.startswith("/") and not p.startswith("//") and "\\" not in p) else "/hub/"
+
+    def _login_page(self, bad=False, next_path="/hub/"):
         body = ("""<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DEMEX — sign in</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0B111A;color:#fff;font-family:Inter,system-ui,sans-serif}
 form{background:#141C28;border:1px solid rgba(138,153,173,.2);border-radius:16px;padding:28px;width:min(360px,90vw);box-shadow:0 8px 24px rgba(0,0,0,.45)}
 h1{font-size:22px;margin:0 0 4px;letter-spacing:-.02em}p{color:#8A99AD;margin:0 0 18px;font-size:14px}input{width:100%;box-sizing:border-box;padding:11px;border-radius:8px;border:1px solid rgba(138,153,173,.35);background:#1E2837;color:#fff;font:inherit}
 button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;background:#0A84FF;color:#fff;font:600 14px Inter,system-ui;cursor:pointer}.err{color:#FF5C5C;font-size:13px;margin-top:8px}</style></head>
-<body><form method="post" action="/api/login"><h1>DEMEX</h1><p>Enter the access key to continue.</p><input type="password" name="key" placeholder="Access key" autofocus autocomplete="current-password">"""
+<body><form method="post" action="/api/login"><h1>Disassemble Dynamics</h1><p>Enter the access key to continue.</p><input type="hidden" name="next" value='""" + self._safe_next(next_path).replace("'", "").replace('"', '') + """'><input type="password" name="key" placeholder="Access key" autofocus autocomplete="current-password">"""
         + ('<div class="err">That key is not correct.</div>' if bad else "") +
         """<button type="submit">Sign in</button></form></body></html>""").encode()
         self.send_response(200)
@@ -646,18 +657,22 @@ button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;backgr
         raw = self.rfile.read(n).decode("utf-8", "replace") if n else ""
         ctype = self.headers.get("Content-Type") or ""
         if "json" in ctype:
-            key = (json.loads(raw or "{}").get("key") or "")
+            j = json.loads(raw or "{}")
+            key = (j.get("key") or "")
+            nxt = j.get("next") or "/hub/"
         else:
-            key = parse_qs(raw).get("key", [""])[0]
+            form = parse_qs(raw)
+            key = form.get("key", [""])[0]
+            nxt = form.get("next", ["/hub/"])[0]
         if ACCESS_KEY and hmac.compare_digest(key.strip(), ACCESS_KEY):
             self.send_response(303)
-            self.send_header("Location", "/DEMEX.html")
+            self.send_header("Location", self._safe_next(nxt))
             self.send_header("Set-Cookie", "%s=%s; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000%s"
                              % (SESSION_COOKIE, _session_value(), "; Secure" if BIND != "127.0.0.1" else ""))
             self.send_header("Content-Length", "0")
             self.end_headers()
             return
-        return self._login_page(bad=True)
+        return self._login_page(bad=True, next_path=nxt)
 
     # ---- shared app state ----
     def _state_get(self, q):
@@ -700,15 +715,32 @@ button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;backgr
             return self._json({"ok": False, "error": "forbidden host"}, 403)
         u = urlparse(self.path)
         if u.path in ("/", ""):
-            self.send_response(302); self.send_header("Location", "/DEMEX.html"); self.send_header("Content-Length", "0"); self.end_headers(); return
+            return self._redirect("/hub/")
         if u.path == "/login":
-            return self._login_page()
+            return self._login_page(next_path=(parse_qs(u.query).get("next") or ["/hub/"])[0])
         if u.path == "/healthz":
             return self._json({"ok": True})
+        # App-family public files: manifests, service workers and icons carry no
+        # data and must load before sign-in so the home-screen icon is right.
+        app_m = re.fullmatch(r"/(hub|demex|estimatio|qualora)/(manifest\.webmanifest|sw\.js)", u.path)
+        if app_m:
+            key, what = app_m.group(1), app_m.group(2)
+            if what == "sw.js":
+                return self._raw(demex_apps.service_worker(key, APP_VERSION).encode(), "application/javascript; charset=utf-8",
+                                 extra={"Service-Worker-Allowed": "/%s/" % key})
+            return self._raw(demex_apps.manifest(key).encode(), "application/manifest+json; charset=utf-8")
+        if u.path.startswith(demex_apps.PUBLIC_PREFIX) and self._static_allowed(u):
+            return super().do_GET()
         if not self._signed_in():
             if u.path.startswith("/api/"):
                 return self._json({"ok": False, "error": "sign in required"}, 401)
-            return self._login_page()
+            return self._login_page(next_path=u.path)
+        # Clean app addresses: /demex -> /demex/ -> DEMEX.html with PWA head tags.
+        if re.fullmatch(r"/(hub|demex|estimatio|qualora)", u.path):
+            return self._redirect(u.path + "/" + ("?" + u.query if u.query else ""))
+        app_m = re.fullmatch(r"/(hub|demex|estimatio|qualora)/", u.path)
+        if app_m:
+            return self._app_page(app_m.group(1))
         if u.path.startswith("/api/"):
             try:
                 return self._api_get(u)
@@ -748,7 +780,31 @@ button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;backgr
         except Exception as e:                # never leak a stack to the UI
             self._json({"ok": False, "error": str(e)}, 500)
 
-    # ---- static files: only visible .html files, nothing else ----
+    def _redirect(self, where: str, code: int = 302):
+        self.send_response(code); self.send_header("Location", where); self.send_header("Content-Length", "0"); self.end_headers()
+
+    def _raw(self, body: bytes, ctype: str, code: int = 200, extra: dict | None = None):
+        self.send_response(code)
+        self.send_header("Content-Type", ctype)
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-cache")
+        for k, v in (extra or {}).items():
+            self.send_header(k, v)
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _app_page(self, key: str):
+        """Serve an app of the family with its manifest / iPhone / service-worker
+        head tags injected. Qualora forwards to QUALORA_URL when it runs elsewhere."""
+        if key == "qualora" and not (ROOT / "apps/qualora/app.html").is_file() and os.environ.get("QUALORA_URL"):
+            return self._redirect(os.environ["QUALORA_URL"])
+        f = demex_apps.app_file(key)
+        if not f:
+            return self.send_error(404, "App not deployed on this server")
+        html = f.read_text(encoding="utf-8", errors="replace")
+        return self._raw(demex_apps.inject(html, key).encode("utf-8"), "text/html; charset=utf-8")
+
+    # ---- static files: only visible .html files (plus app icons), nothing else ----
     @staticmethod
     def _static_allowed(u) -> bool:
         # Check the percent-decoded path -- the base handler decodes before
@@ -762,6 +818,8 @@ button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;backgr
             return False
         if any(p.startswith(".") for p in parts):    # never serve dotfiles
             return False
+        if decoded.startswith(demex_apps.PUBLIC_PREFIX) and decoded.endswith(".png"):
+            return True
         return decoded.endswith(".html")             # path only, no query
 
     def _static(self, u):
@@ -795,6 +853,10 @@ button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;backgr
             return self._state_get(q)
         if path == "mode":
             return self._json({"ok": True, "server": SERVER_MODE})
+        if path == "apps":
+            return self._json({"ok": True, "apps": demex_apps.status(), "backup": _backup_status()})
+        if path == "backup":
+            return self._json({"ok": True, "backup": _backup_status()})
         return self._json({"ok": False, "error": "Unknown endpoint: " + path}, 404)
 
     def _itb_imports(self, q):
@@ -970,6 +1032,9 @@ button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;backgr
     def _api_post(self, u):
         path = u.path[len("/api/"):]
         body = self._body()
+        if path == "backup":
+            res = run_backup_now()
+            return self._json({"ok": bool(res.get("ok")), "backup": res}, 200 if res.get("ok") else 500)
         if path == "state":
             return self._state_put(body)
         if path == "ingest":
@@ -1562,6 +1627,55 @@ button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;backgr
                                          "no quantity by design"})
 
 
+# ---- GitHub backup -----------------------------------------------------------
+# tools/github_backup.py pushes the live data (shared app state, corrections,
+# rate card, ITB drops, project index) to a private GitHub repo. Runs nightly in
+# the background when GITHUB_TOKEN + GITHUB_BACKUP_REPO are set, and on demand
+# via POST /api/backup. Status is read from the last run's receipt file.
+BACKUP_RECEIPT = ROOT / "backup_last.json"
+_backup_lock = threading.Lock()
+
+
+def _backup_status() -> dict:
+    try:
+        d = json.loads(BACKUP_RECEIPT.read_text(encoding="utf-8"))
+    except Exception:
+        d = {}
+    d["configured"] = bool(os.environ.get("GITHUB_TOKEN") and os.environ.get("GITHUB_BACKUP_REPO"))
+    d.setdefault("last", None)
+    return d
+
+
+def run_backup_now() -> dict:
+    if not _backup_lock.acquire(blocking=False):
+        return {"ok": False, "error": "a backup is already running"}
+    try:
+        code, out = run_tool([str(ROOT / "tools" / "github_backup.py"), "--json"])
+        try:
+            res = json.loads(out.strip().splitlines()[-1])
+        except Exception:
+            res = {"ok": code == 0, "error": _tail(out)}
+        return res
+    finally:
+        _backup_lock.release()
+
+
+def _backup_scheduler() -> None:
+    hour = int(os.environ.get("GITHUB_BACKUP_HOUR_UTC", "6"))     # 6:00 UTC = 2:00 am Eastern
+    import time
+    while True:
+        now = datetime.now(timezone.utc)
+        nxt = now.replace(hour=hour, minute=0, second=0, microsecond=0)
+        if nxt <= now:
+            from datetime import timedelta
+            nxt += timedelta(days=1)
+        time.sleep(max(60, (nxt - now).total_seconds()))
+        try:
+            print("[backup] nightly ->", json.dumps(run_backup_now())[:300])
+        except Exception as e:                # the scheduler must never die
+            print("[backup] failed:", e, file=sys.stderr)
+
+
 def make_server(port: int | None = None) -> ThreadingHTTPServer:
     """Load .env and bind the bridge on loopback. Used by main() and by the
     desktop launcher (demex_desktop.py), which runs it in a thread."""
@@ -1571,8 +1685,11 @@ def make_server(port: int | None = None) -> ThreadingHTTPServer:
 
 def main() -> int:
     httpd = make_server()
-    url = f"http://localhost:{PORT}/DEMEX.html"
-    print(f"DEMEX bridge running -> {url}")
+    if os.environ.get("GITHUB_TOKEN") and os.environ.get("GITHUB_BACKUP_REPO"):
+        threading.Thread(target=_backup_scheduler, name="github-backup", daemon=True).start()
+        print("  backup:   nightly to GitHub " + os.environ["GITHUB_BACKUP_REPO"])
+    url = f"http://localhost:{PORT}/hub/"
+    print(f"DEMEX bridge running -> {url}  (apps: /demex/ /estimatio/ /qualora/)")
     print(f"  serving:  {ROOT}")
     print(f"  python:   {PY}")
     print("  Ctrl+C to stop.")

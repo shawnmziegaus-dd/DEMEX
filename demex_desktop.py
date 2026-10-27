@@ -79,7 +79,7 @@ def _start_bridge() -> tuple[object, str]:
     t = threading.Thread(target=httpd.serve_forever, name="demex-bridge",
                          daemon=True)
     t.start()
-    return httpd, f"http://127.0.0.1:{port}/DEMEX.html"
+    return httpd, f"http://127.0.0.1:{port}/demex/"
 
 
 def _open_window(url: str) -> bool:

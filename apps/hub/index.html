@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Disassemble Dynamics</title>
+<meta name="description" content="Disassemble Dynamics app launcher — DEMEX, Estimatio and Qualora.">
+<style>
+:root{--bg:#0B111A;--panel:#141C28;--panel2:#1E2837;--line:rgba(138,153,173,.2);--fg:#fff;--fg2:#8A99AD;--blue:#0A84FF;--teal:#2AD1B8;--amber:#F3B23E;--green:#4FD18B;--red:#FF5C5C}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 Inter,-apple-system,system-ui,sans-serif;
+ padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:12px;padding:8px 0 20px}
+header img{width:40px;height:40px;border-radius:10px}
+header h1{font-size:20px;margin:0;letter-spacing:-.02em}header small{display:block;color:var(--fg2);font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+main{flex:1;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));align-content:start;max-width:960px;margin:0 auto;width:100%}
+a.tile{display:flex;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;color:inherit;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.45);transition:transform .12s,border-color .12s}
+a.tile:hover,a.tile:focus-visible{transform:translateY(-2px);border-color:var(--blue);outline:none}
+a.tile img{width:56px;height:56px;border-radius:14px;flex:none}
+a.tile b{display:block;font-size:17px;letter-spacing:-.01em}a.tile span{color:var(--fg2);font-size:13px}
+a.tile .st{margin-left:auto;font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--fg2);white-space:nowrap}
+a.tile .st.ok{border-color:var(--green);color:var(--green)}a.tile .st.warn{border-color:var(--amber);color:var(--amber)}
+a.tile.primary{border-color:rgba(42,209,184,.45)}
+footer{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between;padding:22px 0 4px;color:var(--fg2);font-size:13px;max-width:960px;margin:0 auto;width:100%}
+label{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+#install{display:none;background:var(--blue);color:#fff;border:0;border-radius:8px;padding:9px 14px;font:600 13px Inter,system-ui;cursor:pointer}
+#count{display:none;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:4px;grid-column:1/-1;align-items:center;gap:12px}
+#count button{margin-left:auto;background:none;border:1px solid var(--line);color:var(--fg);border-radius:8px;padding:6px 12px;cursor:pointer;font:inherit}
+</style></head>
+<body>
+<header><img src="/apps/pwa/icons/ddd-192.png" alt=""><div><h1>Disassemble Dynamics</h1><small>Operations apps</small></div></header>
+<main>
+  <div id="count"><span>Opening <b>DEMEX</b> in <span id="n">2</span>s…</span><button type="button" id="stay">Stay here</button></div>
+  <a class="tile primary" href="/demex/" data-app="demex"><img src="/apps/pwa/icons/demex-192.png" alt=""><div><b>DEMEX</b><span>Bids, takeoffs, estimates, proposals, job costs</span></div><em class="st">…</em></a>
+  <a class="tile" href="/estimatio/" data-app="estimatio"><img src="/apps/pwa/icons/estimatio-192.png" alt=""><div><b>Estimatio</b><span>Flooring + demolition estimating</span></div><em class="st">…</em></a>
+  <a class="tile" href="/qualora/" data-app="qualora"><img src="/apps/pwa/icons/qualora-192.png" alt=""><div><b>Qualora</b><span>Contractor prequalification &amp; applications</span></div><em class="st">…</em></a>
+</main>
+<footer>
+  <label><input type="checkbox" id="auto"> Open DEMEX automatically</label>
+  <span id="backup"></span><button type="button" id="bk" style="display:none;background:none;border:1px solid var(--line);color:var(--fg);border-radius:8px;padding:7px 12px;cursor:pointer;font:inherit">Back up now</button>
+  <button type="button" id="install">Install on this device</button>
+</footer>
+<script>
+(function(){
+  var AUTO='ddd_hub_auto_open', auto=document.getElementById('auto'), count=document.getElementById('count'), n=document.getElementById('n');
+  var stay=false, pref; try{ pref=localStorage.getItem(AUTO); }catch(e){}
+  auto.checked = pref===null ? true : pref==='1';
+  auto.onchange=function(){ try{ localStorage.setItem(AUTO, auto.checked?'1':'0'); }catch(e){} };
+  document.getElementById('stay').onclick=function(){ stay=true; count.style.display='none'; };
+  // Which apps are actually deployed on this server (honest status, never assumed).
+  fetch('/api/apps').then(function(r){return r.json();}).then(function(d){
+    var apps=(d&&d.apps)||{};
+    document.querySelectorAll('a.tile').forEach(function(a){
+      var k=a.getAttribute('data-app'), st=a.querySelector('.st'), info=apps[k];
+      if(info&&info.available){ st.textContent='Ready'; st.className='st ok'; }
+      else { st.textContent='Not deployed yet'; st.className='st warn'; }
+    });
+    var bEl=document.getElementById('backup'), bk=document.getElementById('bk');
+    function showBackup(b){ if(!b) return; bEl.textContent = !b.configured ? 'GitHub backup not set up (see .env.example)' : b.last ? (b.ok===false?'Last backup FAILED: '+(b.error||''):'Last GitHub backup: '+new Date(b.last).toLocaleString()) : 'GitHub backup: not run yet'; bk.style.display = b.configured ? 'inline-block' : 'none'; }
+    showBackup(d&&d.backup);
+    bk.onclick=function(){ bk.disabled=true; bEl.textContent='Backing up…';
+      fetch('/api/token').then(function(r){return r.json();}).then(function(t){ return fetch('/api/backup',{method:'POST',headers:{'Content-Type':'application/json','X-DEMEX-Token':t.token||''},body:'{}'}); })
+      .then(function(r){return r.json();}).then(function(x){ showBackup(x.backup); }).catch(function(e){ bEl.textContent='Backup failed: '+e; }).then(function(){ bk.disabled=false; }); };
+    var demexOk = apps.demex && apps.demex.available;
+    if(auto.checked && demexOk && !/nohub|stay/.test(location.search)){
+      count.style.display='flex'; var t=2;
+      var iv=setInterval(function(){ if(stay){ clearInterval(iv); return; } t--; n.textContent=t; if(t<=0){ clearInterval(iv); location.replace('/demex/'); } },1000);
+    }
+  }).catch(function(){ document.querySelectorAll('.st').forEach(function(s){ s.textContent=''; }); });
+  // Install prompt (Chrome/Edge desktop + Android). iPhone uses Share → Add to Home Screen.
+  var deferred=null, btn=document.getElementById('install');
+  window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); deferred=e; btn.style.display='inline-block'; });
+  btn.onclick=function(){ if(!deferred) return; deferred.prompt(); deferred=null; btn.style.display='none'; };
+})();
+</script>
+</body></html>
