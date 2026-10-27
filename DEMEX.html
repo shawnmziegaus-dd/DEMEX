@@ -1214,6 +1214,38 @@ function bridgeSince(days) {
   d.setDate(d.getDate() - (days || 30));
   return d.toISOString().slice(0, 10);
 }
+/* Auto-sync: pull the daily inbox-sweep drop files (demex_itb_import_*.json)
+   through the bridge on startup. Adds ITBs the app hasn't seen (matched by id
+   OR by normalized name, so a manual import under another id isn't doubled)
+   and refreshes the due date on still-open bids when a later sweep moved it. */
+function itbKey(n) { return String(n || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
+function syncItbImports(opts) {
+  opts = opts || {};
+  return bridgeCall('itb-imports').then(function (d) {
+    var pl = d.payload || {}, DB = DX.get();
+    var haveId = {}, byName = {};
+    (DB.projects || []).forEach(function (p) { haveId[p.id] = p; byName[itbKey(p.name)] = p; });
+    var haveC = {}; (DB.clients || []).forEach(function (c) { haveC[c.id] = 1; });
+    var newP = [], moved = 0;
+    (pl.projects || []).forEach(function (p) {
+      var ex = haveId[p.id] || byName[itbKey(p.name)];
+      if (!ex) { newP.push(p); return; }
+      var open = !ex.status || ex.status === 'invited' || ex.status === 'estimating';
+      if (open && p.dueAt && p.dueAt !== ex.dueAt) {
+        DX.commit({ type: 'updateProject', id: ex.id, patch: { dueAt: p.dueAt, notes: ex.notes || p.notes } });
+        moved++;
+      }
+    });
+    var newC = (pl.clients || []).filter(function (c) { return !haveC[c.id]; });
+    if (newP.length) DX.commit({ type: 'merge', data: { clients: newC, projects: newP } });
+    var msg = [];
+    if (newP.length) msg.push(newP.length + ' new ITB' + (newP.length > 1 ? 's' : '') + ' from inbox sweeps');
+    if (moved) msg.push(moved + ' due date' + (moved > 1 ? 's' : '') + ' updated');
+    if (msg.length) DX.toast(msg.join(' · '), 'ok');
+    else if (!opts.quiet) DX.toast('Pipeline up to date with inbox sweeps', 'ok');
+    return { added: newP.length, moved: moved };
+  }).catch(function (e) { if (!opts.quiet) DX.toast(bridgeErr(e), 'err'); return null; });
+}
 function IngestInboxBtn() {
   var st = React.useState(false), busy = st[0], setBusy = st[1];
   function go() {
@@ -6794,6 +6826,11 @@ function App() {
     nav('dashboard');
     DX.toast('Agent: try the dashboard command bar for "' + cmd + '"', 'ok');
   };
+  useEffect(() => {
+    if (booting) return;
+    // bridge may not be up (plain file:// open) -- quiet failure is fine
+    syncItbImports({ quiet: true });
+  }, [booting]);
   if (booting) return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Boot, {
     onDone: () => setBooting(false)
   }));

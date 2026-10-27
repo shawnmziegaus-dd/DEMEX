@@ -1,0 +1,640 @@
+{
+  "schema": "demex_takeoff_markup/v1",
+  "source_pdf": "DollarTree_11729_PembrokePines_D1_MarkedUp.pdf",
+  "pages": 36,
+  "extracted_at": "2026-10-06T19:28:44+00:00",
+  "legend_version": "1.1",
+  "legend_profile": "interior",
+  "counts": {
+    "measurements": 28,
+    "area": 6,
+    "length": 22,
+    "count": 0,
+    "needs_review": 0,
+    "unmapped_colour": 0,
+    "unconfirmed_legend": 0
+  },
+  "skipped_annotations": {},
+  "rollup": [
+    {
+      "svc": "concrete_flat",
+      "unit": "SF",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "in_scope": true,
+      "confidence": "probable",
+      "qty": 9896.88,
+      "annotations": 6
+    },
+    {
+      "svc": null,
+      "unit": "LF",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "in_scope": true,
+      "confidence": "probable",
+      "qty": 701.34,
+      "annotations": 22
+    }
+  ],
+  "measurements": [
+    {
+      "page": 3,
+      "kind": "area",
+      "qty": 9859.18,
+      "unit": "SF",
+      "label": "9,859.18 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "area",
+      "qty": 14.48,
+      "unit": "SF",
+      "label": "14.48 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "area",
+      "qty": 5.79,
+      "unit": "SF",
+      "label": "5.79 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "area",
+      "qty": 5.76,
+      "unit": "SF",
+      "label": "5.76 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "area",
+      "qty": 5.79,
+      "unit": "SF",
+      "label": "5.79 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "area",
+      "qty": 5.88,
+      "unit": "SF",
+      "label": "5.88 sf",
+      "measurement": "Area Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 73.46,
+      "unit": "LF",
+      "label": "73'-5 1/2\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 48.94,
+      "unit": "LF",
+      "label": "48'-11 1/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 48.27,
+      "unit": "LF",
+      "label": "48'-3 1/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 29.46,
+      "unit": "LF",
+      "label": "29'-5 1/2\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 14.65,
+      "unit": "LF",
+      "label": "14'-7 3/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 29.85,
+      "unit": "LF",
+      "label": "29'-10 1/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 15.31,
+      "unit": "LF",
+      "label": "15'-3 3/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 51.08,
+      "unit": "LF",
+      "label": "51'-1\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 20.35,
+      "unit": "LF",
+      "label": "20'-4 1/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 50.9,
+      "unit": "LF",
+      "label": "50'-10 3/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 35.23,
+      "unit": "LF",
+      "label": "35'-2 3/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 29.4,
+      "unit": "LF",
+      "label": "29'-4 3/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 8.92,
+      "unit": "LF",
+      "label": "8'-11\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 13.71,
+      "unit": "LF",
+      "label": "13'-8 1/2\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 66.02,
+      "unit": "LF",
+      "label": "66'-1/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 47.38,
+      "unit": "LF",
+      "label": "47'-4 1/2\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 18.38,
+      "unit": "LF",
+      "label": "18'-4 1/2\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 28.1,
+      "unit": "LF",
+      "label": "28'-1 1/4\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 35.88,
+      "unit": "LF",
+      "label": "35'-10 1/2\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 15.46,
+      "unit": "LF",
+      "label": "15'-5 1/2\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 6.88,
+      "unit": "LF",
+      "label": "6'-10 1/2\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    },
+    {
+      "page": 3,
+      "kind": "length",
+      "qty": 13.71,
+      "unit": "LF",
+      "label": "13'-8 1/2\"",
+      "measurement": "Polylength Measurement",
+      "color_rgb": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "color_hex": "#FF0000",
+      "color_name": "Red",
+      "scope": "UNCONFIRMED - red linear callouts on this sheet read as clear-opening dimensions, not scope lengths",
+      "svc": null,
+      "in_scope": true,
+      "confidence": "probable",
+      "author": "Conference Room",
+      "needs_review": 0
+    }
+  ],
+  "est_qty": [
+    {
+      "item": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "desc": "Exterior concrete / asphalt removal - pads, walk, dock, trench",
+      "svc": "concrete_flat",
+      "scope_type": "demolition",
+      "qty": 9896.88,
+      "unit": "SF",
+      "source": "DollarTree_11729_PembrokePines_D1_MarkedUp.pdf",
+      "needs_review": 0
+    }
+  ]
+}

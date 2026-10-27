@@ -1,0 +1,145 @@
+{
+  "schema": "demex_bid_sheet/v1",
+  "bid_no": "",
+  "bid_date": "2026-10-06",
+  "status": "draft - not submitted",
+  "project_name": "Dollar Tree #11729 (Deal #57366) - Pembroke Pines, FL",
+  "address": "12596 Pines Blvd, Pembroke Pines, FL 33027",
+  "gc": "Brothers Group (bid room); also invited via Marco Contractors list",
+  "due": "2026-10-05 12:00 PM ET (PASSED)",
+  "project_type": "Open Shop",
+  "scope": "DEMOLITION",
+  "currency": "USD",
+  "base_bid": 26800,
+  "sf_measured": 9859.18,
+  "price_per_sf": 2.72,
+  "linked_takeoff": "DollarTree_11729_PembrokePines_D1_MarkedUp_takeoff_corrected.json",
+  "linked_sheet": "D1 Demolition Plan 1/8\"=1'-0\", RRMM Architects, 8/20/26",
+  "scope_of_work": [
+    "Remove partitions shown dashed complete - metal stud and GWB, approx. 700 LF measured (Plan Note 1)",
+    "Remove portion of existing wall to match adjacent header height, approx. 7'-3\" AFF (Plan Note 2)",
+    "Remove existing partial height walls complete (Plan Note 3)",
+    "Remove existing metal studs and GWB complete (Plan Note 4)",
+    "Remove doors and frames complete (Plan Note 5)",
+    "Remove existing storefront doors, transom and threshold complete (Plan Note 6)",
+    "Remove abandoned plumbing rough-in stubs at removed walls - capping by plumber (Plan Note 7)",
+    "Remove existing overhead door complete (Plan Note 11)",
+    "Remove existing window film at storefront glazing (Plan Note 14)",
+    "Remove hanging wire, bulkhead/soffit framing and debris at deck level (no ACT ceiling exists per site photos) (FP-101 Note 4; Mech Note K3)",
+    "Remove loose lighting whips and boxes; electrical removal limited to disconnect and removal back to nearest junction box (E-2 General Note)",
+    "Remove existing abandoned electrical devices, conduit and wiring not shown to remain, back to nearest junction box (E-1 / E-3 General Note)",
+    "Scrape remaining adhesive residue at back-of-house rooms (no floor finish exists per site photos) (CS1 Scope of Work; A4 Finish Schedule)",
+    "Daily clean-up, C&D haul-off and leave space broom clean (Gen. Demo Notes 2, 3, 16)"
+  ],
+  "exclusions": [
+    "Fire sprinkler demolition and modifications (FP-101) - by fire protection contractor",
+    "Electrical panels, transformer, disconnects and make-safe (Plan Note 8) - by electrician",
+    "Plumbing disconnect, cap and below-slab work (Plan Note 7; P-1) - by plumber",
+    "RTUs, rigid ductwork, curbs, roofing, refrigerant recovery (Mech Note K3) - see Alternate 5",
+    "Sawcutting/trenching, concrete, mastic removal and grinding - see Alternates",
+    "Previous tenant exterior signage - see Alternate 4",
+    "All patching, repair, infill and prep for new finishes (Gen. Demo Note 13; New Work Note 14)",
+    "Dust barriers and temporary partitions (Gen. Demo Note 10)",
+    "Demolition permits (Gen. Demo Note 6)",
+    "Shoring limited to non-load-bearing; load-bearing shoring, design and stamped drawings excluded (Gen. Demo Note 15)",
+    "Hazardous material testing and abatement",
+    "Items to remain: storefront system and glazing, existing soffit, canopy, demising walls, sprinkler riser, electrical service",
+    "Night/weekend work; bid based on normal daytime hours, unrestricted dumpster access"
+  ],
+  "alternates": [
+    {
+      "line": "alt_1",
+      "label": "Sawcut and remove slab for plumbing trench, remove only - infill by others (Plan Note 9; P-1 K4)",
+      "amount": 2400,
+      "basis": "4 marked areas 23.2 SF + assumed ~40 LF trench run"
+    },
+    {
+      "line": "alt_2",
+      "label": "Remove landscaping/concrete at rear landing (Plan Note 12)",
+      "amount": 750,
+      "basis": "14.48 SF marked"
+    },
+    {
+      "line": "alt_3",
+      "label": "Mastic/adhesive removal and grind slab throughout",
+      "amount": 12300,
+      "basis": "9,859 SF @ $1.25"
+    },
+    {
+      "line": "alt_4",
+      "label": "Remove old tenant blade sign under canopy (CS1 New Work Note 14), patch/paint excluded",
+      "amount": 600,
+      "basis": "lift + 2 men 1 day"
+    },
+    {
+      "line": "alt_5",
+      "label": "Remove (4) RTUs by crane after HVAC disconnect/refrigerant recovery by others (Mech Note K3)",
+      "amount": 5400,
+      "basis": "crane day $3,000 + crew $1,000 + 5% + $1,000 profit"
+    }
+  ],
+  "cost_buildup": {
+    "labor": {
+      "mh": 280,
+      "rate": 25,
+      "amount": 7000,
+      "basis": "5 men x 7 days x 8 hr; production est 260 mh"
+    },
+    "travel_time": {
+      "mh": 110,
+      "amount": 2750
+    },
+    "dumpsters": {
+      "pulls": 4,
+      "rate": 700,
+      "amount": 2800,
+      "basis": "~19 tons"
+    },
+    "equipment": {
+      "amount": 1400,
+      "basis": "2 scissor lifts ~1.5 wk; floor scraper owned - no rental"
+    },
+    "consumables": {
+      "amount": 600
+    },
+    "lodging": {
+      "nights": 8,
+      "rate": 275,
+      "amount": 2200
+    },
+    "per_diem": {
+      "amount": 1400,
+      "basis": "5 x 7 x $40"
+    },
+    "fuel": {
+      "amount": 700
+    },
+    "direct_total": 18850,
+    "contingency_5pct": 942.5,
+    "profit": {
+      "per_day": 1000,
+      "days": 7,
+      "amount": 7000
+    },
+    "computed": 26792.5
+  },
+  "terms": "Zero retainage, 90-day validity, net 30, plans-only basis, additional mobilization $3,250",
+  "verify_before_submit": [
+    "Wall heights (to deck 14'-4\" to 16'-3\" vs. to ceiling) - priced at 12' avg",
+    "7 short dashed walls at left sales area - only one (8'-11\") was measured; ~53 LF may be missing",
+    "Broward County dumpster rate - assumed $700/pull",
+    "Bid due date 10/5 has passed - confirm with GC whether late bids accepted",
+    "1-hour rated smoke wall (photo 229) - confirm remains"
+  ],
+  "comparables": "Harbor Freight Jax Beach DDD-2026/0811R1: $3.78/SF local; this job $4.31/SF with travel",
+  "revision": "R1 - revised from Architectural Surveys site photos (286 photos), 2026-10-06",
+  "site_conditions_from_photos": [
+    "Space is an abandoned medical-office buildout: no ACT ceiling (open to deck), no floor finish (bare slab, light adhesive residue in back rooms), no light fixtures (loose whips only), no plumbing fixtures (rough-in stubs/flanges only)",
+    "Partitions are new metal studs, mostly drywall one side, unfinished/untaped, ~10-12' with open studs above; back-of-house rooms have older painted drywall both sides",
+    "No baler observed",
+    "Old tenant signage = Sunrise Medical blade sign under canopy + vinyl lettering on glass",
+    "Perimeter CMU has wood furring strips - not in demo scope",
+    "Stenciled '1 HOUR RATED FIRE SMOKE WALL' (photo 229) - confirm it is not on the removal list",
+    "Leftover studs/materials on site to haul off"
+  ]
+}

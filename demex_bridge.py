@@ -92,9 +92,16 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-ROOT = Path(__file__).resolve().parent
+# When packaged as the desktop app (PyInstaller, see demex_desktop.py) the
+# project files live next to DEMEX.exe, not next to this module.
+FROZEN = bool(getattr(sys, "frozen", False))
+ROOT = (Path(sys.executable).resolve().parent if FROZEN
+        else Path(__file__).resolve().parent)
 PORT = int(os.environ.get("DEMEX_BRIDGE_PORT", "8765"))
 PY = sys.executable                          # avoids the MS Store python stub
+# Command prefix used to run the CLI tools. In the frozen desktop build there
+# is no python.exe; DEMEX.exe doubles as the interpreter via --run-script.
+PY_CMD = [PY, "--run-script"] if FROZEN else [PY]
 DB = str(ROOT / "demex_records.db")
 TOOL_TIMEOUT = 1800                          # seconds; email scans can be slow
 
@@ -202,7 +209,7 @@ def _tail(text: str, n: int = 1600) -> str:
 
 def run_tool(args: list[str]) -> tuple[int, str]:
     """Run [python, *args] in the project dir; return (rc, combined log)."""
-    proc = subprocess.run([PY, *args], cwd=str(ROOT), text=True,
+    proc = subprocess.run([*PY_CMD, *args], cwd=str(ROOT), text=True,
                           capture_output=True, env=dict(os.environ),
                           timeout=TOOL_TIMEOUT)
     log = ((proc.stdout or "") + "\n" + (proc.stderr or "")).strip()
@@ -663,7 +670,70 @@ class Handler(SimpleHTTPRequestHandler):
                                "payload": {"plans": list_plans(proj)}})
         if path == "corrections":
             return self._corrections_get()
+        if path == "itb-imports":
+            return self._itb_imports(q)
         return self._json({"ok": False, "error": "Unknown endpoint: " + path}, 404)
+
+    def _itb_imports(self, q):
+        """Merge every demex_itb_import_*.json (the daily inbox-sweep drops)
+        plus demex_pipeline_update_*.json into one clients/projects payload.
+
+        The UI calls this on startup and adds anything it hasn't seen, so the
+        sweep files no longer need a manual Pipeline -> Import. Files are read
+        in date order; when the same project shows up on several days (same
+        normalized name) the LATEST copy wins, so moved due dates come through.
+        ?since=YYYY-MM-DD limits to files on/after that date.
+        """
+        since = (q.get("since") or [""])[0].strip()
+        pats = ("demex_itb_import_*.json", "demex_pipeline_update_*.json")
+        # The desktop build lives in its own folder (dist\DEMEX or
+        # %LOCALAPPDATA%\DEMEX) while the morning sweep keeps dropping files in
+        # the source folder, so also scan DEMEX_IMPORTS_DIR (set in .env).
+        dirs = [ROOT]
+        extra = (os.environ.get("DEMEX_IMPORTS_DIR") or "").strip()
+        if extra and Path(extra).is_dir() and Path(extra).resolve() != ROOT:
+            dirs.append(Path(extra))
+        files = []
+        for d in dirs:
+            for pat in pats:
+                files += [f for f in d.glob(pat) if f.is_file()]
+        date_re = re.compile(r"(\d{4}-\d{2}-\d{2})")
+
+        def fdate(f):
+            m = date_re.search(f.name)
+            return m.group(1) if m else "0000-00-00"
+        files.sort(key=lambda f: (fdate(f), f.name))
+        if since:
+            files = [f for f in files if fdate(f) >= since]
+
+        def key(name):
+            return re.sub(r"[^a-z0-9]+", " ", (name or "").lower()).strip()
+        clients, projects, bad = {}, {}, []
+        for f in files:
+            data = _read_json_file(str(f))
+            if not isinstance(data, dict):
+                bad.append(f.name)
+                continue
+            for c in data.get("clients") or []:
+                if isinstance(c, dict) and c.get("id"):
+                    clients[c["id"]] = c
+            for pj in data.get("projects") or []:
+                if not isinstance(pj, dict) or not pj.get("id"):
+                    continue
+                k = key(pj.get("name")) or pj["id"]
+                prev = projects.get(k)
+                if prev:
+                    # keep the first id the UI may already know; refresh the
+                    # fields that change between sweeps
+                    pj = dict(prev, **{kk: vv for kk, vv in pj.items()
+                                       if vv not in (None, "", 0, [])})
+                    pj["id"] = prev["id"]
+                pj["_source_file"] = f.name
+                projects[k] = pj
+        return self._json({"ok": True, "payload": {
+            "clients": list(clients.values()),
+            "projects": list(projects.values()),
+            "files": len(files), "unreadable": bad}})
 
     def _rates(self, q):
         """Serve the Master Reference Rate data for the cockpit accuracy panel.
@@ -1367,9 +1437,15 @@ class Handler(SimpleHTTPRequestHandler):
                                          "no quantity by design"})
 
 
-def main() -> int:
+def make_server(port: int | None = None) -> ThreadingHTTPServer:
+    """Load .env and bind the bridge on loopback. Used by main() and by the
+    desktop launcher (demex_desktop.py), which runs it in a thread."""
     load_dotenv()
-    httpd = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
+    return ThreadingHTTPServer(("127.0.0.1", port or PORT), Handler)
+
+
+def main() -> int:
+    httpd = make_server()
     url = f"http://localhost:{PORT}/DEMEX.html"
     print(f"DEMEX bridge running -> {url}")
     print(f"  serving:  {ROOT}")

@@ -1,0 +1,582 @@
+<title>Estimatio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Estimatio brand tokens (brand_tokens.json / BRAND_GUIDELINES.md): deep obsidian canvas, carbon slate
+   surfaces, electric-blue accents, titanium secondary text. Layout: top bar + dashboard-first working surface. */
+:root{
+  --bg:#0B111A;--bg2:#0F1620;--panel:#141C28;--panel2:#1E2837;--line:rgba(138,153,173,.2);--line2:rgba(138,153,173,.35);
+  --fg:#FFFFFF;--fg2:#8A99AD;--fg3:#566476;
+  --blue:#0A84FF;--blue2:#3B9DFF;--deep:#0047AB;--glow:rgba(10,132,255,.35);--teal:#2AD1B8;--amber:#F3B23E;--red:#FF5C5C;--green:#4FD18B;
+  --display:'Inter','Plus Jakarta Sans',-apple-system,system-ui,sans-serif;--body:'Inter','Plus Jakarta Sans',-apple-system,system-ui,sans-serif;--mono:'JetBrains Mono','Roboto Mono',ui-monospace,monospace;
+  --r-sm:6px;--r-md:8px;--r-lg:16px;
+  --shadow-card:0 8px 24px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05);--lens-glow:0 0 20px rgba(10,132,255,.5);
+  color-scheme:dark;
+}
+html,body{height:100%;}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0;}
+*{box-sizing:border-box;}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);}
+a{color:var(--blue2);}
+button{font:inherit;color:inherit;}
+input,select,textarea{font:inherit;color:var(--fg);background:var(--panel2);border:1px solid var(--line);border-radius:var(--r-md);padding:8px 10px;min-width:0;width:100%;}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--blue);outline-offset:1px;}
+textarea{resize:vertical;min-height:70px;}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:18px;padding:10px 0;flex-wrap:wrap;}
+.brand{font-family:var(--display);font-weight:600;font-size:22px;letter-spacing:-.02em;display:flex;align-items:center;gap:9px;color:#fff;text-decoration:none;}
+.brand img{width:26px;height:26px;border-radius:50%;box-shadow:var(--lens-glow);}
+.brand small{font:500 11px var(--body);color:var(--fg2);letter-spacing:.1em;text-transform:uppercase;margin-left:6px;}
+.ai{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--fg2);} .ai i{width:8px;height:8px;border-radius:50%;background:var(--blue);box-shadow:0 0 10px var(--blue);} .ai.off i{background:var(--fg3);box-shadow:none;}
+nav{display:flex;gap:4px;flex-wrap:wrap;}
+nav button{background:none;border:0;padding:7px 11px;border-radius:6px;color:var(--fg2);cursor:pointer;font-weight:500;}
+nav button[aria-current="page"]{background:var(--panel2);color:var(--fg);}
+.spacer{flex:1;}
+.pill{font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid var(--line2);color:var(--fg2);white-space:nowrap;}
+.pill.ok{border-color:var(--green);color:var(--green);} .pill.warn{border-color:var(--amber);color:var(--amber);} .pill.err{border-color:var(--red);color:var(--red);}
+main{padding-block:18px 48px;max-width:1240px;margin:0 auto;}
+h1{font-family:var(--display);font-size:24px;font-weight:700;letter-spacing:-.02em;margin:0 0 4px;text-wrap:balance;}
+h2{font-family:var(--display);font-size:15px;font-weight:600;letter-spacing:-.01em;margin:0 0 10px;}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);font-weight:600;}
+.muted{color:var(--fg2);} .dim{color:var(--fg3);}
+.btn{background:var(--panel2);border:1px solid var(--line2);border-radius:var(--r-md);padding:8px 14px;cursor:pointer;font-weight:500;white-space:nowrap;}
+.btn:hover{background:var(--line);} .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 0 0 0 var(--glow);} .btn.primary:hover{background:var(--blue2);box-shadow:0 0 18px var(--glow);}
+.btn.ghost{background:none;} .btn.small{padding:5px 9px;font-size:12px;} .btn:disabled{opacity:.5;cursor:default;}
+.btn.danger{border-color:var(--red);color:var(--red);}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px;min-width:0;box-shadow:var(--shadow-card);}
+.grid{display:grid;gap:14px;} .g2{grid-template-columns:1fr 1fr;} .g3{grid-template-columns:repeat(3,1fr);} .g4{grid-template-columns:repeat(4,1fr);}
+@media (max-width:760px){.g2,.g3,.g4{grid-template-columns:1fr;} .hide-sm{display:none;}}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.field label{display:block;font-size:12px;color:var(--fg2);margin-bottom:4px;}
+table{width:100%;border-collapse:collapse;} th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3);padding:8px 8px;border-bottom:1px solid var(--line);} td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle;}
+tr:hover td{background:rgba(255,255,255,.015);} td.r,th.r{text-align:right;}
+.tablewrap{overflow-x:auto;}
+.stat{padding:14px 16px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow-card);text-align:left;width:100%;cursor:pointer;} .stat:hover{border-color:var(--blue);} .stat b{display:block;font:700 24px/1.1 var(--display);letter-spacing:-.02em;} .stat span{font-size:12px;color:var(--fg2);} .stat.active{border-color:var(--blue);box-shadow:0 0 18px var(--glow);}
+.list{display:flex;flex-direction:column;gap:8px;}
+.proj{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:13px 16px;border:1px solid var(--line);border-radius:12px;background:var(--panel);cursor:pointer;}
+.proj:hover{border-color:var(--blue);box-shadow:0 0 0 1px var(--glow);} .proj .t{font-weight:600;} .proj .s{font-size:12px;color:var(--fg2);}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap;}
+.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:9px 12px;color:var(--fg2);cursor:pointer;font-weight:500;}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--blue);}
+.trade{font-size:11px;padding:2px 7px;border-radius:4px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+.trade.flooring{background:rgba(42,209,184,.15);color:var(--teal);} .trade.demolition{background:rgba(255,92,92,.15);color:var(--red);} .trade.both{background:rgba(59,139,255,.15);color:var(--blue2);}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--panel2);border:1px solid var(--line2);padding:10px 14px;border-radius:8px;z-index:20;box-shadow:0 8px 30px rgba(0,0,0,.4);max-width:90vw;}
+.toast.err{border-color:var(--red);} .toast.ok{border-color:var(--green);}
+.empty{padding:40px 20px;text-align:center;color:var(--fg2);border:1px dashed var(--line2);border-radius:10px;}
+.empty b{display:block;color:var(--fg);font-family:var(--display);font-size:16px;margin-bottom:6px;}
+.sheet td input{padding:5px 7px;} .sheet td select{padding:5px 7px;}
+.total{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);} .total.big{border-top:2px solid var(--line2);border-bottom:0;margin-top:6px;padding-top:12px;font:600 18px var(--display);}
+.prop{background:#fff;color:#111;border-radius:8px;padding:28px;font-family:Georgia,serif;max-width:820px;margin:0 auto;overflow:auto;}
+.prop h3{margin:0;font-size:20px;} .prop table{color:#111;} .prop th{color:#555;border-bottom:1px solid #ccc;} .prop td{border-bottom:1px solid #eee;}
+.prop .ph{display:flex;justify-content:space-between;gap:20px;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:14px;flex-wrap:wrap;}
+.hero{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;background:linear-gradient(135deg,#141C28 0%,#0F1A2B 60%,#0B111A 100%);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px;box-shadow:var(--shadow-card);position:relative;overflow:hidden;}
+.hero::after{content:"";position:absolute;inset:auto -80px -120px auto;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,var(--glow),transparent 70%);pointer-events:none;}
+.hero img{width:112px;height:112px;border-radius:22%;filter:drop-shadow(0 0 18px rgba(10,132,255,.35));}
+.hero h1{font-size:26px;margin:0;} .hero p{margin:4px 0 0;color:var(--fg2);}
+.dash2{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);} .prop2{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);}
+@media (max-width:760px){.hero{grid-template-columns:1fr;} .hero img{width:84px;height:84px;} .dash2,.prop2{grid-template-columns:1fr;}}
+.chart{width:100%;height:auto;display:block;} .chart text{font-family:var(--body);fill:var(--fg2);font-size:11px;} .chart .lbl{fill:var(--fg);font-weight:600;}
+.chart .bar{cursor:pointer;} .chart .bar:hover rect{filter:brightness(1.2);}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--fg2);} .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+.steps{display:inline-flex;gap:4px;} .steps i{width:18px;height:6px;border-radius:3px;background:var(--panel2);} .steps i.on{background:var(--blue);box-shadow:0 0 6px var(--glow);}
+.kbd{font:11px var(--mono);border:1px solid var(--line2);border-radius:4px;padding:1px 5px;color:var(--fg2);}
+@media (prefers-reduced-motion:no-preference){.proj,.btn{transition:background .12s,border-color .12s;}}
+</style>
+
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+
+<script>
+/* ============ Estimatio — standalone estimating app (flooring + demolition) ============
+   Data shapes are DEMEX-compatible: svc ids, estQty rows, estimate {direct, oh, profit, sell}.
+   Storage: claude.ai artifact db (shared, saved) when available; localStorage as a fallback/cache. */
+(function(){
+'use strict';
+var LENS='/_blob/5430a45d3d4512336fad87ef818e9376', EMBLEM='/_blob/8dfd9c730315420a023c722abf0cb23e';
+var h = React.createElement, useState = React.useState, useEffect = React.useEffect, useMemo = React.useMemo;
+
+/* ---------- Rate catalog ---------- */
+// Demolition: identical ids/units to DEMEX so exports map 1:1.
+var DEMO_RATES = [
+ {id:"demo_walls",label:"Demo partition walls",unit:"LF",low:4,high:9,cat:"Demolition · Interior"},
+ {id:"demo_floor",label:"Demo flooring to slab",unit:"SF",low:0.6,high:1.5,cat:"Demolition · Interior"},
+ {id:"demo_base",label:"Demo wall base",unit:"LF",low:0.5,high:1.25,cat:"Demolition · Interior"},
+ {id:"demo_ceiling",label:"Demo ACT ceiling + grid",unit:"SF",low:0.8,high:1.75,cat:"Demolition · Interior"},
+ {id:"demo_gyp_ceiling",label:"Demo gypsum ceiling/soffit",unit:"SF",low:1.25,high:3,cat:"Demolition · Interior"},
+ {id:"millwork",label:"Casework / millwork",unit:"LF",low:8,high:20,cat:"Demolition · Interior"},
+ {id:"doors",label:"Doors / frames / hardware",unit:"EA",low:45,high:150,cat:"Demolition · Interior"},
+ {id:"storefront",label:"Storefront / glazing",unit:"SF",low:6,high:18,cat:"Demolition · Interior"},
+ {id:"interior_strip_out",label:"Interior strip-out (full tenant space)",unit:"SF",low:2.56,high:5,cat:"Demolition · Interior"},
+ {id:"casework_demo",label:"Casework / counters / cabinets",unit:"LF",low:8,high:22,cat:"Demolition · Interior"},
+ {id:"door_window_infill",label:"Door / window remove & infill",unit:"EA",low:150,high:600,cat:"Demolition · Interior"},
+ {id:"mep",label:"MEP rough-in removal",unit:"SF",low:1,high:2.5,cat:"Demolition · MEP"},
+ {id:"light_fixture",label:"Light fixtures",unit:"EA",low:15,high:45,cat:"Demolition · MEP"},
+ {id:"diffuser",label:"HVAC diffusers / grilles",unit:"EA",low:20,high:60,cat:"Demolition · MEP"},
+ {id:"plumb_fixture",label:"Plumbing fixtures",unit:"EA",low:75,high:250,cat:"Demolition · MEP"},
+ {id:"water_heater_demo",label:"Water heater remove + cut/cap",unit:"EA",low:150,high:450,cat:"Demolition · MEP"},
+ {id:"concrete_flat",label:"Concrete slab removal",unit:"SF",low:2,high:5,cat:"Demolition · Structural / Exterior"},
+ {id:"concrete_cut",label:"Concrete sawcutting",unit:"LF",low:5,high:15,cat:"Demolition · Structural / Exterior"},
+ {id:"slab_cut_patch",label:"Slab saw-cut, remove & patch prep",unit:"SF",low:4,high:12,cat:"Demolition · Structural / Exterior"},
+ {id:"masonry",label:"Masonry / CMU removal",unit:"SF",low:4,high:10,cat:"Demolition · Structural / Exterior"},
+ {id:"exterior_demo",label:"Exterior wall / cladding",unit:"SF",low:2,high:5,cat:"Demolition · Structural / Exterior"},
+ {id:"asphalt",label:"Asphalt removal / milling",unit:"SF",low:0.75,high:2,cat:"Demolition · Structural / Exterior"},
+ {id:"mezzanine_demo",label:"Mezzanine / platform + stair removal",unit:"SF",low:3,high:8,cat:"Demolition · Structural / Exterior"},
+ {id:"dumpster",label:"Disposal (per 30yd dumpster)",unit:"EA",low:450,high:850,cat:"Demolition · Other"},
+ {id:"count",label:"Misc count item",unit:"EA",low:85,high:250,cat:"Demolition · Other"}
+];
+// Flooring: DRAFT ranges for review (installed labor; material is entered per line as $/unit). Flag stays until Shawn confirms.
+var FLOOR_RATES = [
+ {id:"flr_lvt",label:"LVT / LVP plank or tile install",unit:"SF",low:2.5,high:4.5,cat:"Flooring · Resilient",draft:true},
+ {id:"flr_sheet",label:"Sheet vinyl / SDT (heat-welded seams)",unit:"SF",low:2.25,high:4,cat:"Flooring · Resilient",draft:true},
+ {id:"flr_vct",label:"VCT install",unit:"SF",low:1.25,high:2.25,cat:"Flooring · Resilient",draft:true},
+ {id:"flr_rubber",label:"Rubber flooring / sports tile",unit:"SF",low:3,high:5.5,cat:"Flooring · Resilient",draft:true},
+ {id:"flr_carpet_tile",label:"Carpet tile install",unit:"SF",low:1.5,high:2.75,cat:"Flooring · Carpet",draft:true},
+ {id:"flr_broadloom",label:"Broadloom carpet install (stretch-in or glue-down)",unit:"SY",low:8,high:14,cat:"Flooring · Carpet",draft:true},
+ {id:"flr_tile_floor",label:"Ceramic / porcelain floor tile (thinset)",unit:"SF",low:6,high:12,cat:"Flooring · Tile",draft:true},
+ {id:"flr_tile_wall",label:"Wall tile",unit:"SF",low:7,high:14,cat:"Flooring · Tile",draft:true},
+ {id:"flr_tile_trim",label:"Schluter / metal trim",unit:"LF",low:6,high:12,cat:"Flooring · Tile",draft:true},
+ {id:"flr_wood",label:"Engineered / hardwood install",unit:"SF",low:4,high:8,cat:"Flooring · Wood & laminate",draft:true},
+ {id:"flr_laminate",label:"Laminate (floating)",unit:"SF",low:2.25,high:4,cat:"Flooring · Wood & laminate",draft:true},
+ {id:"flr_base",label:"Rubber / vinyl wall base",unit:"LF",low:1.5,high:3,cat:"Flooring · Accessories",draft:true},
+ {id:"flr_transition",label:"Transitions / reducers / T-mold",unit:"LF",low:4,high:9,cat:"Flooring · Accessories",draft:true},
+ {id:"flr_stairs",label:"Stair treads + risers",unit:"EA",low:25,high:60,cat:"Flooring · Accessories",draft:true},
+ {id:"flr_prep_skim",label:"Floor prep / skim coat",unit:"SF",low:0.75,high:2,cat:"Flooring · Prep",draft:true},
+ {id:"flr_grind",label:"Grind / shot-blast / scrape adhesive",unit:"SF",low:0.75,high:1.75,cat:"Flooring · Prep",draft:true},
+ {id:"flr_moisture",label:"Moisture mitigation (2-part epoxy)",unit:"SF",low:2.5,high:5,cat:"Flooring · Prep",draft:true},
+ {id:"flr_selflevel",label:"Self-leveling underlayment",unit:"SF",low:1.75,high:3.5,cat:"Flooring · Prep",draft:true},
+ {id:"flr_furniture",label:"Furniture lift / move & reset",unit:"SF",low:0.35,high:0.9,cat:"Flooring · Prep",draft:true}
+];
+var RATES_DEFAULT = DEMO_RATES.concat(FLOOR_RATES);
+var TIER = {Lean:0.85, Market:1.0, Premium:1.2};
+var SETTINGS_DEFAULT = {tier:"Market", regionMult:1, overheadPct:10, profitPct:18, taxPct:0, taxMaterialsOnly:true, showUnitPricing:true};
+var COMPANY_DEFAULT = {name:"", contact:"", addr:"", phone:"", email:"", bidPrefix:"EST", license:"", terms:"Pricing valid 30 days. Net 30 from invoice. Work performed during normal business hours unless noted. Change orders priced at the unit rates shown. Exclusions: permits, hazardous materials abatement, engineering, and items not listed above.", exclusions:"Permits and fees\nAsbestos / lead / hazardous material abatement\nTemporary power, water, and sanitation\nEngineering and shoring design"};
+var STATUSES = ["draft","estimated","sent","won","lost"];
+var TRADES = ["flooring","demolition","both"];
+
+/* ---------- Cloud adapter (artifact db / sample / downloads) ---------- */
+var CLOUD = (function(){
+  var COLL = {projects:1};
+  var st = {db:null, sample:null, downloads:null, data:null, last:{}, ready:false, readOnly:false, hosted:false};
+  var queue = Promise.resolve(), pending = null, timer = null;
+  function readAll(db){
+    var out = {};
+    var meta = db.collection('meta').get().then(function(s){ s.docs.forEach(function(d){ var b=d.data(); if (b && 'v' in b) out[d.id]=b.v; }); });
+    var cols = Object.keys(COLL).map(function(k){
+      var rows=[]; function page(after){ var q=db.collection(k).orderBy('id').limit(1000); if(after) q=q.where('id','>',after);
+        return q.get().then(function(s){ s.docs.forEach(function(d){ var b=d.data(); if(b) rows.push(b); }); if(s.size===1000) return page(rows[rows.length-1].id); }); }
+      return page(null).then(function(){ out[k]=rows; });
+    });
+    return Promise.all([meta].concat(cols)).then(function(){ return out; });
+  }
+  function snap(DB){
+    var m={}; Object.keys(DB).forEach(function(k){ var v=DB[k];
+      if (COLL[k] && Array.isArray(v)) v.forEach(function(r){ if(r && typeof r.id==='string') m[k+'/'+r.id]=JSON.stringify(r); });
+      else m['meta/'+k]=JSON.stringify({v: v===undefined?null:v}); });
+    return m;
+  }
+  function flush(){
+    timer=null; var DB=pending; pending=null; if(!DB||!st.db||st.readOnly) return;
+    var now=snap(DB), prev=st.last, writes=[];
+    Object.keys(now).forEach(function(p){ if(prev[p]!==now[p]) writes.push([p, JSON.parse(now[p])]); });
+    Object.keys(prev).forEach(function(p){ if(!(p in now)) writes.push([p,null]); });
+    writes.forEach(function(w){ var path=w[0], body=w[1];
+      if(!/^[A-Za-z0-9_\-.~:@+]{1,200}$/.test(path.split('/')[1])) return;
+      queue=queue.then(function(){ var ref=st.db.doc(path);
+        return (body===null?ref.delete():ref.set(body)).then(function(){ if(body===null) delete st.last[path]; else st.last[path]=JSON.stringify(body); })
+        .catch(function(e){ if(e&&e.code==='invalid_argument'&&!st.readOnly){ st.readOnly=true; toast('View-only access: changes are not saved to shared data','err'); } else if(e&&e.code==='quota_exceeded'){ toast('Shared database is full: '+e.message,'err'); } }); });
+    });
+  }
+  st.save=function(DB){ pending=DB; if(timer) clearTimeout(timer); timer=setTimeout(flush,400); };
+  st.adopt=function(DB){ if(st.db && !st.data){ st.data=DB; st.last={}; st.save(DB); } else if(st.db){ st.last=snap(DB); } };
+  st.download=function(filename,data){ if(st.downloads) return st.downloads.save({filename:filename,data:data});
+    try{ var blob=new Blob([data],{type:'text/html'}); var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; document.body.appendChild(a); a.click(); setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},100); return Promise.resolve({saved:true}); }catch(e){ return Promise.reject(e); } };
+  st.ready_p = (function(){
+    if(!window.claude||typeof window.claude.use!=='function'){ st.ready=true; return Promise.resolve(st); }
+    st.hosted=true;
+    return Promise.all([claude.use('db'),claude.use('user'),claude.use('sample'),claude.use('downloads')]).then(function(r){
+      st.db=r[0]; st.sample=r[2]; st.downloads=r[3];
+      if(r[1]&&typeof r[1].can==='function') return Promise.resolve(r[1].can('data.write')).then(function(w){ if(w===false) st.readOnly=true; });
+    }).then(function(){ if(!st.db) return; return readAll(st.db).then(function(d){ var any=Object.keys(d).some(function(k){ return Array.isArray(d[k])?d[k].length:d[k]!=null; }); if(any){ st.data=d; st.last=snap(d); } }); })
+    .catch(function(e){ console.warn('[cloud]',e); }).then(function(){ st.ready=true; return st; });
+  })();
+  return st;
+})();
+
+/* ---------- Store ---------- */
+var KEY='estimatio_db_v1', DB=null, subs=[];
+function uid(p){ return p+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function clone(x){ return JSON.parse(JSON.stringify(x)); }
+function ensure(){
+  if(!DB) DB={};
+  if(!Array.isArray(DB.projects)) DB.projects=[];
+  if(!Array.isArray(DB.rates)||!DB.rates.length) DB.rates=clone(RATES_DEFAULT);
+  RATES_DEFAULT.forEach(function(rd){ if(!DB.rates.some(function(r){return r.id===rd.id;})) DB.rates.push(clone(rd)); });
+  DB.settings=Object.assign({},SETTINGS_DEFAULT,DB.settings||{});
+  DB.company=Object.assign({},COMPANY_DEFAULT,DB.company||{});
+  if(!DB.rateOverrides||typeof DB.rateOverrides!=='object') DB.rateOverrides={};
+  DB.v=1;
+}
+function load(){
+  if(CLOUD.data) DB=clone(CLOUD.data);
+  else { try{ var raw=localStorage.getItem(KEY); DB=raw?JSON.parse(raw):{}; }catch(e){ DB={}; } }
+  ensure(); if(CLOUD.db) CLOUD.adopt(DB); save(); return DB;
+}
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(DB)); }catch(e){} try{ if(CLOUD.db) CLOUD.save(DB); }catch(e){} }
+function emit(){ subs.slice().forEach(function(f){ try{f();}catch(e){} }); }
+function subscribe(f){ subs.push(f); return function(){ subs=subs.filter(function(x){return x!==f;}); }; }
+function commit(fn){ fn(DB); save(); emit(); }
+function toast(msg,kind){ window.dispatchEvent(new CustomEvent('es-toast',{detail:{msg:msg,kind:kind||'ok'}})); }
+function rateOf(id){ var r=DB.rates.filter(function(x){return x.id===id;})[0]; if(!r) return 0; var mid=(+r.low+ +r.high)/2; var ov=DB.rateOverrides[id]; var adj=(typeof ov==='number'&&!isNaN(ov))?(1+ov/100):1; return mid*(TIER[DB.settings.tier]||1)*(+DB.settings.regionMult||1)*adj; }
+function rinfo(id){ return DB.rates.filter(function(x){return x.id===id;})[0]||{label:id,unit:''}; }
+function money(n){ return '$'+(Math.round((+n||0)*100)/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function money0(n){ return '$'+Math.round(+n||0).toLocaleString(); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function proj(id){ return DB.projects.filter(function(p){return p.id===id;})[0]||null; }
+function newProject(){ return {id:uid('es'),name:'',client:{name:'',contact:'',email:'',phone:''},address:'',trade:'flooring',scope:'',dueAt:'',status:'draft',bidNo:'',estQty:[],estimate:null,proposal:{intro:'',inclusions:'',exclusions:'',notes:''},createdAt:new Date().toISOString(),demexSentAt:null};
+}
+/* Estimate math: direct = Σ qty×(labor rate + material $/unit); OH on direct; profit on direct+OH; tax on materials (or all). */
+function calc(p){
+  var s=DB.settings, lines=(p.estQty||[]).filter(function(l){return l.svc&&+l.qty>0;});
+  var labor=0, mat=0;
+  lines.forEach(function(l){ var q=+l.qty||0, r=(l.rate!=null&&l.rate!=='')?+l.rate:rateOf(l.svc), m=+l.mat||0; labor+=q*r; mat+=q*m; });
+  var direct=labor+mat, oh=direct*((+s.overheadPct||0)/100), profit=(direct+oh)*((+s.profitPct||0)/100);
+  var taxBase=s.taxMaterialsOnly?mat:(direct+oh+profit); var tax=taxBase*((+s.taxPct||0)/100);
+  return {lines:lines,labor:labor,mat:mat,direct:direct,oh:oh,profit:profit,tax:tax,sell:direct+oh+profit+tax};
+}
+function lineTotal(l){ var q=+l.qty||0, r=(l.rate!=null&&l.rate!=='')?+l.rate:rateOf(l.svc), m=+l.mat||0; return q*(r+m); }
+
+/* ---------- DEMEX export (Pipeline → Import accepts this file as-is) ---------- */
+function slug(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'').slice(0,40)||'client'; }
+function toDemex(ps){
+  var clients={}, projects=[];
+  ps.forEach(function(p){
+    var cid='cl_est_'+slug(p.client.name); clients[cid]={id:cid,name:p.client.name||'(no client)',type:'General Contractor',contactName:p.client.contact||'',email:p.client.email||'',phone:p.client.phone||'',address:'',notes:'From Estimatio'};
+    var c=calc(p), eq=c.lines.map(function(l){ var ri=rinfo(l.svc); return {svc:l.svc,label:ri.label,qty:+l.qty,unit:ri.unit,rate:(l.rate!=null&&l.rate!=='')?+l.rate:rateOf(l.svc),mat:+l.mat||0,note:l.note||''}; });
+    var status = p.status==='sent'?'submitted':p.status==='won'?'won':p.status==='lost'?'lost':'estimating';
+    projects.push({id:'pj_est_'+p.id,name:p.name,client_id:cid,address:p.address||'',type:'Open Shop',scope:p.scope||'',scope_type:p.trade==='flooring'?'flooring':'demolition',status:status,bidNo:p.bidNo||'',bidAmount:Math.round(c.sell),alternates:[],submittedAt:p.status==='sent'||p.status==='won'||p.status==='lost'?(p.sentAt||p.createdAt):null,dueAt:p.dueAt||'',awardedAt:null,probability:0,source:'Estimatio',notes:'Estimated in Estimatio ('+p.trade+'). Labor '+money0(c.labor)+', materials '+money0(c.mat)+'.',sqft:0,estCosts:{labor:Math.round(c.labor),disposal:0,equipment:0,material:Math.round(c.mat),sub:0},estLaborHrs:0,estQty:eq,estimated_quantities:eq,estimate:{lines:eq.map(function(l){return {svc:l.svc,qty:l.qty,rate:l.rate};}),direct:c.direct,oh:c.oh,profit:c.profit,sell:c.sell,savedAt:new Date().toISOString(),source:'estimatio'},createdAt:p.createdAt,estimatio_id:p.id});
+  });
+  return {clients:Object.keys(clients).map(function(k){return clients[k];}),projects:projects,source:'Estimatio',exportedAt:new Date().toISOString()};
+}
+
+/* ---------- AI: suggest line items from scope ---------- */
+function suggestLines(p){
+  if(!CLOUD.sample) return Promise.reject(new Error(CLOUD.hosted?'Allow "Ask Claude" for this page to use AI suggestions.':'AI suggestions are available on the hosted page.'));
+  var cat=DB.rates.filter(function(r){ return p.trade==='both'||(p.trade==='flooring'?r.id.indexOf('flr_')===0||r.id==='demo_floor'||r.id==='demo_base':r.id.indexOf('flr_')!==0); })
+    .map(function(r){ return r.id+' | '+r.label+' | '+r.unit; }).join('\n');
+  var prompt='You are an estimator for a '+p.trade+' contractor. From the project scope below, list the takeoff line items needed, using ONLY these catalog ids:\n'+cat+
+   '\n\nProject: '+p.name+'\nAddress: '+p.address+'\nScope:\n'+p.scope+
+   '\n\nRules: one row per catalog item that applies; estimate a quantity only when the scope states or clearly implies it, otherwise use 0 and say what measurement is needed in the note; never invent square footage. Return JSON only: {"lines":[{"svc":"<id>","qty":<number>,"note":"<where this comes from / what to measure>"}],"missing":["<scope items with no catalog match>"]}';
+  var call = CLOUD.sample.json ? CLOUD.sample.json(prompt,{modelTier:'default'}) : CLOUD.sample(prompt,{modelTier:'default'}).then(function(r){ var t=(r.text||'').replace(/^[\s\S]*?(\{[\s\S]*\})[\s\S]*$/,'$1'); return JSON.parse(t); });
+  return call.then(function(out){ var lines=(out&&out.lines||[]).filter(function(l){ return l&&rinfo(l.svc).unit; }).map(function(l){ return {svc:l.svc,qty:+l.qty||0,rate:'',mat:'',note:String(l.note||'')+' (AI suggestion)'}; }); return {lines:lines,missing:out&&out.missing||[]}; });
+}
+
+/* ---------- Proposal HTML ---------- */
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function proposalHTML(p, inline){
+  var co=DB.company, c=calc(p), s=DB.settings, pr=p.proposal||{};
+  var rows=c.lines.map(function(l){ var ri=rinfo(l.svc); var unitRate=((l.rate!=null&&l.rate!=='')?+l.rate:rateOf(l.svc))+(+l.mat||0);
+    return '<tr><td>'+esc(ri.label)+(l.note?'<br><small style="color:#666">'+esc(l.note.replace(' (AI suggestion)',''))+'</small>':'')+'</td><td class="r">'+(+l.qty).toLocaleString()+' '+esc(ri.unit)+'</td>'+(s.showUnitPricing?'<td class="r">'+money(unitRate)+'</td>':'')+'<td class="r">'+money(lineTotal(l))+'</td></tr>'; }).join('');
+  var excl=(pr.exclusions||co.exclusions||'').split('\n').filter(Boolean).map(function(x){return '<li>'+esc(x)+'</li>';}).join('');
+  var incl=(pr.inclusions||'').split('\n').filter(Boolean).map(function(x){return '<li>'+esc(x)+'</li>';}).join('');
+  var body='<div class="ph"><div><h3>'+esc(co.name||'Proposal')+'</h3><div>'+esc(co.addr)+'</div><div>'+esc(co.phone)+(co.email?' · '+esc(co.email):'')+'</div>'+(co.license?'<div>Lic. '+esc(co.license)+'</div>':'')+'</div>'+
+    '<div style="text-align:right"><div style="font-size:20px;font-weight:bold">PROPOSAL</div><div>'+esc(p.bidNo||'')+'</div><div>'+esc(todayISO())+'</div></div></div>'+
+    '<table style="width:100%;margin-bottom:14px"><tr><td style="border:0;vertical-align:top"><b>To:</b> '+esc(p.client.name)+(p.client.contact?'<br>'+esc(p.client.contact):'')+(p.client.email?'<br>'+esc(p.client.email):'')+'</td><td style="border:0;vertical-align:top"><b>Project:</b> '+esc(p.name)+'<br>'+esc(p.address)+(p.dueAt?'<br>Bid due '+esc(p.dueAt):'')+'</td></tr></table>'+
+    (pr.intro?'<p>'+esc(pr.intro)+'</p>':'<p>We propose to furnish labor'+(c.mat>0?', materials':'')+' and equipment to complete the following '+esc(p.trade==='both'?'flooring and demolition':p.trade)+' scope of work:</p>')+
+    '<table style="width:100%"><thead><tr><th>Item</th><th class="r">Qty</th>'+(s.showUnitPricing?'<th class="r">Unit</th>':'')+'<th class="r">Total</th></tr></thead><tbody>'+rows+'</tbody>'+
+    '<tfoot>'+(c.tax>0?'<tr><td colspan="'+(s.showUnitPricing?3:2)+'" class="r">Sales tax'+(s.taxMaterialsOnly?' (materials)':'')+'</td><td class="r">'+money(c.tax)+'</td></tr>':'')+
+    '<tr><td colspan="'+(s.showUnitPricing?3:2)+'" class="r"><b>Total proposal</b></td><td class="r"><b>'+money(c.sell)+'</b></td></tr></tfoot></table>'+
+    (incl?'<h4>Includes</h4><ul>'+incl+'</ul>':'')+(excl?'<h4>Exclusions</h4><ul>'+excl+'</ul>':'')+(pr.notes?'<h4>Notes</h4><p>'+esc(pr.notes)+'</p>':'')+
+    '<h4>Terms</h4><p>'+esc(co.terms)+'</p>'+
+    '<table style="width:100%;margin-top:30px"><tr><td style="border:0;border-top:1px solid #111;width:45%">Accepted by (client) / date</td><td style="border:0"></td><td style="border:0;border-top:1px solid #111;width:45%">'+esc(co.contact||co.name)+' / date</td></tr></table>';
+  if(inline) return body;
+  return '<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+esc(p.name)+' — Proposal</title><style>body{font-family:Georgia,serif;max-width:820px;margin:36px auto;padding:0 28px;color:#111}table{border-collapse:collapse}th{text-align:left;color:#555;border-bottom:1px solid #ccc;padding:6px}td{padding:6px;border-bottom:1px solid #eee;vertical-align:top}.r{text-align:right}.ph{display:flex;justify-content:space-between;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:14px}h3{margin:0}@media print{body{margin:0}}</style></head><body>'+body+'</body></html>';
+}
+
+/* ---------- UI ---------- */
+function useDB(){ var t=useState(0); useEffect(function(){ return subscribe(function(){ t[1](function(x){return x+1;}); }); },[]); return DB; }
+function Toaster(){ var st=useState(null), t=st[0], set=st[1];
+  useEffect(function(){ var f=function(e){ set(e.detail); setTimeout(function(){ set(null); },3200); }; window.addEventListener('es-toast',f); return function(){ window.removeEventListener('es-toast',f); }; },[]);
+  return t? h('div',{className:'toast '+t.kind,role:'status'},t.msg):null; }
+function Field(props){ return h('div',{className:'field'},h('label',{htmlFor:props.id},props.label),props.children); }
+function Input(props){ return h('input',Object.assign({},props,{onChange:function(e){props.onChange(e.target.value);}})); }
+
+function App(){
+  var booted=useState(false), route=useState({view:'dashboard'}), r=route[0], nav=route[1];
+  useEffect(function(){ CLOUD.ready_p.then(function(){ load(); booted[1](true); if(CLOUD.hosted&&CLOUD.readOnly) toast('You have view-only access to this Estimatio','err'); }); },[]);
+  useEffect(function(){ var f=function(){ var hsh=(location.hash||'').replace('#',''); if(hsh==='rates'||hsh==='settings'||hsh==='projects'||hsh==='dashboard') nav({view:hsh}); }; f(); window.addEventListener('hashchange',f); return function(){ window.removeEventListener('hashchange',f); }; },[]);
+  var db=useDB();
+  if(!booted[0]) return h('div',{style:{padding:'80px 0',textAlign:'center'}},h('div',{className:'brand',style:{justifyContent:'center'}},h('img',{src:LENS,alt:''}),'estimatio'),h('div',{className:'dim',style:{marginTop:10}},'Loading your estimates…'));
+  function go(v,id,filter){ nav({view:v,id:id,filter:filter}); if(v!=='project') location.hash=v; window.scrollTo(0,0); }
+  var open=DB.projects.filter(function(p){return p.status==='draft'||p.status==='estimated';}).length;
+  return h(React.Fragment,null,
+    h('header',{className:'top'},
+      h('a',{className:'brand',href:'#dashboard',onClick:function(e){e.preventDefault();go('dashboard');}},h('img',{src:LENS,alt:''}),'estimatio',h('small',{className:'hide-sm'},'AI-driven estimating')),
+      h('nav',null,['dashboard','projects','rates','settings'].map(function(v){ return h('button',{key:v,'aria-current':r.view===v||(v==='projects'&&r.view==='project')?'page':undefined,onClick:function(){go(v);}},v[0].toUpperCase()+v.slice(1)); })),
+      h('div',{className:'spacer'}),
+      h('span',{className:'ai '+(CLOUD.sample?'':'off'),title:CLOUD.sample?'AI suggestions available':'AI not available in this view'},h('i'),CLOUD.sample?'AI online':'AI offline'),
+      CLOUD.hosted? h('span',{className:'pill '+(CLOUD.db?(CLOUD.readOnly?'warn':'ok'):'err')},CLOUD.db?(CLOUD.readOnly?'view only':'saved to cloud'):'not saved — sign in'):h('span',{className:'pill warn'},'local only')),
+    h('main',null,
+      r.view==='dashboard'&&h(Dashboard,{go:go}),
+      r.view==='projects'&&h(Projects,{go:go,filter:r.filter}),
+      r.view==='project'&&h(ProjectView,{id:r.id,go:go}),
+      r.view==='rates'&&h(Rates,null),
+      r.view==='settings'&&h(Settings,null)),
+    h(Toaster,null));
+}
+
+function Projects(props){
+  var q=useState(''), f=useState(props.filter||'all');
+  useEffect(function(){ if(props.filter) f[1](props.filter); },[props.filter]);
+  var ps=DB.projects.filter(function(p){ return (f[0]==='all'||p.trade===f[0]||p.status===f[0]) && (!q[0]||(p.name+' '+p.client.name+' '+p.address).toLowerCase().indexOf(q[0].toLowerCase())>=0); })
+    .sort(function(a,b){ return (b.createdAt||'').localeCompare(a.createdAt||''); });
+  var totals=DB.projects.reduce(function(a,p){ var c=calc(p); if(p.status==='draft'||p.status==='estimated') a.open+=c.sell; if(p.status==='sent') a.out+=c.sell; if(p.status==='won') a.won+=c.sell; return a; },{open:0,out:0,won:0});
+  function create(){ var p=newProject(); commit(function(d){ d.projects.push(p); }); props.go('project',p.id); }
+  function exportDemex(){ var demo=DB.projects.filter(function(p){ return p.trade!=='flooring' && p.estQty && p.estQty.length; });
+    if(!demo.length){ toast('No demolition projects with line items to send','err'); return; }
+    var data=toDemex(demo); CLOUD.download('estimatio-to-demex-'+todayISO()+'.json',JSON.stringify(data,null,2)).then(function(){ commit(function(d){ demo.forEach(function(p){ var x=proj(p.id); if(x) x.demexSentAt=new Date().toISOString(); }); }); toast(demo.length+' demolition bid'+(demo.length>1?'s':'')+' exported — in DEMEX: Pipeline → Import (merge)'); }).catch(function(e){ toast(e&&e.message||'Export failed','err'); }); }
+  return h('div',null,
+    h('div',{className:'row',style:{justifyContent:'space-between',marginBottom:14}},
+      h('div',null,h('div',{className:'eyebrow'},'Estimates'),h('h1',null,'Projects')),
+      h('div',{className:'row'},h('button',{className:'btn',onClick:exportDemex,title:'Download a file DEMEX imports'},'Send demolition bids to DEMEX'),h('button',{className:'btn primary',onClick:create},'+ New project'))),
+    h('div',{className:'grid g3',style:{marginBottom:14}},
+      h('div',{className:'stat'},h('b',{className:'num'},money0(totals.open)),h('span',null,'in progress')),
+      h('div',{className:'stat'},h('b',{className:'num'},money0(totals.out)),h('span',null,'out for award')),
+      h('div',{className:'stat'},h('b',{className:'num'},money0(totals.won)),h('span',null,'won'))),
+    h('div',{className:'row',style:{marginBottom:12}},
+      h('input',{id:'search',placeholder:'Search projects, clients, addresses',value:q[0],onChange:function(e){q[1](e.target.value);},style:{maxWidth:360}}),
+      h('select',{id:'filter',value:f[0],onChange:function(e){f[1](e.target.value);},style:{maxWidth:180}},['all','flooring','demolition','both','draft','estimated','sent','won','lost'].map(function(o){return h('option',{key:o,value:o},o);}))),
+    ps.length? h('div',{className:'list'},ps.map(function(p){ var c=calc(p); return h('div',{key:p.id,className:'proj',onClick:function(){props.go('project',p.id);},role:'button',tabIndex:0,onKeyDown:function(e){if(e.key==='Enter')props.go('project',p.id);}},
+        h('div',null,h('div',{className:'t'},p.name||'Untitled project',' ',h('span',{className:'trade '+p.trade},p.trade)),h('div',{className:'s'},(p.client.name||'No client')+(p.address?' · '+p.address:'')+(p.dueAt?' · due '+p.dueAt:''))),
+        h('div',{style:{textAlign:'right'}},h('div',{className:'num',style:{fontWeight:600}},c.sell?money0(c.sell):'—'),h('div',{className:'s'},p.status+(p.demexSentAt?' · in DEMEX':'')))); }))
+    : h('div',{className:'empty'},h('b',null,'No projects yet'),'Start with “New project”, paste the scope, and Estimatio drafts the takeoff lines for you to price.'));
+}
+
+/* ---------- Dashboard ---------- */
+function Dashboard(props){
+  var ps=DB.projects, go=props.go, sel=useState(null);
+  var t=todayISO(), d14=new Date(); d14.setDate(d14.getDate()+14); var t14=d14.toISOString().slice(0,10);
+  var k={open:0,out:0,won:0,lost:0,nOpen:0,nOut:0,nWon:0,nLost:0};
+  ps.forEach(function(p){ var c=calc(p).sell; if(p.status==='draft'||p.status==='estimated'){k.open+=c;k.nOpen++;} else if(p.status==='sent'){k.out+=c;k.nOut++;} else if(p.status==='won'){k.won+=c;k.nWon++;} else if(p.status==='lost'){k.lost+=c;k.nLost++;} });
+  var decided=k.nWon+k.nLost, winRate=decided?Math.round(k.nWon/decided*100):null;
+  var due=ps.filter(function(p){ return (p.status==='draft'||p.status==='estimated')&&p.dueAt&&p.dueAt>=t&&p.dueAt<=t14; }).sort(function(a,b){return a.dueAt.localeCompare(b.dueAt);});
+  var overdue=ps.filter(function(p){ return (p.status==='draft'||p.status==='estimated')&&p.dueAt&&p.dueAt<t; });
+  var byStatus=STATUSES.map(function(st){ var rows=ps.filter(function(p){return p.status===st;}); return {st:st,n:rows.length,v:rows.reduce(function(a,p){return a+calc(p).sell;},0)}; });
+  var maxN=Math.max(1,Math.max.apply(null,byStatus.map(function(b){return b.n;})));
+  var mix={flooring:0,demolition:0,both:0}; ps.forEach(function(p){ mix[p.trade]=(mix[p.trade]||0)+calc(p).sell; }); var mixTotal=mix.flooring+mix.demolition+mix.both;
+  var drafts=DB.rates.filter(function(r){return r.draft;}).length;
+  var recent=ps.slice().sort(function(a,b){ return (b.createdAt||'').localeCompare(a.createdAt||''); }).slice(0,6);
+  var days=[]; for(var i=0;i<14;i++){ var d=new Date(); d.setDate(d.getDate()+i); var iso=d.toISOString().slice(0,10); days.push({iso:iso,dow:['S','M','T','W','T','F','S'][d.getDay()],day:d.getDate(),items:due.filter(function(p){return p.dueAt===iso;})}); }
+  var statusColor={draft:'var(--fg3)',estimated:'var(--blue)',sent:'var(--amber)',won:'var(--green)',lost:'var(--red)'};
+  function stepsOf(p){ var c=calc(p); return [!!p.scope,c.lines.length>0,!!p.estimate,p.status!=='draft'&&p.status!=='estimated']; }
+  var tile=function(label,val,sub,filter,active){ return h('button',{className:'stat'+(active?' active':''),onClick:function(){ go('projects',null,filter); }},h('b',{className:'num'},val),h('span',null,label+(sub?' · '+sub:''))); };
+  // donut geometry
+  var R=38, C=2*Math.PI*R, off=0, arcs=[['flooring','var(--teal)'],['demolition','var(--red)'],['both','var(--blue)']].map(function(a){ var frac=mixTotal?mix[a[0]]/mixTotal:0; var seg={k:a[0],color:a[1],frac:frac,dash:frac*C,offset:off}; off+=frac*C; return seg; });
+  return h('div',{className:'grid'},
+    h('div',{className:'hero'},
+      h('img',{src:EMBLEM,alt:'Estimatio emblem'}),
+      h('div',null,h('div',{className:'eyebrow'},'AI-driven estimating software'),h('h1',null,ps.length?'Estimating desk':'Welcome to Estimatio'),
+        h('p',null,ps.length? (k.nOpen+' open · '+k.nOut+' out for award · '+(winRate==null?'no decisions yet':winRate+'% win rate')) : 'Paste a scope, let the AI draft the takeoff lines, price them, and send the proposal. Demolition bids hand off to DEMEX.'),
+        h('div',{className:'row',style:{marginTop:12}},h('button',{className:'btn primary',onClick:function(){ var p=newProject(); commit(function(d){d.projects.push(p);}); go('project',p.id); }},'+ New project'),h('button',{className:'btn',onClick:function(){go('projects');}},'All projects'),drafts?h('button',{className:'btn',onClick:function(){go('rates');}},'Review '+drafts+' draft rates'):null))),
+    h('div',{className:'grid g4'},
+      tile('In progress',money0(k.open),k.nOpen+' project'+(k.nOpen===1?'':'s'),'estimated'),
+      tile('Out for award',money0(k.out),k.nOut+' sent','sent'),
+      tile('Won',money0(k.won),k.nWon+' project'+(k.nWon===1?'':'s'),'won'),
+      tile('Win rate',winRate==null?'—':winRate+'%',decided?decided+' decided':'no decisions yet','lost')),
+    h('div',{className:'grid dash2'},
+      h('div',{className:'card'},h('div',{className:'row',style:{justifyContent:'space-between'}},h('h2',null,'Due in the next 14 days'),overdue.length?h('span',{className:'pill err'},overdue.length+' overdue'):h('span',{className:'pill ok'},'nothing overdue')),
+        h('svg',{className:'chart',viewBox:'0 0 560 120',role:'img','aria-label':'Bids due per day for the next two weeks'},
+          days.map(function(d,i){ var x=8+i*39.4, n=d.items.length, hgt=n?Math.min(70,18+n*18):4, active=sel[0]===d.iso;
+            return h('g',{key:d.iso,className:'bar',onClick:function(){ sel[1](active?null:d.iso); }},
+              h('rect',{x:x,y:88-hgt,width:30,height:hgt,rx:5,fill:n?(active?'var(--blue2)':'var(--blue)'):'var(--panel2)',opacity:n?1:.8}),
+              n?h('text',{x:x+15,y:84-hgt,textAnchor:'middle',className:'lbl'},n):null,
+              h('text',{x:x+15,y:104,textAnchor:'middle'},d.dow),h('text',{x:x+15,y:116,textAnchor:'middle',style:{fontSize:10}},d.day)); })),
+        (sel[0]?days.filter(function(d){return d.iso===sel[0];})[0].items:due).slice(0,5).map(function(p){ return h('div',{key:p.id,className:'total',style:{cursor:'pointer'},onClick:function(){go('project',p.id);}},h('span',null,h('b',null,p.name||'Untitled'),h('span',{className:'dim'},' · '+(p.client.name||'no client')),' ',h('span',{className:'trade '+p.trade},p.trade)),h('span',{className:'num'},p.dueAt+' · '+money0(calc(p).sell))); }),
+        !due.length&&h('div',{className:'dim',style:{marginTop:8}},'No open bids due in the next two weeks.')),
+      h('div',{className:'grid'},
+        h('div',{className:'card'},h('h2',null,'Pipeline'),
+          byStatus.map(function(b){ return h('div',{key:b.st,className:'row',style:{cursor:'pointer',marginBottom:6},onClick:function(){go('projects',null,b.st);}},
+            h('span',{style:{width:72,fontSize:12,color:'var(--fg2)',textTransform:'capitalize'}},b.st),
+            h('div',{style:{flex:1,height:10,background:'var(--panel2)',borderRadius:5,overflow:'hidden'}},h('div',{style:{width:(b.n/maxN*100)+'%',height:'100%',background:statusColor[b.st],borderRadius:5,boxShadow:b.st==='estimated'?'0 0 8px var(--glow)':'none'}})),
+            h('span',{className:'num',style:{width:98,textAlign:'right',fontSize:12}},b.n+' · '+money0(b.v))); })),
+        h('div',{className:'card'},h('h2',null,'Trade mix'),
+          h('div',{className:'row'},
+            h('svg',{width:100,height:100,viewBox:'0 0 100 100',role:'img','aria-label':'Share of estimate value by trade'},
+              h('circle',{cx:50,cy:50,r:R,fill:'none',stroke:'var(--panel2)',strokeWidth:12}),
+              arcs.map(function(a){ return a.frac?h('circle',{key:a.k,cx:50,cy:50,r:R,fill:'none',stroke:a.color,strokeWidth:12,strokeDasharray:a.dash+' '+(C-a.dash),strokeDashoffset:-a.offset,transform:'rotate(-90 50 50)'}):null; }),
+              h('text',{x:50,y:54,textAnchor:'middle',style:{fontSize:11,fill:'var(--fg)',fontWeight:600}},ps.length)),
+            h('div',{className:'legend',style:{flexDirection:'column',gap:6}},arcs.map(function(a){ return h('span',{key:a.k,style:{cursor:'pointer'},onClick:function(){go('projects',null,a.k);}},h('i',{style:{background:a.color}}),a.k+' · '+(mixTotal?Math.round(a.frac*100):0)+'%'); })))))),
+    h('div',{className:'card tablewrap'},h('div',{className:'row',style:{justifyContent:'space-between'}},h('h2',null,'Recent projects'),h('button',{className:'btn ghost small',onClick:function(){go('projects');}},'See all →')),
+      recent.length? h('table',null,h('thead',null,h('tr',null,h('th',null,'Project'),h('th',{className:'hide-sm'},'Client'),h('th',null,'Trade'),h('th',null,'Progress'),h('th',null,'Due'),h('th',{className:'r'},'Total'),h('th',null,'Status'))),
+        h('tbody',null,recent.map(function(p){ var st=stepsOf(p); return h('tr',{key:p.id,style:{cursor:'pointer'},onClick:function(){go('project',p.id);}},
+          h('td',null,h('b',null,p.name||'Untitled')),h('td',{className:'hide-sm muted'},p.client.name||'—'),h('td',null,h('span',{className:'trade '+p.trade},p.trade)),
+          h('td',null,h('span',{className:'steps',title:'scope · lines · estimate · sent'},st.map(function(on,i){return h('i',{key:i,className:on?'on':''});}))),
+          h('td',{className:'muted'},p.dueAt||'—'),h('td',{className:'r num'},money0(calc(p).sell)),h('td',null,h('span',{className:'pill',style:{borderColor:statusColor[p.status],color:statusColor[p.status]}},p.status))); })))
+      : h('div',{className:'empty'},h('b',null,'Your first estimate starts here'),'New project → paste the scope → “Suggest lines from scope”.')));
+}
+
+function ProjectView(props){
+  var p=proj(props.id), tab=useState('scope');
+  if(!p) return h('div',{className:'empty'},'Project not found. ',h('button',{className:'btn small',onClick:function(){props.go('projects');}},'Back'));
+  function patch(k,v){ commit(function(){ var x=proj(p.id); if(!x) return; if(k.indexOf('.')>0){ var a=k.split('.'); x[a[0]]=x[a[0]]||{}; x[a[0]][a[1]]=v; } else x[k]=v; }); }
+  function del(){ if(!confirmDel[0]){ confirmDel[1](true); return; } commit(function(d){ d.projects=d.projects.filter(function(x){return x.id!==p.id;}); }); toast('Project deleted'); props.go('projects'); }
+  var confirmDel=useState(false), c=calc(p);
+  return h('div',null,
+    h('div',{className:'row',style:{marginBottom:12}},h('button',{className:'btn ghost small',onClick:function(){props.go('projects');}},'← Projects'),h('span',{className:'trade '+p.trade},p.trade),h('span',{className:'pill'},p.status),p.demexSentAt&&h('span',{className:'pill ok'},'sent to DEMEX')),
+    h('div',{className:'row',style:{justifyContent:'space-between',marginBottom:10}},
+      h('h1',null,p.name||'Untitled project'),
+      h('div',{className:'row'},h('div',{className:'num',style:{font:'600 22px var(--display)'}},money0(c.sell)),h('span',{className:'dim'},'total'))),
+    h('div',{className:'tabs',role:'tablist'},[['scope','Scope'],['takeoff','Takeoff & pricing'],['estimate','Estimate'],['proposal','Proposal']].map(function(t){ return h('button',{key:t[0],role:'tab','aria-selected':tab[0]===t[0],onClick:function(){tab[1](t[0]);}},t[1]); })),
+    tab[0]==='scope'&&h('div',{className:'grid g2'},
+      h('div',{className:'card grid'},h('h2',null,'Project'),
+        h(Field,{id:'name',label:'Project name'},h(Input,{id:'name',value:p.name,onChange:function(v){patch('name',v);}})),
+        h(Field,{id:'addr',label:'Address'},h(Input,{id:'addr',value:p.address,onChange:function(v){patch('address',v);}})),
+        h('div',{className:'grid g3'},
+          h(Field,{id:'trade',label:'Trade'},h('select',{id:'trade',value:p.trade,onChange:function(e){patch('trade',e.target.value);}},TRADES.map(function(t){return h('option',{key:t,value:t},t);}))),
+          h(Field,{id:'due',label:'Bid due'},h(Input,{id:'due',type:'date',value:p.dueAt,onChange:function(v){patch('dueAt',v);}})),
+          h(Field,{id:'status',label:'Status'},h('select',{id:'status',value:p.status,onChange:function(e){ var v=e.target.value; commit(function(){ var x=proj(p.id); x.status=v; if(v==='sent'&&!x.sentAt) x.sentAt=new Date().toISOString(); }); }},STATUSES.map(function(t){return h('option',{key:t,value:t},t);})))),
+        h(Field,{id:'bidno',label:'Bid / proposal number'},h(Input,{id:'bidno',value:p.bidNo,placeholder:DB.company.bidPrefix+'-'+todayISO().replace(/-/g,'').slice(2),onChange:function(v){patch('bidNo',v);}})),
+        h(Field,{id:'scope',label:'Scope of work (paste the ITB / RFP scope here)'},h('textarea',{id:'scope',rows:9,value:p.scope,onChange:function(e){patch('scope',e.target.value);}}))),
+      h('div',{className:'grid',style:{alignContent:'start'}},
+        h('div',{className:'card grid'},h('h2',null,'Client'),
+          h(Field,{id:'cname',label:'Company'},h(Input,{id:'cname',value:p.client.name,onChange:function(v){patch('client.name',v);}})),
+          h(Field,{id:'ccontact',label:'Contact'},h(Input,{id:'ccontact',value:p.client.contact,onChange:function(v){patch('client.contact',v);}})),
+          h('div',{className:'grid g2'},h(Field,{id:'cemail',label:'Email'},h(Input,{id:'cemail',value:p.client.email,onChange:function(v){patch('client.email',v);}})),h(Field,{id:'cphone',label:'Phone'},h(Input,{id:'cphone',value:p.client.phone,onChange:function(v){patch('client.phone',v);}})))),
+        h('div',{className:'card'},h('h2',null,'Danger zone'),h('p',{className:'muted',style:{marginTop:0}},'Deleting removes this project from the shared data for everyone.'),h('button',{className:'btn danger small',onClick:del},confirmDel[0]?'Click again to confirm delete':'Delete project')))),
+    tab[0]==='takeoff'&&h(Takeoff,{p:p}),
+    tab[0]==='estimate'&&h(Estimate,{p:p}),
+    tab[0]==='proposal'&&h(Proposal,{p:p}));
+}
+
+function Takeoff(props){
+  var p=props.p, busy=useState(false), missing=useState([]);
+  var cat=DB.rates.filter(function(r){ return p.trade==='both'||(p.trade==='flooring'?r.id.indexOf('flr_')===0||r.id==='demo_floor'||r.id==='demo_base':r.id.indexOf('flr_')!==0); });
+  var groups={}; cat.forEach(function(r){ (groups[r.cat]=groups[r.cat]||[]).push(r); });
+  function setLines(fn){ commit(function(){ var x=proj(p.id); x.estQty=fn(x.estQty||[]); }); }
+  function add(svc){ setLines(function(ls){ return ls.concat([{svc:svc||cat[0].id,qty:'',rate:'',mat:'',note:''}]); }); }
+  function upd(i,k,v){ setLines(function(ls){ return ls.map(function(l,j){ return j===i?Object.assign({},l,(function(){var o={};o[k]=v;return o;})()):l; }); }); }
+  function rm(i){ setLines(function(ls){ return ls.filter(function(_,j){return j!==i;}); }); }
+  function ai(){ if(busy[0]) return; if(!p.scope.trim()){ toast('Paste the scope of work first','err'); return; } busy[1](true); toast('Reading the scope…');
+    suggestLines(p).then(function(out){ if(!out.lines.length){ toast('No catalog items matched — add lines by hand','err'); } else { setLines(function(ls){ var have={}; ls.forEach(function(l){have[l.svc]=1;}); return ls.concat(out.lines.filter(function(l){return !have[l.svc];})); }); toast(out.lines.length+' lines suggested — check every quantity before pricing'); } missing[1](out.missing||[]); busy[1](false); })
+    .catch(function(e){ toast(e&&e.message||'AI unavailable','err'); busy[1](false); }); }
+  var c=calc(p), lines=p.estQty||[];
+  return h('div',{className:'grid'},
+    h('div',{className:'row',style:{justifyContent:'space-between'}},
+      h('div',{className:'muted'},'Quantities × (labor rate + material $/unit). Blank rate = catalog rate at the ',h('b',null,DB.settings.tier),' tier. Material is optional (pass-through, taxed if set).'),
+      h('div',{className:'row'},h('button',{className:'btn',onClick:ai,disabled:busy[0]},busy[0]?'Thinking…':'✦ Suggest lines from scope'),h('button',{className:'btn primary',onClick:function(){add();}},'+ Line'))),
+    missing[0].length? h('div',{className:'card',style:{borderColor:'var(--amber)'}},h('div',{className:'eyebrow',style:{color:'var(--amber)'}},'Scope items with no catalog match'),h('ul',{style:{margin:'6px 0 0 18px'}},missing[0].map(function(m,i){return h('li',{key:i},m);})),h('div',{className:'dim',style:{fontSize:12}},'Add these as “Misc count item” or add a rate in Rates.')):null,
+    h('div',{className:'card tablewrap'},
+      h('table',{className:'sheet'},h('thead',null,h('tr',null,h('th',{style:{minWidth:260}},'Item'),h('th',{className:'r',style:{width:110}},'Qty'),h('th',{style:{width:50}},'Unit'),h('th',{className:'r',style:{width:120}},'Labor $/unit'),h('th',{className:'r',style:{width:120}},'Material $/unit'),h('th',{className:'r',style:{width:120}},'Total'),h('th',{style:{minWidth:200}},'Note / source'),h('th',{style:{width:40}}))),
+        h('tbody',null,lines.length?lines.map(function(l,i){ var ri=rinfo(l.svc), base=rateOf(l.svc);
+          return h('tr',{key:i},
+            h('td',null,h('select',{'aria-label':'Item',value:l.svc,onChange:function(e){upd(i,'svc',e.target.value);}},Object.keys(groups).map(function(g){ return h('optgroup',{key:g,label:g},groups[g].map(function(r){return h('option',{key:r.id,value:r.id},r.label);})); }))),
+            h('td',{className:'r'},h('input',{'aria-label':'Quantity',className:'num',type:'number',min:0,step:'any',value:l.qty,onChange:function(e){upd(i,'qty',e.target.value);},style:{textAlign:'right'}})),
+            h('td',{className:'dim'},ri.unit),
+            h('td',{className:'r'},h('input',{'aria-label':'Labor rate',className:'num',type:'number',min:0,step:'0.01',placeholder:base.toFixed(2),value:l.rate,onChange:function(e){upd(i,'rate',e.target.value);},style:{textAlign:'right'}})),
+            h('td',{className:'r'},h('input',{'aria-label':'Material cost per unit',className:'num',type:'number',min:0,step:'0.01',placeholder:'0.00',value:l.mat,onChange:function(e){upd(i,'mat',e.target.value);},style:{textAlign:'right'}})),
+            h('td',{className:'r num'},money(lineTotal(l))),
+            h('td',null,h('input',{'aria-label':'Note',value:l.note||'',onChange:function(e){upd(i,'note',e.target.value);}})),
+            h('td',null,h('button',{className:'btn ghost small','aria-label':'Remove line',onClick:function(){rm(i);}},'✕'))); })
+        : h('tr',null,h('td',{colSpan:8,className:'dim',style:{textAlign:'center',padding:24}},'No lines yet. Use “Suggest lines from scope” or add them by hand.'))),
+        h('tfoot',null,h('tr',null,h('td',{colSpan:5,className:'r'},'Labor ',h('span',{className:'num'},money(c.labor)),' · Material ',h('span',{className:'num'},money(c.mat))),h('td',{className:'r num',style:{fontWeight:600}},money(c.direct)),h('td',{colSpan:2,className:'dim'},'direct cost'))))),
+    h('div',{className:'row'},h('span',{className:'dim'},'Quick add:'),cat.slice(0,8).map(function(r){ return h('button',{key:r.id,className:'btn ghost small',onClick:function(){add(r.id);}},r.label.split(' (')[0]); })));
+}
+
+function Estimate(props){
+  var p=props.p, c=calc(p), s=DB.settings;
+  function set(k,v){ commit(function(d){ d.settings[k]=v; }); }
+  function markEstimated(){ commit(function(){ var x=proj(p.id); x.estimate={direct:c.direct,oh:c.oh,profit:c.profit,tax:c.tax,sell:c.sell,savedAt:new Date().toISOString()}; if(x.status==='draft') x.status='estimated'; }); toast('Estimate saved at '+money0(c.sell)); }
+  var byCat={}; c.lines.forEach(function(l){ var k=rinfo(l.svc).cat||'Other'; byCat[k]=(byCat[k]||0)+lineTotal(l); });
+  return h('div',{className:'grid g2'},
+    h('div',{className:'card'},h('h2',null,'Summary'),
+      h('div',{className:'total'},h('span',null,'Labor'),h('span',{className:'num'},money(c.labor))),
+      h('div',{className:'total'},h('span',null,'Materials'),h('span',{className:'num'},money(c.mat))),
+      h('div',{className:'total'},h('span',null,'Direct cost'),h('span',{className:'num'},money(c.direct))),
+      h('div',{className:'total'},h('span',null,'Overhead '+s.overheadPct+'%'),h('span',{className:'num'},money(c.oh))),
+      h('div',{className:'total'},h('span',null,'Profit '+s.profitPct+'%'),h('span',{className:'num'},money(c.profit))),
+      s.taxPct>0&&h('div',{className:'total'},h('span',null,'Sales tax '+s.taxPct+'%'+(s.taxMaterialsOnly?' on materials':'')),h('span',{className:'num'},money(c.tax))),
+      h('div',{className:'total big'},h('span',null,'Proposal total'),h('span',{className:'num'},money(c.sell))),
+      h('div',{className:'row',style:{marginTop:16}},h('button',{className:'btn primary',onClick:markEstimated,disabled:!c.lines.length},'Save estimate'),p.estimate&&h('span',{className:'dim'},'last saved '+money0(p.estimate.sell)+' · '+String(p.estimate.savedAt).slice(0,10))),
+      Object.keys(byCat).length? h('div',{style:{marginTop:18}},h('div',{className:'eyebrow'},'By category'),Object.keys(byCat).map(function(k){ return h('div',{key:k,className:'total'},h('span',{className:'muted'},k),h('span',{className:'num'},money(byCat[k]))); })):null),
+    h('div',{className:'card grid',style:{alignContent:'start'}},h('h2',null,'Markups'),h('p',{className:'dim',style:{margin:0}},'These apply to every project (change them in Settings for good; this edits the same values).'),
+      h('div',{className:'grid g2'},
+        h(Field,{id:'oh',label:'Overhead %'},h(Input,{id:'oh',type:'number',step:'0.5',value:s.overheadPct,onChange:function(v){set('overheadPct',+v);}})),
+        h(Field,{id:'pf',label:'Profit %'},h(Input,{id:'pf',type:'number',step:'0.5',value:s.profitPct,onChange:function(v){set('profitPct',+v);}})),
+        h(Field,{id:'tx',label:'Sales tax %'},h(Input,{id:'tx',type:'number',step:'0.25',value:s.taxPct,onChange:function(v){set('taxPct',+v);}})),
+        h(Field,{id:'tier',label:'Rate tier'},h('select',{id:'tier',value:s.tier,onChange:function(e){set('tier',e.target.value);}},Object.keys(TIER).map(function(t){return h('option',{key:t,value:t},t+' ×'+TIER[t]);})))),
+      h('label',{className:'row',style:{cursor:'pointer'}},h('input',{type:'checkbox',style:{width:'auto'},checked:!!s.taxMaterialsOnly,onChange:function(e){set('taxMaterialsOnly',e.target.checked);}}),'Tax materials only (contractor pays tax on materials; labor untaxed)')));
+}
+
+function Proposal(props){
+  var p=props.p, pr=p.proposal||{}, c=calc(p);
+  function set(k,v){ commit(function(){ var x=proj(p.id); x.proposal=Object.assign({},x.proposal||{}); x.proposal[k]=v; }); }
+  function dl(){ CLOUD.download(('Proposal - '+(p.name||'project')+(p.bidNo?' - '+p.bidNo:'')).replace(/[\\/:*?"<>|]+/g,'_')+'.html',proposalHTML(p,false)).then(function(){ toast('Proposal downloaded — open it and print to PDF'); }).catch(function(e){ toast(e&&e.message||'Download failed','err'); }); }
+  function copyText(){ var t=document.createElement('div'); t.innerHTML=proposalHTML(p,true); var txt=t.innerText; (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(txt):Promise.reject()).then(function(){toast('Proposal text copied');}).catch(function(){ toast('Copy blocked — download instead','err'); }); }
+  return h('div',{className:'grid prop2'},
+    h('div',{className:'card grid',style:{alignContent:'start'}},h('h2',null,'Proposal wording'),
+      !DB.company.name&&h('div',{className:'pill warn'},'Add your company in Settings so it prints on the proposal'),
+      h(Field,{id:'intro',label:'Opening line (optional)'},h('textarea',{id:'intro',rows:2,value:pr.intro||'',onChange:function(e){set('intro',e.target.value);}})),
+      h(Field,{id:'incl',label:'Includes (one per line)'},h('textarea',{id:'incl',rows:4,value:pr.inclusions||'',onChange:function(e){set('inclusions',e.target.value);}})),
+      h(Field,{id:'excl',label:'Exclusions (one per line; blank = company default)'},h('textarea',{id:'excl',rows:4,value:pr.exclusions||'',placeholder:DB.company.exclusions,onChange:function(e){set('exclusions',e.target.value);}})),
+      h(Field,{id:'pnotes',label:'Notes'},h('textarea',{id:'pnotes',rows:3,value:pr.notes||'',onChange:function(e){set('notes',e.target.value);}})),
+      h('label',{className:'row',style:{cursor:'pointer'}},h('input',{type:'checkbox',style:{width:'auto'},checked:!!DB.settings.showUnitPricing,onChange:function(e){ var v=e.target.checked; commit(function(d){ d.settings.showUnitPricing=v; }); }}),'Show unit pricing on proposal'),
+      h('div',{className:'row'},h('button',{className:'btn primary',onClick:dl,disabled:!c.lines.length},'Download proposal (HTML → print to PDF)'),h('button',{className:'btn',onClick:copyText},'Copy text'))),
+    h('div',{className:'prop',dangerouslySetInnerHTML:{__html:proposalHTML(p,true)}}));
+}
+
+function Rates(){
+  var q=useState('');
+  var rows=DB.rates.filter(function(r){ return !q[0]||(r.label+' '+r.cat+' '+r.id).toLowerCase().indexOf(q[0].toLowerCase())>=0; });
+  var groups={}; rows.forEach(function(r){ (groups[r.cat]=groups[r.cat]||[]).push(r); });
+  function set(id,k,v){ commit(function(d){ var r=d.rates.filter(function(x){return x.id===id;})[0]; if(r){ r[k]=+v; delete r.draft; } }); }
+  function setOv(id,v){ commit(function(d){ if(v===''||isNaN(+v)) delete d.rateOverrides[id]; else d.rateOverrides[id]=+v; }); }
+  function accept(cat){ commit(function(d){ d.rates.forEach(function(r){ if(r.cat===cat) delete r.draft; }); }); toast(cat+' rates confirmed'); }
+  var drafts=DB.rates.filter(function(r){return r.draft;}).length;
+  return h('div',null,
+    h('div',{className:'row',style:{justifyContent:'space-between',marginBottom:12}},h('div',null,h('div',{className:'eyebrow'},'Catalog'),h('h1',null,'Rates')),h('input',{id:'rq',placeholder:'Filter',value:q[0],onChange:function(e){q[1](e.target.value);},style:{maxWidth:280}})),
+    drafts? h('div',{className:'card',style:{borderColor:'var(--amber)',marginBottom:14}},h('b',null,drafts+' flooring rates are drafts'),h('span',{className:'muted'},' — ranges Claude proposed for review. Edit the low/high to your numbers, or confirm a category as-is. Demolition rates match DEMEX.')):null,
+    h('p',{className:'dim'},'Estimates use the midpoint of low–high × tier ('+DB.settings.tier+' ×'+TIER[DB.settings.tier]+') × region ('+DB.settings.regionMult+') × override. Lines can still be priced by hand.'),
+    Object.keys(groups).map(function(g){ return h('div',{key:g,className:'card tablewrap',style:{marginBottom:12}},
+      h('div',{className:'row',style:{justifyContent:'space-between',marginBottom:6}},h('h2',{style:{margin:0}},g),groups[g].some(function(r){return r.draft;})&&h('button',{className:'btn small',onClick:function(){accept(g);}},'Confirm these')),
+      h('table',null,h('thead',null,h('tr',null,h('th',null,'Item'),h('th',null,'Unit'),h('th',{className:'r'},'Low'),h('th',{className:'r'},'High'),h('th',{className:'r'},'Override %'),h('th',{className:'r'},'Effective'))),
+        h('tbody',null,groups[g].map(function(r){ return h('tr',{key:r.id},
+          h('td',null,r.label,r.draft&&h('span',{className:'pill warn',style:{marginLeft:8}},'draft')),h('td',{className:'dim'},r.unit),
+          h('td',{className:'r'},h('input',{'aria-label':'Low',className:'num',type:'number',step:'0.01',value:r.low,onChange:function(e){set(r.id,'low',e.target.value);},style:{textAlign:'right',maxWidth:100}})),
+          h('td',{className:'r'},h('input',{'aria-label':'High',className:'num',type:'number',step:'0.01',value:r.high,onChange:function(e){set(r.id,'high',e.target.value);},style:{textAlign:'right',maxWidth:100}})),
+          h('td',{className:'r'},h('input',{'aria-label':'Override percent',className:'num',type:'number',step:'1',placeholder:'0',value:DB.rateOverrides[r.id]==null?'':DB.rateOverrides[r.id],onChange:function(e){setOv(r.id,e.target.value);},style:{textAlign:'right',maxWidth:90}})),
+          h('td',{className:'r num'},money(rateOf(r.id))+'/'+r.unit)); })))); }));
+}
+
+function Settings(){
+  var co=DB.company, s=DB.settings;
+  function setC(k,v){ commit(function(d){ d.company[k]=v; }); } function setS(k,v){ commit(function(d){ d.settings[k]=v; }); }
+  function exportAll(){ CLOUD.download('estimatio-backup-'+todayISO()+'.json',JSON.stringify(DB,null,2)).then(function(){toast('Backup downloaded');}).catch(function(e){toast(e&&e.message||'Export failed','err');}); }
+  function importFile(e){ var f=e.target.files&&e.target.files[0]; if(!f) return; var rd=new FileReader(); rd.onload=function(){ try{ var d=JSON.parse(rd.result); if(!Array.isArray(d.projects)) throw new Error('Not an Estimatio file'); commit(function(db){ var have={}; db.projects.forEach(function(p){have[p.id]=1;}); d.projects.forEach(function(p){ if(!have[p.id]) db.projects.push(p); }); if(d.company) db.company=Object.assign({},db.company,d.company); if(d.rates) d.rates.forEach(function(r){ var x=db.rates.filter(function(y){return y.id===r.id;})[0]; if(x) Object.assign(x,r); else db.rates.push(r); }); }); toast('Imported '+d.projects.length+' projects'); }catch(err){ toast(err.message||'Import failed','err'); } }; rd.readAsText(f); e.target.value=''; }
+  return h('div',{className:'grid g2'},
+    h('div',{className:'card grid',style:{alignContent:'start'}},h('div',null,h('div',{className:'eyebrow'},'Prints on every proposal'),h('h2',null,'Company')),
+      h(Field,{id:'co',label:'Company name'},h(Input,{id:'co',value:co.name,onChange:function(v){setC('name',v);}})),
+      h(Field,{id:'cc',label:'Signer / contact'},h(Input,{id:'cc',value:co.contact,onChange:function(v){setC('contact',v);}})),
+      h(Field,{id:'ca',label:'Address'},h(Input,{id:'ca',value:co.addr,onChange:function(v){setC('addr',v);}})),
+      h('div',{className:'grid g3'},h(Field,{id:'cp',label:'Phone'},h(Input,{id:'cp',value:co.phone,onChange:function(v){setC('phone',v);}})),h(Field,{id:'ce',label:'Email'},h(Input,{id:'ce',value:co.email,onChange:function(v){setC('email',v);}})),h(Field,{id:'cl',label:'License #'},h(Input,{id:'cl',value:co.license,onChange:function(v){setC('license',v);}}))),
+      h(Field,{id:'bp',label:'Bid number prefix'},h(Input,{id:'bp',value:co.bidPrefix,onChange:function(v){setC('bidPrefix',v);}})),
+      h(Field,{id:'ex',label:'Default exclusions (one per line)'},h('textarea',{id:'ex',rows:5,value:co.exclusions,onChange:function(e){setC('exclusions',e.target.value);}})),
+      h(Field,{id:'tm',label:'Terms'},h('textarea',{id:'tm',rows:5,value:co.terms,onChange:function(e){setC('terms',e.target.value);}}))),
+    h('div',{className:'grid',style:{alignContent:'start'}},
+      h('div',{className:'card grid'},h('h2',null,'Pricing defaults'),
+        h('div',{className:'grid g2'},
+          h(Field,{id:'s_oh',label:'Overhead %'},h(Input,{id:'s_oh',type:'number',step:'0.5',value:s.overheadPct,onChange:function(v){setS('overheadPct',+v);}})),
+          h(Field,{id:'s_pf',label:'Profit %'},h(Input,{id:'s_pf',type:'number',step:'0.5',value:s.profitPct,onChange:function(v){setS('profitPct',+v);}})),
+          h(Field,{id:'s_tx',label:'Sales tax %'},h(Input,{id:'s_tx',type:'number',step:'0.25',value:s.taxPct,onChange:function(v){setS('taxPct',+v);}})),
+          h(Field,{id:'s_rg',label:'Region multiplier'},h(Input,{id:'s_rg',type:'number',step:'0.01',value:s.regionMult,onChange:function(v){setS('regionMult',+v||1);}})),
+          h(Field,{id:'s_tier',label:'Rate tier'},h('select',{id:'s_tier',value:s.tier,onChange:function(e){setS('tier',e.target.value);}},Object.keys(TIER).map(function(t){return h('option',{key:t,value:t},t+' ×'+TIER[t]);}))))),
+      h('div',{className:'card grid'},h('h2',null,'Data'),
+        h('p',{className:'muted',style:{margin:0}},CLOUD.hosted?'Projects, rates and settings are saved to this page’s shared database. Backups are a download away.':'This copy saves to this browser only.'),
+        h('div',{className:'row'},h('button',{className:'btn',onClick:exportAll},'Download backup (JSON)'),h('label',{className:'btn',style:{cursor:'pointer'}},'Import backup / merge',h('input',{type:'file',accept:'application/json',onChange:importFile,style:{display:'none'}}))),
+        h('div',{className:'dim',style:{fontSize:12}},'DEMEX hand-off: Projects → “Send demolition bids to DEMEX” downloads a file DEMEX’s Pipeline → Import (merge) accepts. Flooring-only projects stay here.'))));
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(h(App,null));
+})();
+</script>

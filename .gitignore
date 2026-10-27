@@ -52,3 +52,13 @@ demex_bidsheet_extract.json
 demex_rate_reference.json
 learning_state.json
 demex_seed.json
+
+# Desktop app build output (build_desktop.bat)
+build/
+dist/
+*.bak-desktop
+
+# hosted-build scratch + local comparisons
+_hosted/
+_lt_compare/
+*.bak-*

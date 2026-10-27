@@ -1,0 +1,138 @@
+{
+  "schema": "demex_bid_sheet/v1",
+  "bid_no": "",
+  "bid_date": "2026-10-06",
+  "status": "draft - not submitted",
+  "project_name": "Dollar Tree #11729 (Deal #57366) - Pembroke Pines, FL",
+  "address": "12596 Pines Blvd, Pembroke Pines, FL 33027",
+  "gc": "Brothers Group (bid room); also invited via Marco Contractors list",
+  "due": "2026-10-05 12:00 PM ET (PASSED)",
+  "project_type": "Open Shop",
+  "scope": "DEMOLITION",
+  "currency": "USD",
+  "base_bid": 42500,
+  "sf_measured": 9859.18,
+  "price_per_sf": 4.31,
+  "linked_takeoff": "DollarTree_11729_PembrokePines_D1_MarkedUp_takeoff_corrected.json",
+  "linked_sheet": "D1 Demolition Plan 1/8\"=1'-0\", RRMM Architects, 8/20/26",
+  "scope_of_work": [
+    "Remove partitions shown dashed complete - metal stud and GWB, approx. 700 LF measured (Plan Note 1)",
+    "Remove portion of existing wall to match adjacent header height, approx. 7'-3\" AFF (Plan Note 2)",
+    "Remove existing partial height walls complete (Plan Note 3)",
+    "Remove existing metal studs and GWB complete (Plan Note 4)",
+    "Remove doors and frames complete (Plan Note 5)",
+    "Remove existing storefront doors, transom and threshold complete (Plan Note 6)",
+    "Remove existing plumbing fixtures, accessories and toilet partitions in existing restrooms - capping by plumber (Plan Note 7)",
+    "Remove existing overhead door complete (Plan Note 11)",
+    "Remove existing window film at storefront glazing (Plan Note 14)",
+    "Remove existing 2x4 ACT ceiling and grid throughout, approx. 9,859 SF, including ceiling-mounted diffusers/grilles and flex duct not scheduled for reuse (FP-101 Note 4; Mech Note K3)",
+    "Remove existing light fixtures throughout; electrical removal limited to disconnect and removal back to nearest junction box (E-2 General Note)",
+    "Remove existing abandoned electrical devices, conduit and wiring not shown to remain, back to nearest junction box (E-1 / E-3 General Note)",
+    "Remove existing floor finishes and wall base throughout, approx. 9,859 SF (CS1 Scope of Work; A4 Finish Schedule)",
+    "Remove existing baler (CS1 Scope of Work)",
+    "Daily clean-up, C&D haul-off and leave space broom clean (Gen. Demo Notes 2, 3, 16)"
+  ],
+  "exclusions": [
+    "Fire sprinkler demolition and modifications (FP-101) - by fire protection contractor",
+    "Electrical panels, transformer, disconnects and make-safe (Plan Note 8) - by electrician",
+    "Plumbing disconnect, cap and below-slab work (Plan Note 7; P-1) - by plumber",
+    "RTUs, rigid ductwork, curbs, roofing, refrigerant recovery (Mech Note K3) - see Alternate 5",
+    "Sawcutting/trenching, concrete, mastic removal and grinding - see Alternates",
+    "Previous tenant exterior signage - see Alternate 4",
+    "All patching, repair, infill and prep for new finishes (Gen. Demo Note 13; New Work Note 14)",
+    "Dust barriers and temporary partitions (Gen. Demo Note 10)",
+    "Demolition permits (Gen. Demo Note 6)",
+    "Shoring limited to non-load-bearing; load-bearing shoring, design and stamped drawings excluded (Gen. Demo Note 15)",
+    "Hazardous material testing and abatement",
+    "Items to remain: storefront system and glazing, existing soffit, canopy, demising walls, sprinkler riser, electrical service",
+    "Night/weekend work; bid based on normal daytime hours, unrestricted dumpster access"
+  ],
+  "alternates": [
+    {
+      "line": "alt_1",
+      "label": "Sawcut and remove slab for plumbing trench, remove only - infill by others (Plan Note 9; P-1 K4)",
+      "amount": 2400,
+      "basis": "4 marked areas 23.2 SF + assumed ~40 LF trench run"
+    },
+    {
+      "line": "alt_2",
+      "label": "Remove landscaping/concrete at rear landing (Plan Note 12)",
+      "amount": 750,
+      "basis": "14.48 SF marked"
+    },
+    {
+      "line": "alt_3",
+      "label": "Mastic/adhesive removal and grind slab throughout",
+      "amount": 12300,
+      "basis": "9,859 SF @ $1.25"
+    },
+    {
+      "line": "alt_4",
+      "label": "Remove previous tenant exterior signage, patch/paint excluded (CS1 New Work Note 14)",
+      "amount": 1500,
+      "basis": "lift + 2 men 1 day"
+    },
+    {
+      "line": "alt_5",
+      "label": "Remove (4) RTUs by crane after HVAC disconnect/refrigerant recovery by others (Mech Note K3)",
+      "amount": 5400,
+      "basis": "crane day $3,000 + crew $1,000 + 5% + $1,000 profit"
+    }
+  ],
+  "cost_buildup": {
+    "labor": {
+      "mh": 480,
+      "rate": 25,
+      "amount": 12000,
+      "basis": "6 men x 10 days x 8 hr; production est 447 mh"
+    },
+    "travel_time": {
+      "mh": 132,
+      "amount": 3300,
+      "basis": "6 men x 4 one-way trips x 5.5 hr Lake City-Pembroke Pines"
+    },
+    "dumpsters": {
+      "pulls": 8,
+      "rate": 700,
+      "amount": 5600,
+      "basis": "~38 tons C&D; Broward rate unverified"
+    },
+    "equipment": {
+      "amount": 3200,
+      "basis": "2 scissor lifts 2 wk $1,800 + ride-on scraper 1 wk $1,400"
+    },
+    "consumables": {
+      "amount": 750
+    },
+    "lodging": {
+      "nights": 11,
+      "rate": 275,
+      "amount": 3025
+    },
+    "per_diem": {
+      "amount": 2400,
+      "basis": "6 x 10 days x $40"
+    },
+    "fuel": {
+      "amount": 700
+    },
+    "direct_total": 30975,
+    "contingency_5pct": 1548.75,
+    "profit": {
+      "per_day": 1000,
+      "days": 10,
+      "amount": 10000
+    },
+    "computed": 42523.75
+  },
+  "terms": "Zero retainage, 90-day validity, net 30, plans-only basis, additional mobilization $3,250",
+  "verify_before_submit": [
+    "Existing floor finish type (VCT/carpet/tile) - drives scraper time and dumpster tonnage",
+    "Wall heights (to deck 14'-4\" to 16'-3\" vs. to ceiling) - priced at 12' avg",
+    "7 short dashed walls at left sales area - only one (8'-11\") was measured; ~53 LF may be missing",
+    "Light fixture count - assumed ~100",
+    "Broward County dumpster rate - assumed $700/pull",
+    "Bid due date 10/5 has passed - confirm with GC whether late bids accepted"
+  ],
+  "comparables": "Harbor Freight Jax Beach DDD-2026/0811R1: $3.78/SF local; this job $4.31/SF with travel"
+}
