@@ -342,6 +342,28 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
 })();
 
 </script>
+<script>/* DEMEX server-state adapter: when the bridge runs in server mode (DEMEX_ACCESS_KEY set),
+   the whole app state is stored on the server (/api/state) so every device sees the same data. */
+window.DX_SERVER = (function(){
+  var st = {on:false, data:null, version:0, ready_p:null, timer:null, pending:null, busy:false};
+  function tok(){ return (typeof window.bridgeToken==='function') ? window.bridgeToken() : Promise.resolve(null); }
+  function put(){
+    st.timer=null; var DB=st.pending; st.pending=null; if(!DB||st.busy) { if(DB) { st.pending=DB; st.timer=setTimeout(put,500); } return; }
+    st.busy=true;
+    tok().then(function(t){ return fetch('/api/state',{method:'POST',headers:{'Content-Type':'application/json','X-DEMEX-Token':t||''},body:JSON.stringify({app:'demex',data:DB,version:st.version})}); })
+    .then(function(r){ return r.json().then(function(d){ return {r:r,d:d}; }); })
+    .then(function(x){ if(x.r.status===409){ st.version=x.d.version; window.dispatchEvent(new CustomEvent('dx-toast',{detail:{msg:'Another device saved first — reload to pick up its changes',kind:'err'}})); } else if(x.d&&x.d.ok){ st.version=x.d.version; } })
+    .catch(function(){}).then(function(){ st.busy=false; });
+  }
+  st.save=function(DB){ if(!st.on) return; st.pending=DB; if(st.timer) clearTimeout(st.timer); st.timer=setTimeout(put,600); };
+  st.ready_p = fetch('/api/mode').then(function(r){return r.json();}).then(function(m){
+    if(!m||!m.server) return st;
+    st.on=true;
+    return fetch('/api/state?app=demex').then(function(r){return r.json();}).then(function(d){ if(d&&d.ok){ st.data=d.payload; st.version=d.version||0; } return st; });
+  }).catch(function(){ return st; });
+  return st;
+})();
+</script>
 <script>/* DEMEX store */
 window.DX=(function(){
   'use strict';
@@ -449,7 +471,9 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
   }
   function load(){
     try{localStorage.removeItem('demex_os_db_v1');localStorage.removeItem('demex_os_db_v2');}catch(e){}
-    try{var raw=localStorage.getItem(KEY);DB=raw?JSON.parse(raw):seed();}catch(e){DB=seed();}
+    var srv=window.DX_SERVER;
+    if(srv&&srv.on&&srv.data){DB=JSON.parse(JSON.stringify(srv.data));}
+    else{try{var raw=localStorage.getItem(KEY);DB=raw?JSON.parse(raw):seed();}catch(e){DB=seed();}}
     if(!DB.audit)DB.audit=[]; if(!DB.rates)DB.rates=JSON.parse(JSON.stringify(RATE_DEFAULTS)); RATE_DEFAULTS.forEach(function(rd){ if(!DB.rates.some(function(r){return r.id===rd.id;})) DB.rates.push(JSON.parse(JSON.stringify(rd))); }); if(!DB.rateSettings)DB.rateSettings=JSON.parse(JSON.stringify(RATE_SETTINGS_DEFAULT)); (DB.rates||[]).forEach(function(r){ if(r.prod==null&&PROD[r.id]!=null)r.prod=PROD[r.id]; }); if(!DB.costModel)DB.costModel=JSON.parse(JSON.stringify(COSTMODEL_DEFAULT));
     var byName={};DB.projects.forEach(function(p){byName[p.name]=p.id;});
     (DB.actuals||[]).forEach(function(a){if(!a.project_id&&a._proj&&byName[a._proj])a.project_id=byName[a._proj];});
@@ -457,7 +481,7 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
     normalizeSchema();
     save();return DB;
   }
-  function save(){try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}try{if(window.DX_SERVER&&window.DX_SERVER.on)window.DX_SERVER.save(DB);}catch(e){}}
   function emit(){subs.slice().forEach(function(f){try{f();}catch(e){}});}
   function subscribe(f){subs.push(f);return function(){subs=subs.filter(function(x){return x!==f;});};}
 
@@ -1771,13 +1795,20 @@ function Boot({
   useEffect(() => {
     const reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
     const stages = [[300, 'LOADING RECORDS…'], [700, 'VALIDATING SCHEMA…'], [1100, 'WARMING AGENT…'], [1500, 'READY']];
-    DX.load();
-    DX.syncRateCard(); // bootstrap: backend tools price with the app's live rates
+    let end = null, cancelled = false;
     const timers = stages.map(([t, s]) => setTimeout(() => setStat(s), reduce ? 0 : t));
-    const end = setTimeout(onDone, reduce ? 200 : 1750);
+    const ready = (window.DX_SERVER && window.DX_SERVER.ready_p) || Promise.resolve();
+    const t0 = Date.now();
+    ready.then(() => {
+      if (cancelled) return;
+      DX.load();
+      DX.syncRateCard(); // bootstrap: backend tools price with the app's live rates
+      end = setTimeout(onDone, Math.max(0, (reduce ? 200 : 1750) - (Date.now() - t0)));
+    });
     return () => {
+      cancelled = true;
       timers.forEach(clearTimeout);
-      clearTimeout(end);
+      if (end) clearTimeout(end);
     };
   }, []);
   return /*#__PURE__*/React.createElement("div", {

@@ -1,0 +1,14 @@
+.git
+_backups_*
+_lt_compare
+_hosted
+dist
+build
+desktop
+*.bak-*
+demex (23).html
+demex_v24_os.html
+DEMEX.backup-preauto.html
+*.pdf
+__pycache__
+.env

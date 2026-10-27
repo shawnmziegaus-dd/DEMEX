@@ -117,6 +117,28 @@ TOKEN = secrets.token_urlsafe(32)
 # Hosts a browser may legitimately use to reach this loopback-bound server.
 ALLOWED_HOSTS = {"localhost", "127.0.0.1", "::1"}
 
+# ---- Server mode (Fly.io / any Docker host) ---------------------------------
+# DEMEX_BIND=0.0.0.0 makes the bridge listen publicly; DEMEX_ALLOWED_HOSTS adds
+# the public hostname(s) (comma-separated) to the Host-header allowlist;
+# DEMEX_ACCESS_KEY turns on sign-in: every request except /login needs the
+# session cookie that /api/login sets after a correct key. Keys are compared in
+# constant time; the cookie is an HMAC of the key, so the key itself never sits
+# in the browser.
+BIND = os.environ.get("DEMEX_BIND", "127.0.0.1")
+ALLOWED_HOSTS |= {h.strip().lower() for h in
+                  (os.environ.get("DEMEX_ALLOWED_HOSTS") or "").split(",") if h.strip()}
+ACCESS_KEY = (os.environ.get("DEMEX_ACCESS_KEY") or "").strip()
+SERVER_MODE = bool(ACCESS_KEY)
+import hashlib
+SESSION_COOKIE = "demex_session"
+def _session_value() -> str:
+    return hashlib.sha256(("demex-session:" + ACCESS_KEY).encode()).hexdigest()
+# Shared app state (the UI's whole DB as JSON) lives in SQLite so every device
+# sees the same data. One row per app ("demex", "estimatio").
+STATE_TABLE_SQL = """CREATE TABLE IF NOT EXISTS app_state (
+    app TEXT PRIMARY KEY, data TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+    updated_at TEXT NOT NULL)"""
+
 AI_API_URL = "https://api.anthropic.com/v1/messages"
 AI_DEFAULT_MODEL = "claude-sonnet-4-6"
 
@@ -589,11 +611,104 @@ class Handler(SimpleHTTPRequestHandler):
         supplied = self.headers.get("X-DEMEX-Token") or ""
         return hmac.compare_digest(supplied, TOKEN)
 
+    # ---- server-mode sign-in ----
+    def _cookies(self) -> dict:
+        out = {}
+        for part in (self.headers.get("Cookie") or "").split(";"):
+            if "=" in part:
+                k, v = part.strip().split("=", 1)
+                out[k] = v
+        return out
+
+    def _signed_in(self) -> bool:
+        if not SERVER_MODE:
+            return True
+        return hmac.compare_digest(self._cookies().get(SESSION_COOKIE, ""), _session_value())
+
+    def _login_page(self, bad=False):
+        body = ("""<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DEMEX — sign in</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0B111A;color:#fff;font-family:Inter,system-ui,sans-serif}
+form{background:#141C28;border:1px solid rgba(138,153,173,.2);border-radius:16px;padding:28px;width:min(360px,90vw);box-shadow:0 8px 24px rgba(0,0,0,.45)}
+h1{font-size:22px;margin:0 0 4px;letter-spacing:-.02em}p{color:#8A99AD;margin:0 0 18px;font-size:14px}input{width:100%;box-sizing:border-box;padding:11px;border-radius:8px;border:1px solid rgba(138,153,173,.35);background:#1E2837;color:#fff;font:inherit}
+button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;background:#0A84FF;color:#fff;font:600 14px Inter,system-ui;cursor:pointer}.err{color:#FF5C5C;font-size:13px;margin-top:8px}</style></head>
+<body><form method="post" action="/api/login"><h1>DEMEX</h1><p>Enter the access key to continue.</p><input type="password" name="key" placeholder="Access key" autofocus autocomplete="current-password">"""
+        + ('<div class="err">That key is not correct.</div>' if bad else "") +
+        """<button type="submit">Sign in</button></form></body></html>""").encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _login(self):
+        n = int(self.headers.get("Content-Length") or 0)
+        raw = self.rfile.read(n).decode("utf-8", "replace") if n else ""
+        ctype = self.headers.get("Content-Type") or ""
+        if "json" in ctype:
+            key = (json.loads(raw or "{}").get("key") or "")
+        else:
+            key = parse_qs(raw).get("key", [""])[0]
+        if ACCESS_KEY and hmac.compare_digest(key.strip(), ACCESS_KEY):
+            self.send_response(303)
+            self.send_header("Location", "/DEMEX.html")
+            self.send_header("Set-Cookie", "%s=%s; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000%s"
+                             % (SESSION_COOKIE, _session_value(), "; Secure" if BIND != "127.0.0.1" else ""))
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
+        return self._login_page(bad=True)
+
+    # ---- shared app state ----
+    def _state_get(self, q):
+        app = (q.get("app") or ["demex"])[0]
+        conn = sqlite3.connect(DB)
+        try:
+            conn.execute(STATE_TABLE_SQL)
+            row = conn.execute("SELECT data, version, updated_at FROM app_state WHERE app=?", (app,)).fetchone()
+        finally:
+            conn.close()
+        if not row:
+            return self._json({"ok": True, "payload": None, "version": 0})
+        return self._json({"ok": True, "payload": json.loads(row[0]), "version": row[1], "updatedAt": row[2]})
+
+    def _state_put(self, body):
+        app = str(body.get("app") or "demex")
+        data = body.get("data")
+        if not isinstance(data, dict):
+            return self._json({"ok": False, "error": "data must be an object"}, 400)
+        expected = body.get("version")
+        conn = sqlite3.connect(DB)
+        try:
+            conn.execute(STATE_TABLE_SQL)
+            row = conn.execute("SELECT version FROM app_state WHERE app=?", (app,)).fetchone()
+            cur = row[0] if row else 0
+            if expected is not None and int(expected) != cur:
+                return self._json({"ok": False, "error": "conflict", "version": cur}, 409)
+            now = datetime.now(timezone.utc).isoformat()
+            conn.execute("INSERT INTO app_state(app,data,version,updated_at) VALUES(?,?,?,?) "
+                         "ON CONFLICT(app) DO UPDATE SET data=excluded.data, version=excluded.version, updated_at=excluded.updated_at",
+                         (app, json.dumps(data), cur + 1, now))
+            conn.commit()
+        finally:
+            conn.close()
+        return self._json({"ok": True, "version": cur + 1})
+
     # ---- routing ----
     def do_GET(self):
         if not self._host_allowed():
             return self._json({"ok": False, "error": "forbidden host"}, 403)
         u = urlparse(self.path)
+        if u.path in ("/", ""):
+            self.send_response(302); self.send_header("Location", "/DEMEX.html"); self.send_header("Content-Length", "0"); self.end_headers(); return
+        if u.path == "/login":
+            return self._login_page()
+        if u.path == "/healthz":
+            return self._json({"ok": True})
+        if not self._signed_in():
+            if u.path.startswith("/api/"):
+                return self._json({"ok": False, "error": "sign in required"}, 401)
+            return self._login_page()
         if u.path.startswith("/api/"):
             try:
                 return self._api_get(u)
@@ -618,8 +733,12 @@ class Handler(SimpleHTTPRequestHandler):
         if not self._host_allowed():
             return self._json({"ok": False, "error": "forbidden host"}, 403)
         u = urlparse(self.path)
+        if u.path == "/api/login":
+            return self._login()
         if not u.path.startswith("/api/"):
             return self.send_error(404, "Not found")
+        if not self._signed_in():
+            return self._json({"ok": False, "error": "sign in required"}, 401)
         if not self._token_ok():
             return self._json({"error": "missing or bad token"}, 403)
         try:
@@ -672,6 +791,10 @@ class Handler(SimpleHTTPRequestHandler):
             return self._corrections_get()
         if path == "itb-imports":
             return self._itb_imports(q)
+        if path == "state":
+            return self._state_get(q)
+        if path == "mode":
+            return self._json({"ok": True, "server": SERVER_MODE})
         return self._json({"ok": False, "error": "Unknown endpoint: " + path}, 404)
 
     def _itb_imports(self, q):
@@ -847,6 +970,8 @@ class Handler(SimpleHTTPRequestHandler):
     def _api_post(self, u):
         path = u.path[len("/api/"):]
         body = self._body()
+        if path == "state":
+            return self._state_put(body)
         if path == "ingest":
             return self._ingest(body)
         if path == "takeoff":
@@ -1441,7 +1566,7 @@ def make_server(port: int | None = None) -> ThreadingHTTPServer:
     """Load .env and bind the bridge on loopback. Used by main() and by the
     desktop launcher (demex_desktop.py), which runs it in a thread."""
     load_dotenv()
-    return ThreadingHTTPServer(("127.0.0.1", port or PORT), Handler)
+    return ThreadingHTTPServer((BIND, port or PORT), Handler)
 
 
 def main() -> int:
