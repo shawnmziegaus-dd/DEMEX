@@ -15,8 +15,8 @@
   "actual_realized_costs": "{\"bid_prices\": {\"demo_base\": 52141, \"alt1_ext_cmu\": 8056, \"alt2_sawcut\": 1525, \"alt3_mastic\": 9245, \"flooring_waynes\": 57898, \"combined_base\": 110039}}",
   "source_message_id": null,
   "needs_review": 1,
-  "created_at": "2026-10-27T20:05:47+00:00",
-  "updated_at": "2026-10-27T20:05:47+00:00"
+  "created_at": "2026-10-28T14:38:58+00:00",
+  "updated_at": "2026-10-28T14:38:58+00:00"
  },
  {
   "project_id": "ddd_hft_mt_pleasant_pa",
@@ -34,8 +34,8 @@
   "actual_realized_costs": "{\"bid_prices\": {\"base\": 51100, \"alt1_cmu\": 7186, \"alt2_trench\": 3979, \"alt3_sawcut\": 2451, \"alt4_floor_cutouts\": 2425, \"alt5_mastic_grind\": 20137}}",
   "source_message_id": null,
   "needs_review": 1,
-  "created_at": "2026-10-27T20:05:47+00:00",
-  "updated_at": "2026-10-27T20:05:47+00:00"
+  "created_at": "2026-10-28T14:38:58+00:00",
+  "updated_at": "2026-10-28T14:38:58+00:00"
  },
  {
   "project_id": "ddd_aechelon_orlando",
@@ -53,8 +53,27 @@
   "actual_realized_costs": "{\"bid_prices\": {\"base\": 21790, \"alt1_carpet_tile_vinyl_base_removal_9000sf\": 5560, \"unit_price_per_extra_fixture\": 45, \"total\": 27350, \"superseded_R1\": {\"base\": 17630, \"alt1_fixtures\": 2660, \"total\": 20290}}}",
   "source_message_id": null,
   "needs_review": 1,
-  "created_at": "2026-10-27T20:05:47+00:00",
-  "updated_at": "2026-10-27T20:05:47+00:00"
+  "created_at": "2026-10-28T14:38:58+00:00",
+  "updated_at": "2026-10-28T14:38:58+00:00"
+ },
+ {
+  "project_id": "ddd_fwgs_white_oak_pa",
+  "name": "Fine Wine & Good Spirits (PLCB Store #0282), Oak Park Mall, White Oak PA",
+  "client_name": "Marco Contractors (Calle Barrett; job key fw8840)",
+  "address": "2001 Lincoln Way Suite 250, White Oak, PA 15131",
+  "scope_type": "demolition",
+  "due_date": "2026-10-27 10:00 AM ET (PASSED)",
+  "scope_summary": "OUR SCOPE OF WORK (INCLUSIONS) | Remove existing ceiling grid and tile throughout the suite, approx. 4,597 SF (D100 Note 2) | Remove existing light fixtures throughout, approx. 58 EA (D100 Note 2) | Remove existing flooring throughout, approx. 4,597 SF (D100 Note 2) | Remove existing gypsum wallboard at the demising walls, metal studs to remain, approx. 221 LF (Addendum 1, D100 Note 6) | Remove existing interior walls and closet partitions, approx. 30 LF (D100 Note 1)",
+  "status": "estimated - proposal drafted, not yet submitted",
+  "win_loss_status": "pending",
+  "estimated_quantities": "[{\"item\": \"Remove ceiling grid & tile throughout (Note 2)\", \"desc\": \"Remove ceiling grid & tile throughout (Note 2)\", \"svc\": \"demo_ceiling\", \"scope_type\": \"demolition\", \"qty\": 4597.0, \"unit\": \"SF\", \"source\": \"FWGS_White_Oak_Demo_Markup.pdf\", \"needs_review\": 1, \"bid_part\": \"base\"}, {\"item\": \"Remove light fixtures throughout (approx. 1 per 80 SF)\", \"desc\": \"Remove light fixtures throughout (approx. 1 per 80 SF)\", \"svc\": \"light_fixture\", \"scope_type\": \"demolition\", \"qty\": 58.0, \"unit\": \"EA\", \"source\": \"FWGS_White_Oak_Demo_Markup.pdf\", \"needs_review\": 1, \"bid_part\": \"base\"}, {\"item\": \"Remove flooring throughout (assumed carpet / VCT / resilient on slab)\", \"desc\": \"Remove flooring throughout (assumed carpet / VCT / resilient on slab)\", \"svc\": \"demo_floor\", \"scope_type\": \"demolition\", \"qty\": 4597.0, \"unit\": \"SF\", \"source\": \"FWGS_White_Oak_Demo_Markup.pdf\", \"needs_review\": 1, \"bid_part\": \"base\"}, {\"item\": \"Remove existing gypsum wallboard at demising walls - metal studs to remain (+/-221 LF x ~12')\", \"desc\": \"Remove existing gypsum wallboard at demising walls - metal studs to remain (+/-221 LF x ~12')\", \"svc\": null, \"scope_type\": \"demolition\", \"qty\": 2654.0, \"unit\": \"SF\", \"source\": \"FWGS_White_Oak_Demo_Markup.pdf\", \"needs_review\": 1, \"bid_part\": \"base\"}, {\"item\": \"Remove interior walls / closet partitions (+/-30 LF)\", \"desc\": \"Remove interior walls / closet partitions (+/-30 LF)\", \"svc\": \"demo_walls\", \"scope_type\": \"demolition\", \"qty\": 30.0, \"unit\": \"LF\", \"source\": \"FWGS_White_Oak_Demo_Markup.pdf\", \"needs_review\": 1, \"bid_part\": \"base\"}, {\"item\": \"Remove doors, frames & hardware (2 locations incl. rear pair)\", \"desc\": \"Remove doors, frames & hardware (2 locations incl. rear pair)\", \"svc\": \"doors\", \"scope_type\": \"demolition\", \"qty\": 2.0, \"unit\": \"EA\", \"source\": \"FWGS_White_Oak_Demo_Markup.pdf\", \"needs_review\": 1, \"bid_part\": \"base\"}, {\"item\": \"Remove portion of storefront (+/-14 LF)\", \"desc\": \"Remove portion of storefront (+/-14 LF)\", \"svc\": null, \"scope_type\": \"demolition\", \"qty\": 14.0, \"unit\": \"LF\", \"source\": \"FWGS_White_Oak_Demo_Markup.pdf\", \"needs_review\": 1, \"bid_part\": \"base\"}, {\"item\": \"Remove mop sink / plumbing fixture after cap below slab by plumber\", \"desc\": \"Remove mop sink / plumbing fixture after cap below slab by plumber\", \"svc\": \"plumb_fixture\", \"scope_type\": \"demolition\", \"qty\": 1.0, \"unit\": \"EA\", \"source\": \"FWGS_White_Oak_Demo_Markup.pdf\", \"needs_review\": 1, \"bid_part\": \"base\"}, {\"item\": \"Remove abandoned electrical devices, boxes & wiring back to nearest J-box\", \"desc\": \"Remove abandoned electrical devices, boxes & wiring back to nearest J-box\", \"svc\": \"mep\", \"scope_type\": \"demolition\", \"qty\": 4597.0, \"unit\": \"SF\", \"source\": \"FWGS_White_Oak_Demo_Markup.pdf\", \"needs_review\": 1, \"bid_part\": \"base\"}, {\"item\": \"Strip paint & remove mastic from existing concrete floor to receive new finish (sealer by others)\", \"desc\": \"Strip paint & remove mastic from existing concrete floor to receive new finish (sealer by others)\", \"svc\": null, \"scope_type\": \"demolition\", \"qty\": 4597.0, \"unit\": \"SF\", \"source\": \"FWGS_White_Oak_Demo_Markup.pdf\", \"needs_review\": 1, \"bid_part\": \"alternate\"}, {\"item\": \"Sawcut slab both sides of trench (85 LF x 2 sides)\", \"desc\": \"Sawcut slab both sides of trench (85 LF x 2 sides)\", \"svc\": \"concrete_cut\", \"scope_type\": \"demolition\", \"qty\": 170.0, \"unit\": \"LF\", \"source\": \"FWGS_White_Oak_Demo_Markup.pdf\", \"needs_review\": 1, \"bid_part\": \"alternate\"}, {\"item\": \"Break & remove trench slab (approx. 2' wide) - excavation & pour-back by others\", \"desc\": \"Break & remove trench slab (approx. 2' wide) - excavation & pour-back by others\", \"svc\": \"slab_removal\", \"scope_type\": \"demolition\", \"qty\": 170.0, \"unit\": \"SF\", \"source\": \"FWGS_White_Oak_Demo_Markup.pdf\", \"needs_review\": 1, \"bid_part\": \"alternate\"}]",
+  "unit_rates": "[]",
+  "bulk_pricing_thresholds": "[]",
+  "actual_realized_costs": "{\"bid_prices\": {\"base\": 25910, \"alt1_floor_paint_strip_mastic_grind\": 9330, \"alt2_sanitary_trench_85lf\": 3630, \"total\": 38870}}",
+  "source_message_id": null,
+  "needs_review": 1,
+  "created_at": "2026-10-28T14:38:58+00:00",
+  "updated_at": "2026-10-28T14:38:58+00:00"
  },
  {
   "project_id": "ddd_oc_fdc_units_f_g",
@@ -72,7 +91,7 @@
   "actual_realized_costs": "{\"bid_prices\": {\"base\": 55390, \"alt1_cmu\": 45266, \"alt2_slab\": 12087, \"alt3_openings\": 11347, \"alt4_grind\": 2155, \"alt5_neg_air\": 5950, \"total\": 132194}}",
   "source_message_id": null,
   "needs_review": 1,
-  "created_at": "2026-10-27T20:05:47+00:00",
-  "updated_at": "2026-10-27T20:05:47+00:00"
+  "created_at": "2026-10-28T14:38:58+00:00",
+  "updated_at": "2026-10-28T14:38:58+00:00"
  }
 ]

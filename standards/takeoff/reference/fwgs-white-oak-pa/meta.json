@@ -1,0 +1,9 @@
+{
+ "title": "Fine Wine & Good Spirits (PLCB Store #0282), Oak Park Mall, White Oak PA",
+ "gc": "Marco Contractors (Calle Barrett; job key fw8840)",
+ "discipline_guess": "Interior selective demolition (mall tenant fit-out) - PA prevailing wage",
+ "profile_used": "interior (Claude scaled takeoff)",
+ "source_pdf": "FWGS_White_Oak_Demo_Markup.pdf",
+ "ingested": "2026-10-27",
+ "notes": "Claude takeoff + estimate, 12 measured line items (all needs_review: scaled, verify in field). Axis Architecture D100 + Addendum 1 (10/26/26): prevailing wage L&I 26-09265, remove GWB at demising walls (studs remain), water filtering equipment. Labor at loaded PW laborer $54.58/MH instead of $25 flat. Existing ceiling/floor/light types not shown - assumed ACT, resilient, ~58 fixtures."
+}
