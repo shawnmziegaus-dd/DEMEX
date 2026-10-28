@@ -128,7 +128,32 @@ BIND = os.environ.get("DEMEX_BIND", "127.0.0.1")
 ALLOWED_HOSTS |= {h.strip().lower() for h in
                   (os.environ.get("DEMEX_ALLOWED_HOSTS") or "").split(",") if h.strip()}
 ACCESS_KEY = (os.environ.get("DEMEX_ACCESS_KEY") or "").strip()
-SERVER_MODE = bool(ACCESS_KEY)
+# Workspaces: one access key per company. DEMEX_ACCESS_KEYS is a JSON object
+#   {"<key>": {"org": "ddd", "name": "Disassemble Dynamics", "apps": ["hub","demex","estimatio","qualora"]},
+#    "<key>": {"org": "wcp", "name": "Wayne's Carpet Plus",  "apps": ["estimatio"]}}
+# DEMEX_ACCESS_KEY alone = the Disassemble Dynamics key with every app. Each
+# workspace's data is its own row in app_state (demex is DDD-only; estimatio is
+# stored per workspace), so one company never sees another's bids.
+ORGS = {
+    "ddd": {"name": "Disassemble Dynamics", "apps": ["hub", "demex", "estimatio", "qualora"]},
+    "wcp": {"name": "Wayne's Carpet Plus", "apps": ["estimatio"]},
+}
+def _load_keys() -> dict:
+    keys = {}
+    raw = (os.environ.get("DEMEX_ACCESS_KEYS") or "").strip()
+    if raw:
+        try:
+            for k, v in json.loads(raw).items():
+                if k and isinstance(v, dict) and v.get("org"):
+                    keys[k.strip()] = {"org": v["org"], "name": v.get("name") or ORGS.get(v["org"], {}).get("name", v["org"]),
+                                       "apps": v.get("apps") or ORGS.get(v["org"], {}).get("apps", [])}
+        except Exception as e:
+            sys.stderr.write("[bridge] DEMEX_ACCESS_KEYS is not valid JSON: %s\n" % e)
+    if ACCESS_KEY:
+        keys.setdefault(ACCESS_KEY, {"org": "ddd", "name": ORGS["ddd"]["name"], "apps": ORGS["ddd"]["apps"]})
+    return keys
+ACCESS_KEYS = _load_keys()
+SERVER_MODE = bool(ACCESS_KEYS)
 import hashlib
 import threading
 if str(ROOT) not in sys.path:
@@ -136,8 +161,15 @@ if str(ROOT) not in sys.path:
 import demex_apps                            # app family: /hub/ /demex/ /estimatio/ /qualora/
 APP_VERSION = os.environ.get("DEMEX_VERSION") or datetime.now(timezone.utc).strftime("%Y%m%d%H%M")
 SESSION_COOKIE = "demex_session"
-def _session_value() -> str:
-    return hashlib.sha256(("demex-session:" + ACCESS_KEY).encode()).hexdigest()
+_SESSION_SECRET = hashlib.sha256(("demex-session:" + "|".join(sorted(ACCESS_KEYS))).encode()).digest()
+def _session_value(org: str = "ddd") -> str:
+    """Cookie = <org>.<hmac>; the key never sits in the browser."""
+    return org + "." + hmac.new(_SESSION_SECRET, org.encode(), hashlib.sha256).hexdigest()
+def _session_org(cookie: str) -> str | None:
+    if "." not in (cookie or ""):
+        return None
+    org = cookie.split(".", 1)[0]
+    return org if hmac.compare_digest(cookie, _session_value(org)) else None
 # Shared app state (the UI's whole DB as JSON) lives in SQLite so every device
 # sees the same data. One row per app ("demex", "estimatio").
 STATE_TABLE_SQL = """CREATE TABLE IF NOT EXISTS app_state (
@@ -628,7 +660,22 @@ class Handler(SimpleHTTPRequestHandler):
     def _signed_in(self) -> bool:
         if not SERVER_MODE:
             return True
-        return hmac.compare_digest(self._cookies().get(SESSION_COOKIE, ""), _session_value())
+        return _session_org(self._cookies().get(SESSION_COOKIE, "")) is not None
+
+    def _org(self) -> str:
+        if not SERVER_MODE:
+            return "ddd"
+        return _session_org(self._cookies().get(SESSION_COOKIE, "")) or "ddd"
+
+    def _org_info(self) -> dict:
+        org = self._org()
+        for v in ACCESS_KEYS.values():
+            if v["org"] == org:
+                return {"org": org, "name": v["name"], "apps": v["apps"]}
+        return {"org": org, "name": ORGS.get(org, {}).get("name", org), "apps": ORGS.get(org, {}).get("apps", [])}
+
+    def _app_allowed(self, key: str) -> bool:
+        return (not SERVER_MODE) or key in self._org_info()["apps"]
 
     @staticmethod
     def _safe_next(p: str) -> str:
@@ -637,6 +684,8 @@ class Handler(SimpleHTTPRequestHandler):
         return p if (p.startswith("/") and not p.startswith("//") and "\\" not in p) else "/hub/"
 
     def _login_page(self, bad=False, next_path="/hub/"):
+        if self._safe_next(next_path).startswith("/estimatio"):
+            return self._login_page_estimatio(bad, next_path)
         body = ("""<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DEMEX — sign in</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0B111A;color:#fff;font-family:Inter,system-ui,sans-serif}
 form{background:#141C28;border:1px solid rgba(138,153,173,.2);border-radius:16px;padding:28px;width:min(360px,90vw);box-shadow:0 8px 24px rgba(0,0,0,.45)}
@@ -652,6 +701,37 @@ button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;backgr
         self.end_headers()
         self.wfile.write(body)
 
+    def _login_page_estimatio(self, bad=False, next_path="/estimatio/"):
+        nxt = self._safe_next(next_path).replace("'", "").replace('"', "")
+        tiles = "".join('<div class="ws"><b>%s</b><span>%s</span></div>' % (n, t) for n, t in
+                        (("Disassemble Dynamics", "Commercial selective demolition"), ("Wayne&#39;s Carpet Plus", "Flooring · tile · bathroom remodels")))
+        body = ("""<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>estimatio — sign in</title><link rel="icon" href="/apps/pwa/icons/estimatio-192.png"><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0B111A;color:#fff;font-family:Inter,system-ui,sans-serif}
+.card{background:#141C28;border:1px solid rgba(138,153,173,.2);border-radius:16px;padding:28px;width:min(400px,92vw);box-shadow:0 8px 24px rgba(0,0,0,.45)}
+.brand{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:600;letter-spacing:-.02em;margin-bottom:4px}.brand img{width:30px;height:30px;border-radius:50%;box-shadow:0 0 20px rgba(10,132,255,.5)}
+p{color:#8A99AD;margin:0 0 16px;font-size:14px}.ws{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid rgba(138,153,173,.2);border-radius:8px;margin-bottom:8px;font-size:13px}.ws b{color:#fff}.ws span{color:#8A99AD;text-align:right}
+label{display:block;font-size:12px;color:#8A99AD;margin:14px 0 6px}input{width:100%;box-sizing:border-box;padding:11px;border-radius:8px;border:1px solid rgba(138,153,173,.35);background:#1E2837;color:#fff;font:inherit}
+button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;background:#0A84FF;color:#fff;font:600 14px Inter,system-ui;cursor:pointer}.err{color:#FF5C5C;font-size:13px;margin-top:8px}.foot{font-size:11px;color:#566476;margin-top:14px}</style></head>
+<body><form class="card" method="post" action="/api/login"><div class="brand"><img src="/apps/pwa/icons/estimatio-192.png" alt="">estimatio</div><p>AI-driven estimating. Your access key opens your company&#39;s workspace.</p>"""
+        + tiles + """<input type="hidden" name="next" value='""" + nxt + """'><label for="key">Access key</label><input id="key" type="password" name="key" placeholder="Access key" autofocus autocomplete="current-password">"""
+        + ('<div class="err">That key is not correct.</div>' if bad else "") +
+        """<button type="submit">Sign in</button><div class="foot">Each company&#39;s bids and settings stay in its own workspace.</div></form></body></html>""").encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _logout(self):
+        ref = self.headers.get("Referer") or ""
+        back = "/login?next=/estimatio/" if "/estimatio" in ref else "/login"
+        self.send_response(303)
+        self.send_header("Location", back)
+        self.send_header("Set-Cookie", "%s=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0" % SESSION_COOKIE)
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
     def _login(self):
         n = int(self.headers.get("Content-Length") or 0)
         raw = self.rfile.read(n).decode("utf-8", "replace") if n else ""
@@ -664,19 +744,34 @@ button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;backgr
             form = parse_qs(raw)
             key = form.get("key", [""])[0]
             nxt = form.get("next", ["/hub/"])[0]
-        if ACCESS_KEY and hmac.compare_digest(key.strip(), ACCESS_KEY):
+        match = None
+        for k, v in ACCESS_KEYS.items():
+            if hmac.compare_digest(key.strip(), k):
+                match = v
+        if match:
+            nxt_ok = self._safe_next(nxt)
+            first = nxt_ok.strip("/").split("/")[0]
+            if first in ("hub", "demex", "estimatio", "qualora") and first not in match["apps"]:
+                nxt_ok = "/%s/" % match["apps"][0] if match["apps"] else "/hub/"
             self.send_response(303)
-            self.send_header("Location", self._safe_next(nxt))
+            self.send_header("Location", nxt_ok)
             self.send_header("Set-Cookie", "%s=%s; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000%s"
-                             % (SESSION_COOKIE, _session_value(), "; Secure" if BIND != "127.0.0.1" else ""))
+                             % (SESSION_COOKIE, _session_value(match["org"]), "; Secure" if BIND != "127.0.0.1" else ""))
             self.send_header("Content-Length", "0")
             self.end_headers()
             return
         return self._login_page(bad=True, next_path=nxt)
 
     # ---- shared app state ----
+    def _state_key(self, app: str) -> str:
+        """demex is Disassemble-only; every other app is stored per workspace."""
+        app = re.sub(r"[^a-z0-9_]", "", (app or "demex").lower()) or "demex"
+        return app if app == "demex" else "%s:%s" % (app, self._org())
+
     def _state_get(self, q):
-        app = (q.get("app") or ["demex"])[0]
+        app = self._state_key((q.get("app") or ["demex"])[0])
+        if app == "demex" and not self._app_allowed("demex"):
+            return self._json({"ok": False, "error": "DEMEX is not part of your workspace"}, 403)
         conn = sqlite3.connect(DB)
         try:
             conn.execute(STATE_TABLE_SQL)
@@ -688,7 +783,9 @@ button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;backgr
         return self._json({"ok": True, "payload": json.loads(row[0]), "version": row[1], "updatedAt": row[2]})
 
     def _state_put(self, body):
-        app = str(body.get("app") or "demex")
+        app = self._state_key(str(body.get("app") or "demex"))
+        if app == "demex" and not self._app_allowed("demex"):
+            return self._json({"ok": False, "error": "DEMEX is not part of your workspace"}, 403)
         data = body.get("data")
         if not isinstance(data, dict):
             return self._json({"ok": False, "error": "data must be an object"}, 400)
@@ -720,6 +817,8 @@ button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;backgr
             return self._login_page(next_path=(parse_qs(u.query).get("next") or ["/hub/"])[0])
         if u.path == "/healthz":
             return self._json({"ok": True})
+        if u.path == "/api/logout":
+            return self._logout()
         # App-family public files: manifests, service workers and icons carry no
         # data and must load before sign-in so the home-screen icon is right.
         app_m = re.fullmatch(r"/(hub|demex|estimatio|qualora)/(manifest\.webmanifest|sw\.js)", u.path)
@@ -740,6 +839,10 @@ button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;backgr
             return self._redirect(u.path + "/" + ("?" + u.query if u.query else ""))
         app_m = re.fullmatch(r"/(hub|demex|estimatio|qualora)/", u.path)
         if app_m:
+            if not self._app_allowed(app_m.group(1)):
+                info = self._org_info()
+                return self._raw(("<!DOCTYPE html><meta charset=utf-8><body style='font-family:Inter,system-ui;background:#0B111A;color:#fff;display:grid;place-items:center;min-height:100vh;margin:0'><div style='text-align:center'><h1 style='margin:0 0 6px'>Not part of your workspace</h1><p style='color:#8A99AD'>%s has access to: %s.</p><a style='color:#0A84FF' href='/%s/'>Open %s</a> · <a style='color:#8A99AD' href='/api/logout'>Sign out</a></div></body>"
+                                  % (info["name"], ", ".join(info["apps"]) or "nothing yet", (info["apps"] or ["hub"])[0], (info["apps"] or ["hub"])[0])).encode(), "text/html; charset=utf-8", 403)
             return self._app_page(app_m.group(1))
         if u.path.startswith("/api/"):
             try:
@@ -851,6 +954,8 @@ button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;backgr
             return self._itb_imports(q)
         if path == "state":
             return self._state_get(q)
+        if path == "me":
+            return self._json(dict({"ok": True, "server": SERVER_MODE}, **self._org_info()))
         if path == "mode":
             return self._json({"ok": True, "server": SERVER_MODE})
         if path == "apps":

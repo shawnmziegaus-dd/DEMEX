@@ -7,8 +7,9 @@ One-time setup, about 10 minutes. Everything runs from the DEMEX folder in Power
 2. `fly auth login`
 3. `fly launch --no-deploy --copy-config --name demex-ddd`   (say **No** to Postgres/Redis; keep region `atl`)
 4. `fly volumes create demex_data --size 3 --region atl`
-5. Set the secrets (pick a strong access key — this is the sign-in for the site):
-   `fly secrets set DEMEX_ACCESS_KEY="choose-a-long-key" ANTHROPIC_API_KEY="sk-ant-..." DEMEX_ALLOWED_HOSTS="demex-ddd.fly.dev"`
+5. Set the secrets. One access key per company — Disassemble Dynamics gets every app, Wayne's Carpet Plus gets Estimatio only (each company's bids and settings stay in its own workspace):
+   `fly secrets set DEMEX_ACCESS_KEYS='{"ddd-choose-a-long-key":{"org":"ddd","name":"Disassemble Dynamics","apps":["hub","demex","estimatio","qualora"]},"wcp-choose-another-key":{"org":"wcp","name":"Wayne'"'"'s Carpet Plus","apps":["estimatio"]}}' ANTHROPIC_API_KEY="sk-ant-..." DEMEX_ALLOWED_HOSTS="demex-ddd.fly.dev"`
+   (`DEMEX_ACCESS_KEY="one-key"` still works as a single Disassemble-only key.)
    Optional, for Ingest Inbox: `fly secrets set DEMEX_GMAIL_USER="..." DEMEX_GMAIL_APP_PASSWORD="..."`
    Optional, nightly GitHub backup: `fly secrets set GITHUB_TOKEN="github_pat_..." GITHUB_BACKUP_REPO="shawnmziegaus-dd/DEMEX-data"` (private repo; see .env.example)
    Optional, Qualora hosted elsewhere: `fly secrets set QUALORA_URL="https://..."`

@@ -154,7 +154,36 @@ var FLOOR_RATES = [
  {id:"flr_selflevel",label:"Self-leveling underlayment",unit:"SF",low:1.75,high:3.5,cat:"Flooring · Prep",draft:true},
  {id:"flr_furniture",label:"Furniture lift / move & reset",unit:"SF",low:0.35,high:0.9,cat:"Flooring · Prep",draft:true}
 ];
-var RATES_DEFAULT = DEMO_RATES.concat(FLOOR_RATES);
+// Bathroom remodel (Wayne's Carpet Plus scope): DRAFT ranges for review, installed labor; material per line.
+var BATH_RATES = [
+ {id:"bath_demo",label:"Bathroom demo (fixtures, tile, vanity to studs/slab)",unit:"EA",low:450,high:1200,cat:"Bathroom remodel",draft:true},
+ {id:"bath_tub_remove",label:"Tub / shower unit remove & dispose",unit:"EA",low:150,high:400,cat:"Bathroom remodel",draft:true},
+ {id:"bath_cement_board",label:"Cement board / backer (walls & floor)",unit:"SF",low:2,high:4,cat:"Bathroom remodel",draft:true},
+ {id:"bath_waterproof",label:"Waterproofing membrane (shower)",unit:"SF",low:2.5,high:5,cat:"Bathroom remodel",draft:true},
+ {id:"bath_shower_pan",label:"Shower pan / mud bed + drain",unit:"EA",low:450,high:950,cat:"Bathroom remodel",draft:true},
+ {id:"bath_shower_tile",label:"Shower wall tile install",unit:"SF",low:9,high:16,cat:"Bathroom remodel",draft:true},
+ {id:"bath_niche",label:"Shower niche / bench (tiled)",unit:"EA",low:150,high:400,cat:"Bathroom remodel",draft:true},
+ {id:"bath_floor_tile",label:"Bathroom floor tile install",unit:"SF",low:7,high:13,cat:"Bathroom remodel",draft:true},
+ {id:"bath_backsplash",label:"Vanity backsplash tile",unit:"SF",low:12,high:22,cat:"Bathroom remodel",draft:true},
+ {id:"bath_vanity",label:"Vanity + top install",unit:"EA",low:200,high:450,cat:"Bathroom remodel",draft:true},
+ {id:"bath_toilet",label:"Toilet remove & reset / replace",unit:"EA",low:120,high:280,cat:"Bathroom remodel",draft:true},
+ {id:"bath_fixtures",label:"Shower valve / trim / accessories set",unit:"EA",low:150,high:400,cat:"Bathroom remodel",draft:true},
+ {id:"bath_glass",label:"Shower door / glass install",unit:"EA",low:250,high:600,cat:"Bathroom remodel",draft:true},
+ {id:"bath_grout_seal",label:"Grout sealing",unit:"SF",low:0.5,high:1.25,cat:"Bathroom remodel",draft:true}
+];
+var RATES_DEFAULT = DEMO_RATES.concat(FLOOR_RATES, BATH_RATES);
+/* ---------- Workspaces: one Estimatio, two companies. Each company's bids stay in its own workspace;
+   only Disassemble Dynamics demolition bids hand off to DEMEX. ---------- */
+var WORKSPACES = {
+  ddd: {name:"Disassemble Dynamics", short:"DDD", tag:"Commercial selective demolition", trade:"demolition", demex:true,
+        company:{name:"Disassemble Dynamics, Inc.", contact:"Shawn Ziegaus", addr:"3325 US-441 #101, Lake City, FL 32025", phone:"386.365.7886", email:"shawn@disassembledynamics.com", bidPrefix:"DDD"}},
+  wcp: {name:"Wayne's Carpet Plus", short:"WCP", tag:"Flooring · tile · bathroom remodels", trade:"flooring", demex:false,
+        company:{name:"Wayne's Carpet Plus", contact:"", addr:"3325 S US HWY 441 Ste 101, Lake City, FL 32025", phone:"386-719-4200", email:"waynes_carpet@yahoo.com", bidPrefix:"WCP"}}
+};
+var WS = 'ddd';   // current workspace: fixed by the sign-in on the server; switchable on the hosted/local page
+function wsInfo(){ return WORKSPACES[WS]||WORKSPACES.ddd; }
+function setWorkspace(k){ if(!WORKSPACES[k]) return; WS=k; try{ localStorage.setItem('estimatio_ws',k); }catch(e){} }
+try{ var _w=localStorage.getItem('estimatio_ws'); if(_w&&WORKSPACES[_w]) WS=_w; }catch(e){}
 var TIER = {Lean:0.85, Market:1.0, Premium:1.2};
 var SETTINGS_DEFAULT = {tier:"Market", regionMult:1, overheadPct:10, profitPct:18, taxPct:0, taxMaterialsOnly:true, showUnitPricing:true};
 var COMPANY_DEFAULT = {name:"", contact:"", addr:"", phone:"", email:"", bidPrefix:"EST", license:"", terms:"Pricing valid 30 days. Net 30 from invoice. Work performed during normal business hours unless noted. Change orders priced at the unit rates shown. Exclusions: permits, hazardous materials abatement, engineering, and items not listed above.", exclusions:"Permits and fees\nAsbestos / lead / hazardous material abatement\nTemporary power, water, and sanitation\nEngineering and shoring design"};
@@ -210,6 +239,25 @@ var CLOUD = (function(){
   return st;
 })();
 
+/* ---------- Server adapter: when served by the DEMEX server (access-key sign-in), the workspace is
+   fixed by the key and all state lives on the server (/api/state?app=estimatio, scoped per workspace). */
+var SERVER = (function(){
+  var st={on:false,org:null,name:'',data:null,version:0,timer:null,pending:null,busy:false,ready_p:null};
+  function tok(){ return fetch('/api/token').then(function(r){return r.json();}).then(function(d){return d&&d.token||'';}).catch(function(){return '';}); }
+  function put(){ st.timer=null; var DB=st.pending; st.pending=null; if(!DB) return; if(st.busy){ st.pending=DB; st.timer=setTimeout(put,500); return; } st.busy=true;
+    tok().then(function(t){ return fetch('/api/state',{method:'POST',headers:{'Content-Type':'application/json','X-DEMEX-Token':t},body:JSON.stringify({app:'estimatio',data:DB,version:st.version})}); })
+    .then(function(r){ return r.json().then(function(d){ return {r:r,d:d}; }); })
+    .then(function(x){ if(x.r.status===409){ st.version=x.d.version; toast('Another device saved first — reload to pick up its changes','err'); } else if(x.d&&x.d.ok) st.version=x.d.version; })
+    .catch(function(){}).then(function(){ st.busy=false; }); }
+  st.save=function(DB){ if(!st.on) return; st.pending=DB; if(st.timer) clearTimeout(st.timer); st.timer=setTimeout(put,600); };
+  st.ready_p=(location.protocol==='file:'?Promise.resolve({}):fetch('/api/mode').then(function(r){return r.json();}).catch(function(){return {};})).then(function(m){
+    if(!m||!m.server) return st; st.on=true;
+    return fetch('/api/me').then(function(r){return r.json();}).then(function(me){ if(me&&me.org&&WORKSPACES[me.org]){ WS=me.org; st.org=me.org; st.name=me.name||''; }
+      return fetch('/api/state?app=estimatio').then(function(r){return r.json();}).then(function(d){ if(d&&d.ok){ st.data=d.payload; st.version=d.version||0; } return st; }); }).catch(function(){ return st; });
+  });
+  return st;
+})();
+
 /* ---------- Store ---------- */
 var KEY='estimatio_db_v1', DB=null, subs=[];
 function uid(p){ return p+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
@@ -220,16 +268,21 @@ function ensure(){
   if(!Array.isArray(DB.rates)||!DB.rates.length) DB.rates=clone(RATES_DEFAULT);
   RATES_DEFAULT.forEach(function(rd){ if(!DB.rates.some(function(r){return r.id===rd.id;})) DB.rates.push(clone(rd)); });
   DB.settings=Object.assign({},SETTINGS_DEFAULT,DB.settings||{});
-  DB.company=Object.assign({},COMPANY_DEFAULT,DB.company||{});
+  if(!DB.companies||typeof DB.companies!=='object') DB.companies={};
+  if(DB.company&&!DB.companies.ddd) DB.companies.ddd=DB.company;   // migrate single-company data
+  Object.keys(WORKSPACES).forEach(function(k){ DB.companies[k]=Object.assign({},COMPANY_DEFAULT,WORKSPACES[k].company,DB.companies[k]||{}); });
+  delete DB.company;
+  DB.projects.forEach(function(p){ if(!p.ws) p.ws='ddd'; });
   if(!DB.rateOverrides||typeof DB.rateOverrides!=='object') DB.rateOverrides={};
   DB.v=1;
 }
 function load(){
   if(CLOUD.data) DB=clone(CLOUD.data);
+  else if(SERVER.on&&SERVER.data) DB=clone(SERVER.data);
   else { try{ var raw=localStorage.getItem(KEY); DB=raw?JSON.parse(raw):{}; }catch(e){ DB={}; } }
   ensure(); if(CLOUD.db) CLOUD.adopt(DB); save(); return DB;
 }
-function save(){ try{ localStorage.setItem(KEY,JSON.stringify(DB)); }catch(e){} try{ if(CLOUD.db) CLOUD.save(DB); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(DB)); }catch(e){} try{ if(CLOUD.db) CLOUD.save(DB); }catch(e){} try{ SERVER.save(DB); }catch(e){} }
 function emit(){ subs.slice().forEach(function(f){ try{f();}catch(e){} }); }
 function subscribe(f){ subs.push(f); return function(){ subs=subs.filter(function(x){return x!==f;}); }; }
 function commit(fn){ fn(DB); save(); emit(); }
@@ -240,7 +293,9 @@ function money(n){ return '$'+(Math.round((+n||0)*100)/100).toLocaleString(undef
 function money0(n){ return '$'+Math.round(+n||0).toLocaleString(); }
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 function proj(id){ return DB.projects.filter(function(p){return p.id===id;})[0]||null; }
-function newProject(){ return {id:uid('es'),name:'',client:{name:'',contact:'',email:'',phone:''},address:'',trade:'flooring',scope:'',dueAt:'',status:'draft',bidNo:'',estQty:[],estimate:null,proposal:{intro:'',inclusions:'',exclusions:'',notes:''},createdAt:new Date().toISOString(),demexSentAt:null,corrections:[],chat:[]};
+function company(){ return DB.companies[WS]||DB.companies.ddd||COMPANY_DEFAULT; }
+function wsProjects(){ return DB.projects.filter(function(p){ return (p.ws||'ddd')===WS; }); }
+function newProject(){ return {id:uid('es'),ws:WS,name:'',client:{name:'',contact:'',email:'',phone:''},address:'',trade:wsInfo().trade,scope:'',dueAt:'',status:'draft',bidNo:'',estQty:[],estimate:null,proposal:{intro:'',inclusions:'',exclusions:'',notes:''},createdAt:new Date().toISOString(),demexSentAt:null,corrections:[],chat:[]};
 }
 /* Estimate math: direct = Σ qty×(labor rate + material $/unit); OH on direct; profit on direct+OH; tax on materials (or all). */
 function calc(p){
@@ -269,7 +324,7 @@ function toDemex(ps){
 /* ---------- AI: suggest line items from scope ---------- */
 function suggestLines(p){
   if(!CLOUD.sample) return Promise.reject(new Error(CLOUD.hosted?'Allow "Ask Claude" for this page to use AI suggestions.':'AI suggestions are available on the hosted page.'));
-  var cat=DB.rates.filter(function(r){ return p.trade==='both'||(p.trade==='flooring'?r.id.indexOf('flr_')===0||r.id==='demo_floor'||r.id==='demo_base':r.id.indexOf('flr_')!==0); })
+  var cat=DB.rates.filter(function(r){ var fl=r.id.indexOf('flr_')===0||r.id.indexOf('bath_')===0; return p.trade==='both'||(p.trade==='flooring'?fl||r.id==='demo_floor'||r.id==='demo_base':!fl); })
     .map(function(r){ return r.id+' | '+r.label+' | '+r.unit; }).join('\n');
   var prompt='You are an estimator for a '+p.trade+' contractor. From the project scope below, list the takeoff line items needed, using ONLY these catalog ids:\n'+cat+
    '\n\nProject: '+p.name+'\nAddress: '+p.address+'\nScope:\n'+p.scope+
@@ -281,7 +336,7 @@ function suggestLines(p){
 /* ---------- Proposal HTML ---------- */
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 function proposalHTML(p, inline){
-  var co=DB.company, c=calc(p), s=DB.settings, pr=p.proposal||{};
+  var co=company(), c=calc(p), s=DB.settings, pr=p.proposal||{};
   var rows=c.lines.map(function(l){ var ri=rinfo(l.svc); var unitRate=((l.rate!=null&&l.rate!=='')?+l.rate:rateOf(l.svc))+(+l.mat||0);
     return '<tr><td>'+esc(ri.label)+(l.note?'<br><small style="color:#666">'+esc(l.note.replace(' (AI suggestion)',''))+'</small>':'')+'</td><td class="r">'+(+l.qty).toLocaleString()+' '+esc(ri.unit)+'</td>'+(s.showUnitPricing?'<td class="r">'+money(unitRate)+'</td>':'')+'<td class="r">'+money(lineTotal(l))+'</td></tr>'; }).join('');
   var excl=(pr.exclusions||co.exclusions||'').split('\n').filter(Boolean).map(function(x){return '<li>'+esc(x)+'</li>';}).join('');
@@ -310,19 +365,22 @@ function Input(props){ return h('input',Object.assign({},props,{onChange:functio
 
 function App(){
   var booted=useState(false), route=useState({view:'dashboard'}), r=route[0], nav=route[1];
-  useEffect(function(){ CLOUD.ready_p.then(function(){ load(); booted[1](true); if(CLOUD.hosted&&CLOUD.readOnly) toast('You have view-only access to this Estimatio','err'); }); },[]);
+  useEffect(function(){ Promise.all([CLOUD.ready_p,SERVER.ready_p]).then(function(){ load(); booted[1](true); if(CLOUD.hosted&&CLOUD.readOnly) toast('You have view-only access to this Estimatio','err'); }); },[]);
   useEffect(function(){ var f=function(){ var hsh=(location.hash||'').replace('#',''); if(hsh==='rates'||hsh==='settings'||hsh==='projects'||hsh==='dashboard') nav({view:hsh}); }; f(); window.addEventListener('hashchange',f); return function(){ window.removeEventListener('hashchange',f); }; },[]);
   var db=useDB();
   if(!booted[0]) return h('div',{style:{padding:'80px 0',textAlign:'center'}},h('div',{className:'brand',style:{justifyContent:'center'}},h('img',{src:LENS,alt:''}),'estimatio'),h('div',{className:'dim',style:{marginTop:10}},'Loading your estimates…'));
   function go(v,id,filter){ nav({view:v,id:id,filter:filter}); if(v!=='project') location.hash=v; window.scrollTo(0,0); }
-  var open=DB.projects.filter(function(p){return p.status==='draft'||p.status==='estimated';}).length;
+  var open=wsProjects().filter(function(p){return p.status==='draft'||p.status==='estimated';}).length;
   return h(React.Fragment,null,
     h('header',{className:'top'},
       h('a',{className:'brand',href:'#dashboard',onClick:function(e){e.preventDefault();go('dashboard');}},h('img',{src:LENS,alt:''}),'estimatio',h('small',{className:'hide-sm'},'AI-driven estimating')),
       h('nav',null,['dashboard','projects','rates','settings'].map(function(v){ return h('button',{key:v,'aria-current':r.view===v||(v==='projects'&&r.view==='project')?'page':undefined,onClick:function(){go(v);}},v[0].toUpperCase()+v.slice(1)); })),
       h('div',{className:'spacer'}),
+      SERVER.on
+        ? h('span',{className:'row',style:{gap:8}},h('span',{className:'pill ok',title:'Workspace set by your sign-in'},wsInfo().name),h('a',{className:'btn ghost small',href:'/api/logout'},'Sign out'))
+        : h('select',{id:'ws','aria-label':'Workspace',value:WS,onChange:function(e){ setWorkspace(e.target.value); go('dashboard'); emit(); },style:{width:'auto',padding:'5px 8px',fontSize:12}},Object.keys(WORKSPACES).map(function(k){ return h('option',{key:k,value:k},WORKSPACES[k].name); })),
       h('span',{className:'ai '+(CLOUD.sample?'':'off'),title:CLOUD.sample?'AI suggestions available':'AI not available in this view'},h('i'),CLOUD.sample?'AI online':'AI offline'),
-      CLOUD.hosted? h('span',{className:'pill '+(CLOUD.db?(CLOUD.readOnly?'warn':'ok'):'err')},CLOUD.db?(CLOUD.readOnly?'view only':'saved to cloud'):'not saved — sign in'):h('span',{className:'pill warn'},'local only')),
+      SERVER.on? h('span',{className:'pill ok'},'saved to server') : CLOUD.hosted? h('span',{className:'pill '+(CLOUD.db?(CLOUD.readOnly?'warn':'ok'):'err')},CLOUD.db?(CLOUD.readOnly?'view only':'saved to cloud'):'not saved — sign in'):h('span',{className:'pill warn'},'local only')),
     h('main',null,
       r.view==='dashboard'&&h(Dashboard,{go:go}),
       r.view==='projects'&&h(Projects,{go:go,filter:r.filter}),
@@ -335,17 +393,17 @@ function App(){
 function Projects(props){
   var q=useState(''), f=useState(props.filter||'all');
   useEffect(function(){ if(props.filter) f[1](props.filter); },[props.filter]);
-  var ps=DB.projects.filter(function(p){ return (f[0]==='all'||p.trade===f[0]||p.status===f[0]) && (!q[0]||(p.name+' '+p.client.name+' '+p.address).toLowerCase().indexOf(q[0].toLowerCase())>=0); })
+  var ps=wsProjects().filter(function(p){ return (f[0]==='all'||p.trade===f[0]||p.status===f[0]) && (!q[0]||(p.name+' '+p.client.name+' '+p.address).toLowerCase().indexOf(q[0].toLowerCase())>=0); })
     .sort(function(a,b){ return (b.createdAt||'').localeCompare(a.createdAt||''); });
-  var totals=DB.projects.reduce(function(a,p){ var c=calc(p); if(p.status==='draft'||p.status==='estimated') a.open+=c.sell; if(p.status==='sent') a.out+=c.sell; if(p.status==='won') a.won+=c.sell; return a; },{open:0,out:0,won:0});
+  var totals=wsProjects().reduce(function(a,p){ var c=calc(p); if(p.status==='draft'||p.status==='estimated') a.open+=c.sell; if(p.status==='sent') a.out+=c.sell; if(p.status==='won') a.won+=c.sell; return a; },{open:0,out:0,won:0});
   function create(){ var p=newProject(); commit(function(d){ d.projects.push(p); }); props.go('project',p.id); }
-  function exportDemex(){ var demo=DB.projects.filter(function(p){ return p.trade!=='flooring' && p.estQty && p.estQty.length; });
+  function exportDemex(){ var demo=wsProjects().filter(function(p){ return p.trade!=='flooring' && p.estQty && p.estQty.length; });
     if(!demo.length){ toast('No demolition projects with line items to send','err'); return; }
     var data=toDemex(demo); CLOUD.download('estimatio-to-demex-'+todayISO()+'.json',JSON.stringify(data,null,2)).then(function(){ commit(function(d){ demo.forEach(function(p){ var x=proj(p.id); if(x) x.demexSentAt=new Date().toISOString(); }); }); toast(demo.length+' demolition bid'+(demo.length>1?'s':'')+' exported — in DEMEX: Pipeline → Import (merge)'); }).catch(function(e){ toast(e&&e.message||'Export failed','err'); }); }
   return h('div',null,
     h('div',{className:'row',style:{justifyContent:'space-between',marginBottom:14}},
       h('div',null,h('div',{className:'eyebrow'},'Estimates'),h('h1',null,'Projects')),
-      h('div',{className:'row'},h('button',{className:'btn',onClick:exportDemex,title:'Download a file DEMEX imports'},'Send demolition bids to DEMEX'),h('button',{className:'btn primary',onClick:create},'+ New project'))),
+      h('div',{className:'row'},wsInfo().demex&&h('button',{className:'btn',onClick:exportDemex,title:'Download a file DEMEX imports'},'Send demolition bids to DEMEX'),h('button',{className:'btn primary',onClick:create},'+ New project'))),
     h('div',{className:'grid g3',style:{marginBottom:14}},
       h('div',{className:'stat'},h('b',{className:'num'},money0(totals.open)),h('span',null,'in progress')),
       h('div',{className:'stat'},h('b',{className:'num'},money0(totals.out)),h('span',null,'out for award')),
@@ -361,7 +419,7 @@ function Projects(props){
 
 /* ---------- Dashboard ---------- */
 function Dashboard(props){
-  var ps=DB.projects, go=props.go, sel=useState(null);
+  var ps=wsProjects(), go=props.go, sel=useState(null);
   var t=todayISO(), d14=new Date(); d14.setDate(d14.getDate()+14); var t14=d14.toISOString().slice(0,10);
   var k={open:0,out:0,won:0,lost:0,nOpen:0,nOut:0,nWon:0,nLost:0};
   ps.forEach(function(p){ var c=calc(p).sell; if(p.status==='draft'||p.status==='estimated'){k.open+=c;k.nOpen++;} else if(p.status==='sent'){k.out+=c;k.nOut++;} else if(p.status==='won'){k.won+=c;k.nWon++;} else if(p.status==='lost'){k.lost+=c;k.nLost++;} });
@@ -382,7 +440,7 @@ function Dashboard(props){
   return h('div',{className:'grid'},
     h('div',{className:'hero'},
       h('img',{src:EMBLEM,alt:'Estimatio emblem'}),
-      h('div',null,h('div',{className:'eyebrow'},'AI-driven estimating software'),h('h1',null,ps.length?'Estimating desk':'Welcome to Estimatio'),
+      h('div',null,h('div',{className:'eyebrow'},wsInfo().name+' · '+wsInfo().tag),h('h1',null,ps.length?'Estimating desk':'Welcome to Estimatio'),
         h('p',null,ps.length? (k.nOpen+' open · '+k.nOut+' out for award · '+(winRate==null?'no decisions yet':winRate+'% win rate')) : 'Paste a scope, let the AI draft the takeoff lines, price them, and send the proposal. Demolition bids hand off to DEMEX.'),
         h('div',{className:'row',style:{marginTop:12}},h('button',{className:'btn primary',onClick:function(){ var p=newProject(); commit(function(d){d.projects.push(p);}); go('project',p.id); }},'+ New project'),h('button',{className:'btn',onClick:function(){go('projects');}},'All projects'),drafts?h('button',{className:'btn',onClick:function(){go('rates');}},'Review '+drafts+' draft rates'):null))),
     h('div',{className:'grid g4'},
@@ -442,7 +500,7 @@ function ProjectView(props){
           h(Field,{id:'trade',label:'Trade'},h('select',{id:'trade',value:p.trade,onChange:function(e){patch('trade',e.target.value);}},TRADES.map(function(t){return h('option',{key:t,value:t},t);}))),
           h(Field,{id:'due',label:'Bid due'},h(Input,{id:'due',type:'date',value:p.dueAt,onChange:function(v){patch('dueAt',v);}})),
           h(Field,{id:'status',label:'Status'},h('select',{id:'status',value:p.status,onChange:function(e){ var v=e.target.value; commit(function(){ var x=proj(p.id); x.status=v; if(v==='sent'&&!x.sentAt) x.sentAt=new Date().toISOString(); }); }},STATUSES.map(function(t){return h('option',{key:t,value:t},t);})))),
-        h(Field,{id:'bidno',label:'Bid / proposal number'},h(Input,{id:'bidno',value:p.bidNo,placeholder:DB.company.bidPrefix+'-'+todayISO().replace(/-/g,'').slice(2),onChange:function(v){patch('bidNo',v);}})),
+        h(Field,{id:'bidno',label:'Bid / proposal number'},h(Input,{id:'bidno',value:p.bidNo,placeholder:company().bidPrefix+'-'+todayISO().replace(/-/g,'').slice(2),onChange:function(v){patch('bidNo',v);}})),
         h(Field,{id:'scope',label:'Scope of work (paste the ITB / RFP scope here)'},h('textarea',{id:'scope',rows:9,value:p.scope,onChange:function(e){patch('scope',e.target.value);}}))),
       h('div',{className:'grid',style:{alignContent:'start'}},
         h('div',{className:'card grid'},h('h2',null,'Client'),
@@ -458,7 +516,7 @@ function ProjectView(props){
 
 function Takeoff(props){
   var p=props.p, busy=useState(false), missing=useState([]);
-  var cat=DB.rates.filter(function(r){ return p.trade==='both'||(p.trade==='flooring'?r.id.indexOf('flr_')===0||r.id==='demo_floor'||r.id==='demo_base':r.id.indexOf('flr_')!==0); });
+  var cat=DB.rates.filter(function(r){ var fl=r.id.indexOf('flr_')===0||r.id.indexOf('bath_')===0; return p.trade==='both'||(p.trade==='flooring'?fl||r.id==='demo_floor'||r.id==='demo_base':!fl); });
   var groups={}; cat.forEach(function(r){ (groups[r.cat]=groups[r.cat]||[]).push(r); });
   function setLines(fn){ commit(function(){ var x=proj(p.id); x.estQty=fn(x.estQty||[]); }); }
   function add(svc){ setLines(function(ls){ return ls.concat([{svc:svc||cat[0].id,qty:'',rate:'',mat:'',note:''}]); }); }
@@ -522,10 +580,10 @@ function Proposal(props){
   function copyText(){ var t=document.createElement('div'); t.innerHTML=proposalHTML(p,true); var txt=t.innerText; (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(txt):Promise.reject()).then(function(){toast('Proposal text copied');}).catch(function(){ toast('Copy blocked — download instead','err'); }); }
   return h('div',{className:'grid prop2'},
     h('div',{className:'card grid',style:{alignContent:'start'}},h('h2',null,'Proposal wording'),
-      !DB.company.name&&h('div',{className:'pill warn'},'Add your company in Settings so it prints on the proposal'),
+      !company().name&&h('div',{className:'pill warn'},'Add your company in Settings so it prints on the proposal'),
       h(Field,{id:'intro',label:'Opening line (optional)'},h('textarea',{id:'intro',rows:2,value:pr.intro||'',onChange:function(e){set('intro',e.target.value);}})),
       h(Field,{id:'incl',label:'Includes (one per line)'},h('textarea',{id:'incl',rows:4,value:pr.inclusions||'',onChange:function(e){set('inclusions',e.target.value);}})),
-      h(Field,{id:'excl',label:'Exclusions (one per line; blank = company default)'},h('textarea',{id:'excl',rows:4,value:pr.exclusions||'',placeholder:DB.company.exclusions,onChange:function(e){set('exclusions',e.target.value);}})),
+      h(Field,{id:'excl',label:'Exclusions (one per line; blank = company default)'},h('textarea',{id:'excl',rows:4,value:pr.exclusions||'',placeholder:company().exclusions,onChange:function(e){set('exclusions',e.target.value);}})),
       h(Field,{id:'pnotes',label:'Notes'},h('textarea',{id:'pnotes',rows:3,value:pr.notes||'',onChange:function(e){set('notes',e.target.value);}})),
       h('label',{className:'row',style:{cursor:'pointer'}},h('input',{type:'checkbox',style:{width:'auto'},checked:!!DB.settings.showUnitPricing,onChange:function(e){ var v=e.target.checked; commit(function(d){ d.settings.showUnitPricing=v; }); }}),'Show unit pricing on proposal'),
       h('div',{className:'row'},h('button',{className:'btn primary',onClick:dl,disabled:!c.lines.length},'Download proposal (HTML → print to PDF)'),h('button',{className:'btn',onClick:copyText},'Copy text'))),
@@ -589,7 +647,7 @@ function chatExecutors(pid, request, log){
       return change('update_project',f,function(y){ var b; if(f.indexOf('client_')===0){ var k=f.slice(7); y.client=y.client||{}; b=y.client[k]; y.client[k]=v; } else { b=y[f]; y[f]=v; } return [b,v]; }); },
     edit_proposal:function(a){ var sec=String(a.section||''), act=String(a.action||''), text=a.text==null?'':String(a.text), match=a.match==null?'':String(a.match);
       if(['inclusions','exclusions','notes','intro'].indexOf(sec)<0) throw new Error('section must be inclusions, exclusions, notes or intro');
-      return change('edit_proposal',sec,function(y){ y.proposal=Object.assign({},y.proposal||{}); var cur=y.proposal[sec]||(sec==='exclusions'?DB.company.exclusions:'')||''; var lines=cur.split('\n').filter(function(s){return s.trim();});
+      return change('edit_proposal',sec,function(y){ y.proposal=Object.assign({},y.proposal||{}); var cur=y.proposal[sec]||(sec==='exclusions'?company().exclusions:'')||''; var lines=cur.split('\n').filter(function(s){return s.trim();});
         var find=function(){ var m=match.toLowerCase(); var k=lines.findIndex(function(s){return m&&s.toLowerCase().indexOf(m)>=0;}); if(k<0) throw new Error('No '+sec+' line contains "'+match+'"'); return k; };
         if(act==='replace_all') lines=text.split('\n').filter(function(s){return s.trim();});
         else if(act==='add_item') lines.push(text);
@@ -700,12 +758,12 @@ function Rates(){
 }
 
 function Settings(){
-  var co=DB.company, s=DB.settings;
-  function setC(k,v){ commit(function(d){ d.company[k]=v; }); } function setS(k,v){ commit(function(d){ d.settings[k]=v; }); }
+  var co=company(), s=DB.settings;
+  function setC(k,v){ commit(function(d){ d.companies[WS][k]=v; }); } function setS(k,v){ commit(function(d){ d.settings[k]=v; }); }
   function exportAll(){ CLOUD.download('estimatio-backup-'+todayISO()+'.json',JSON.stringify(DB,null,2)).then(function(){toast('Backup downloaded');}).catch(function(e){toast(e&&e.message||'Export failed','err');}); }
   function importFile(e){ var f=e.target.files&&e.target.files[0]; if(!f) return; var rd=new FileReader(); rd.onload=function(){ try{ var d=JSON.parse(rd.result); if(!Array.isArray(d.projects)) throw new Error('Not an Estimatio file'); commit(function(db){ var have={}; db.projects.forEach(function(p){have[p.id]=1;}); d.projects.forEach(function(p){ if(!have[p.id]) db.projects.push(p); }); if(d.company) db.company=Object.assign({},db.company,d.company); if(d.rates) d.rates.forEach(function(r){ var x=db.rates.filter(function(y){return y.id===r.id;})[0]; if(x) Object.assign(x,r); else db.rates.push(r); }); }); toast('Imported '+d.projects.length+' projects'); }catch(err){ toast(err.message||'Import failed','err'); } }; rd.readAsText(f); e.target.value=''; }
   return h('div',{className:'grid g2'},
-    h('div',{className:'card grid',style:{alignContent:'start'}},h('div',null,h('div',{className:'eyebrow'},'Prints on every proposal'),h('h2',null,'Company')),
+    h('div',{className:'card grid',style:{alignContent:'start'}},h('div',null,h('div',{className:'eyebrow'},'Prints on every '+wsInfo().short+' proposal'),h('h2',null,wsInfo().name)),
       h(Field,{id:'co',label:'Company name'},h(Input,{id:'co',value:co.name,onChange:function(v){setC('name',v);}})),
       h(Field,{id:'cc',label:'Signer / contact'},h(Input,{id:'cc',value:co.contact,onChange:function(v){setC('contact',v);}})),
       h(Field,{id:'ca',label:'Address'},h(Input,{id:'ca',value:co.addr,onChange:function(v){setC('addr',v);}})),
@@ -727,6 +785,7 @@ function Settings(){
         h('div',{className:'dim',style:{fontSize:12}},'DEMEX hand-off: Projects → “Send demolition bids to DEMEX” downloads a file DEMEX’s Pipeline → Import (merge) accepts. Flooring-only projects stay here.'))));
 }
 
+window.ES={db:function(){return DB;},company:company,newProject:newProject,commit:commit,ws:function(){return WS;},setWorkspace:setWorkspace};
 ReactDOM.createRoot(document.getElementById('root')).render(h(App,null));
 })();
 </script>

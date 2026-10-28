@@ -23,7 +23,7 @@ for name in ("demex_records.db", "demex_records.db-wal", "demex_records.db-journ
 
 os.environ.setdefault("DEMEX_IMPORTS_DIR", str(DATA / "imports"))
 (DATA / "imports").mkdir(exist_ok=True)
-if not os.environ.get("DEMEX_ACCESS_KEY"):
+if not os.environ.get("DEMEX_ACCESS_KEY") and not os.environ.get("DEMEX_ACCESS_KEYS"):
     print("WARNING: DEMEX_ACCESS_KEY is not set -- the server will refuse every sign-in. "
           "Set it with: fly secrets set DEMEX_ACCESS_KEY=...", file=sys.stderr)
     os.environ["DEMEX_ACCESS_KEY"] = os.urandom(32).hex()   # unguessable: locked until a key is set
