@@ -16,7 +16,7 @@
 }
 html,body{height:100%;}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px;line-height:1.45;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0;}
+  padding:0;}
 *{box-sizing:border-box;}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);}
 a{color:var(--blue2);}
@@ -87,6 +87,114 @@ tr:hover td{background:rgba(255,255,255,.015);} td.r,th.r{text-align:right;}
 .msg .chg{font-size:11px;color:var(--teal);margin-top:4px;}
 .kbd{font:11px var(--mono);border:1px solid var(--line2);border-radius:4px;padding:1px 5px;color:var(--fg2);}
 @media (prefers-reduced-motion:no-preference){.proj,.btn{transition:background .12s,border-color .12s;}}
+/* ---------- App shell: left rail + top bar (takeoff-software layout) ---------- */
+.ico{width:18px;height:18px;flex:none;vertical-align:-4px;}
+.shell{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100vh;}
+.side{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px;padding:14px 12px calc(14px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));background:var(--bg2);border-right:1px solid var(--line);z-index:9;}
+.side .brand{padding:4px 8px 16px;font-size:20px;}
+.side nav{flex-direction:column;gap:2px;}
+.side nav button{display:flex;align-items:center;gap:10px;padding:9px 10px;text-align:left;width:100%;border-radius:8px;}
+.side nav button:hover{background:var(--panel);color:var(--fg);}
+.side nav button[aria-current="page"]{background:rgba(10,132,255,.14);color:#fff;box-shadow:inset 3px 0 0 var(--blue);}
+.side .foot{margin-top:auto;display:grid;gap:8px;padding:12px 6px 0;border-top:1px solid var(--line);}
+.side .foot select{font-size:12px;padding:6px 8px;}
+.appmain{min-width:0;display:flex;flex-direction:column;}
+.apptop{position:sticky;top:0;z-index:8;display:flex;align-items:center;gap:12px;padding:11px max(20px,env(safe-area-inset-right,0px)) 11px 24px;background:rgba(11,17,26,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);flex-wrap:wrap;}
+.crumb{font-size:14px;color:var(--fg2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;} .crumb b{color:var(--fg);font-weight:600;} .crumb a{color:inherit;text-decoration:none;} .crumb a:hover{color:var(--fg);}
+.appmain main{padding:20px 24px 48px;width:100%;max-width:1320px;margin:0 auto;}
+.appmain main.wide{max-width:none;}
+@media (max-width:860px){.shell{grid-template-columns:1fr;} .side{height:auto;flex-direction:row;align-items:center;flex-wrap:wrap;padding:8px 16px;border-right:0;border-bottom:1px solid var(--line);} .side .brand{padding:0 6px 0 0;font-size:18px;} .side nav{flex-direction:row;flex-wrap:wrap;} .side nav button{width:auto;padding:8px;} .side nav .lbl{display:none;} .side .foot{margin:0 0 0 auto;border:0;padding:0;display:flex;align-items:center;} .side .foot .eyebrow,.side .foot .homebtn{display:none;} .apptop{position:static;padding:10px 16px;} .appmain main{padding:16px 16px 40px;}}
+.chips{display:flex;gap:6px;flex-wrap:wrap;}
+.chip{border:1px solid var(--line2);background:none;color:var(--fg2);border-radius:999px;padding:5px 12px;font-size:12px;cursor:pointer;font-weight:500;}
+.chip:hover{color:var(--fg);} .chip[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff;} .chip[aria-pressed="true"] .dim{color:rgba(255,255,255,.75);}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;text-transform:capitalize;white-space:nowrap;} .status i{width:6px;height:6px;border-radius:50%;background:currentColor;}
+.status.draft{background:rgba(138,153,173,.14);color:var(--fg2);} .status.estimated{background:rgba(10,132,255,.15);color:var(--blue2);} .status.sent{background:rgba(243,178,62,.15);color:var(--amber);} .status.won{background:rgba(79,209,139,.15);color:var(--green);} .status.lost{background:rgba(255,92,92,.15);color:var(--red);}
+.bidtable tbody tr{cursor:pointer;} .bidtable th:first-child,.bidtable td:first-child{padding-left:18px;} .bidtable th:last-child,.bidtable td:last-child{padding-right:18px;} .bidtable td{padding-block:11px;}
+/* ---------- Plan-sheet takeoff workspace: plans | viewer | takeoff items ---------- */
+.tk{display:grid;grid-template-columns:224px minmax(0,1fr) 300px;height:calc(100vh - 196px);min-height:540px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel);}
+.tk-pane{display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--bg2);}
+.tk-pane.l{border-right:1px solid var(--line);} .tk-pane.r{border-left:1px solid var(--line);}
+.tk-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;border-bottom:1px solid var(--line);font-weight:600;font-size:13px;min-height:45px;}
+.tk-list{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px;}
+.sheet-i{display:grid;grid-template-columns:52px minmax(0,1fr);gap:9px;align-items:center;padding:6px;border:1px solid transparent;border-radius:8px;cursor:pointer;background:none;text-align:left;width:100%;}
+.sheet-i:hover{background:var(--panel);} .sheet-i[aria-current="true"]{border-color:var(--blue);background:rgba(10,132,255,.08);}
+.sheet-i .th{display:block;width:52px;height:40px;border-radius:4px;background:#fff center/cover no-repeat;border:1px solid var(--line);}
+.nm{display:block;font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;} .mt{display:block;font-size:11px;color:var(--fg3);}
+.tk-center{display:flex;flex-direction:column;min-width:0;min-height:0;}
+.tk-tools{display:flex;align-items:center;gap:3px;padding:6px 8px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap;min-height:45px;}
+.tool{display:inline-flex;align-items:center;gap:6px;background:none;border:1px solid transparent;border-radius:6px;padding:5px 8px;cursor:pointer;color:var(--fg2);font-size:12px;font-weight:500;}
+.tool:hover{background:var(--panel2);color:var(--fg);} .tool[aria-pressed="true"]{background:rgba(10,132,255,.16);border-color:var(--blue);color:#fff;} .tool:disabled{opacity:.4;cursor:default;}
+.tool .kbd{padding:0 4px;font-size:10px;}
+.tk-sep{width:1px;height:20px;background:var(--line2);margin:0 4px;}
+.vp{position:relative;flex:1;min-height:0;overflow:hidden;background:#232b37;background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:18px 18px;touch-action:none;user-select:none;-webkit-user-select:none;}
+.vp .page{position:absolute;left:0;top:0;transform-origin:0 0;box-shadow:0 10px 40px rgba(0,0,0,.5);background:#fff;}
+.vp .page img{display:block;pointer-events:none;max-width:none;}
+.vp svg.ov{position:absolute;left:0;top:0;overflow:visible;}
+.tk-status{display:flex;gap:14px;align-items:center;padding:6px 12px;border-top:1px solid var(--line);font-size:12px;color:var(--fg2);background:var(--panel);flex-wrap:wrap;min-height:40px;}
+.item{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:9px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer;background:var(--panel);text-align:left;width:100%;}
+.item:hover{border-color:var(--line2);} .item[aria-current="true"]{border-color:var(--blue);box-shadow:0 0 0 1px var(--glow);}
+.item .sw{width:12px;height:12px;border-radius:3px;} .item .q{font:600 12px var(--mono);text-align:right;white-space:nowrap;}
+.calib{position:absolute;left:50%;top:14px;transform:translateX(-50%);display:flex;gap:8px;align-items:center;background:var(--panel2);border:1px solid var(--blue);padding:8px 10px;border-radius:10px;box-shadow:var(--shadow-card);z-index:3;font-size:12px;white-space:nowrap;}
+.calib input{width:96px;padding:5px 7px;}
+.drop{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--fg2);padding:24px;} .drop > div{max-width:420px;}
+.drop b{display:block;color:var(--fg);font-size:16px;margin-bottom:6px;}
+@media (max-width:1440px){.tk{grid-template-columns:190px minmax(0,1fr) 260px;}}
+@media (max-width:1180px){.tk{grid-template-columns:1fr;height:auto;} .tk-pane.l .tk-list{flex-direction:row;overflow-x:auto;} .sheet-i{min-width:190px;} .tk-pane.r .tk-list{max-height:320px;} .vp{height:62vh;flex:none;} .tk-pane.l,.tk-pane.r{border:0;border-bottom:1px solid var(--line);} .tk-pane.r{border-top:1px solid var(--line);}}
+/* ---------- Main page (marketing landing) ---------- */
+.lp section{padding:88px max(20px,env(safe-area-inset-right,0px)) 88px max(20px,env(safe-area-inset-left,0px));}
+.lp .wrap{max-width:1180px;margin:0 auto;}
+.announce{background:linear-gradient(90deg,var(--deep),var(--blue));color:#fff;text-align:center;font-size:13px;padding:9px 16px;}
+.announce a{color:#fff;font-weight:600;margin-left:8px;}
+.lnav{position:sticky;top:0;z-index:9;background:rgba(11,17,26,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+.lnav .wrap{display:flex;align-items:center;gap:26px;padding:14px max(20px,env(safe-area-inset-right,0px)) 14px max(20px,env(safe-area-inset-left,0px));max-width:1220px;margin:0 auto;}
+.lnav .links{display:flex;gap:24px;} .lnav .links a{color:var(--fg2);text-decoration:none;font-weight:500;font-size:14px;} .lnav .links a:hover{color:#fff;}
+.lhero{position:relative;overflow:hidden;padding-top:76px!important;}
+.lhero::before{content:"";position:absolute;right:-220px;top:-220px;width:760px;height:760px;background:radial-gradient(circle,rgba(10,132,255,.22),transparent 65%);pointer-events:none;}
+.lhero .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:52px;align-items:center;position:relative;}
+.lp h1.big{font-size:clamp(36px,4.8vw,58px);line-height:1.04;letter-spacing:-.035em;margin:14px 0 18px;font-weight:700;}
+.lp .lede{font-size:18px;color:var(--fg2);max-width:540px;line-height:1.55;margin:0;}
+.lp h2.sec{font-size:clamp(28px,3.4vw,40px);letter-spacing:-.03em;line-height:1.12;margin:10px 0 14px;font-weight:700;text-wrap:balance;}
+.lp .eyebrow{color:var(--blue2);}
+.lp .btn.lg{padding:13px 24px;font-size:15px;border-radius:999px;}
+.lp .btn.link{background:none;border:0;color:var(--fg);padding:13px 6px;} .lp .btn.link:hover{color:var(--blue2);}
+.mock{border-radius:14px;border:1px solid var(--line2);background:var(--bg2);box-shadow:0 30px 80px rgba(0,0,0,.55);overflow:hidden;}
+.mock svg{display:block;width:100%;height:auto;}
+.trust{padding:30px 20px!important;border-block:1px solid var(--line);background:var(--bg2);}
+.trust .wrap{display:flex;gap:36px;align-items:center;justify-content:center;flex-wrap:wrap;color:var(--fg2);font-size:13px;}
+.trust .co{display:flex;align-items:center;gap:10px;color:var(--fg);font-weight:600;font-size:15px;}
+.trust .co i{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font:700 12px var(--display);font-style:normal;background:var(--panel2);border:1px solid var(--line2);}
+.seg{display:inline-flex;padding:4px;border-radius:999px;background:var(--panel);border:1px solid var(--line);gap:4px;margin-top:10px;}
+.seg button{border:0;background:none;padding:9px 20px;border-radius:999px;color:var(--fg2);cursor:pointer;font-weight:600;}
+.seg button[aria-selected="true"]{background:var(--blue);color:#fff;}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:52px;align-items:center;margin-top:40px;}
+.checks{list-style:none;padding:0;margin:20px 0 28px;display:grid;gap:14px;}
+.checks li{display:grid;grid-template-columns:22px 1fr;gap:12px;color:var(--fg2);line-height:1.5;}
+.checks li::before{content:"";width:22px;height:22px;border-radius:50%;background:rgba(79,209,139,.15) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M7 11.5l2.6 2.6L15 8.5' fill='none' stroke='%234FD18B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/22px no-repeat;}
+.checks b{color:var(--fg);}
+.cards2{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:36px;} .cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:36px;}
+.lcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:10px;}
+.lcard h3{margin:0;font-size:20px;letter-spacing:-.02em;} .lcard p{margin:0;color:var(--fg2);line-height:1.55;}
+.lcard .shot{margin-top:10px;border-radius:10px;overflow:hidden;border:1px solid var(--line);} .shot .mock{border:0;border-radius:0;box-shadow:none;}
+.lcard .ic{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;background:rgba(10,132,255,.14);color:var(--blue2);}
+.tradegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:30px;}
+.tradegrid div{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:12px;background:var(--panel);border:1px solid var(--line);font-weight:500;font-size:14px;}
+.tradegrid i{width:10px;height:10px;border-radius:3px;flex:none;}
+.stepsl{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:36px;counter-reset:s;}
+.stepsl div{padding:24px;border-radius:14px;border:1px solid var(--line);background:var(--panel);counter-increment:s;}
+.stepsl div::before{content:counter(s,decimal-leading-zero);display:block;font:600 13px var(--mono);color:var(--blue2);margin-bottom:14px;}
+.stepsl b{display:block;font-size:16px;margin-bottom:6px;} .stepsl span{color:var(--fg2);font-size:14px;line-height:1.5;}
+.ctaband{border-radius:22px;padding:60px 40px;text-align:center;background:linear-gradient(135deg,#0047AB,#0A84FF);box-shadow:0 30px 80px rgba(10,132,255,.25);}
+.ctaband h2.sec{color:#fff;margin-top:0;} .ctaband p{color:rgba(255,255,255,.88);margin:0 auto 24px;max-width:560px;font-size:17px;}
+.ctaband .btn.primary{background:#fff;color:#0047AB;border-color:#fff;} .ctaband .btn.ghostw{background:transparent;border-color:rgba(255,255,255,.55);color:#fff;}
+.faq{max-width:840px;margin:30px auto 0;} .faq details{border-bottom:1px solid var(--line);}
+.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 0;font-weight:600;font-size:16px;} .faq summary::-webkit-details-marker{display:none;}
+.faq summary::after{content:"";width:9px;height:9px;border-right:2px solid var(--blue2);border-bottom:2px solid var(--blue2);transform:rotate(45deg);flex:none;margin-top:-4px;}
+.faq details[open] summary::after{transform:rotate(-135deg);margin-top:4px;} .faq p{margin:0 0 20px;color:var(--fg2);line-height:1.6;}
+.lfoot{border-top:1px solid var(--line);background:var(--bg2);padding:52px max(20px,env(safe-area-inset-right,0px)) calc(32px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px));}
+.lfoot .cols{display:grid;grid-template-columns:1.5fr repeat(3,1fr);gap:28px;} .lfoot h4{margin:0 0 12px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--fg3);}
+.lfoot .cols a:not(.brand){display:block;color:var(--fg2);text-decoration:none;font-size:14px;padding:4px 0;} .lfoot .cols a:not(.brand):hover{color:#fff;}
+@media (max-width:900px){.lhero .wrap,.split,.cards2{grid-template-columns:1fr;} .cards3,.stepsl{grid-template-columns:1fr 1fr;} .lnav .links{display:none;} .lnav .wrap{gap:10px;} .lp section{padding:60px 16px;} .lhero{padding-top:48px!important;} .lfoot .cols{grid-template-columns:1fr 1fr;} .ctaband{padding:40px 22px;}}
+@media (max-width:560px){.cards3,.stepsl{grid-template-columns:1fr;} .lnav .ghost{display:none;} .trust .wrap{justify-content:flex-start;gap:18px;}}
 </style>
 
 <div id="root"></div>
@@ -272,7 +380,8 @@ function ensure(){
   if(DB.company&&!DB.companies.ddd) DB.companies.ddd=DB.company;   // migrate single-company data
   Object.keys(WORKSPACES).forEach(function(k){ DB.companies[k]=Object.assign({},COMPANY_DEFAULT,WORKSPACES[k].company,DB.companies[k]||{}); });
   delete DB.company;
-  DB.projects.forEach(function(p){ if(!p.ws) p.ws='ddd'; });
+  DB.projects.forEach(function(p){ if(!p.ws) p.ws='ddd'; if(!Array.isArray(p.sheets)) p.sheets=[]; if(!Array.isArray(p.marks)) p.marks=[];
+    (p.estQty||[]).forEach(function(l){ if(!l.lid) l.lid=uid('ln'); }); });
   if(!DB.rateOverrides||typeof DB.rateOverrides!=='object') DB.rateOverrides={};
   DB.v=1;
 }
@@ -295,7 +404,7 @@ function todayISO(){ return new Date().toISOString().slice(0,10); }
 function proj(id){ return DB.projects.filter(function(p){return p.id===id;})[0]||null; }
 function company(){ return DB.companies[WS]||DB.companies.ddd||COMPANY_DEFAULT; }
 function wsProjects(){ return DB.projects.filter(function(p){ return (p.ws||'ddd')===WS; }); }
-function newProject(){ return {id:uid('es'),ws:WS,name:'',client:{name:'',contact:'',email:'',phone:''},address:'',trade:wsInfo().trade,scope:'',dueAt:'',status:'draft',bidNo:'',estQty:[],estimate:null,proposal:{intro:'',inclusions:'',exclusions:'',notes:''},createdAt:new Date().toISOString(),demexSentAt:null,corrections:[],chat:[]};
+function newProject(){ return {id:uid('es'),ws:WS,name:'',client:{name:'',contact:'',email:'',phone:''},address:'',trade:wsInfo().trade,scope:'',dueAt:'',status:'draft',bidNo:'',estQty:[],sheets:[],marks:[],estimate:null,proposal:{intro:'',inclusions:'',exclusions:'',notes:''},createdAt:new Date().toISOString(),demexSentAt:null,corrections:[],chat:[]};
 }
 /* Estimate math: direct = Σ qty×(labor rate + material $/unit); OH on direct; profit on direct+OH; tax on materials (or all). */
 function calc(p){
@@ -307,6 +416,57 @@ function calc(p){
   return {lines:lines,labor:labor,mat:mat,direct:direct,oh:oh,profit:profit,tax:tax,sell:direct+oh+profit+tax};
 }
 function lineTotal(l){ var q=+l.qty||0, r=(l.rate!=null&&l.rate!=='')?+l.rate:rateOf(l.svc), m=+l.mat||0; return q*(r+m); }
+
+/* ---------- Plan-sheet takeoff. Sheet images live in this browser's IndexedDB (plan sets are too big for the shared
+   store); sheet meta {id,name,w,h,ftPerPx} and marks {id,lid,sheet,type,pts} live on the project and sync like any other field.
+   A line with marks gets its qty from them (l.measured=true), so estimates and the DEMEX export need no changes. ---------- */
+var MARK_COLORS=['#0A84FF','#2AD1B8','#F3B23E','#FF5C5C','#B07CFF','#4FD18B','#FF8A3D','#3BC9F5','#E85DBA','#C8D44E'];
+var IMG=(function(){
+  var dbp=null;
+  function open(){ if(dbp) return dbp; dbp=new Promise(function(res,rej){ try{ var r=indexedDB.open('estimatio_sheets',1); r.onupgradeneeded=function(){ r.result.createObjectStore('img'); }; r.onsuccess=function(){ res(r.result); }; r.onerror=function(){ rej(r.error); }; }catch(e){ rej(e); } }); return dbp; }
+  function tx(mode,fn){ return open().then(function(db){ return new Promise(function(res,rej){ var t=db.transaction('img',mode), req=fn(t.objectStore('img')); t.oncomplete=function(){ res(req&&req.result); }; t.onerror=function(){ rej(t.error); }; }); }); }
+  return {put:function(k,v){ return tx('readwrite',function(s){ return s.put(v,k); }); }, get:function(k){ return tx('readonly',function(s){ return s.get(k); }); }, del:function(k){ return tx('readwrite',function(s){ return s.delete(k); }); }};
+})();
+var SHEET_URLS={};
+function useSheetUrl(id){ var s=useState(id&&SHEET_URLS[id]||null);
+  useEffect(function(){ if(!id){ s[1](null); return; } if(SHEET_URLS[id]){ s[1](SHEET_URLS[id]); return; } var live=true; s[1](null);
+    IMG.get(id).then(function(b){ if(!live) return; if(b){ SHEET_URLS[id]=URL.createObjectURL(b); s[1](SHEET_URLS[id]); } else s[1](''); }).catch(function(){ if(live) s[1](''); });
+    return function(){ live=false; }; },[id]);
+  return s[0]; }   // null = loading, '' = not on this device
+function lineColor(p,lid){ var i=(p.estQty||[]).findIndex(function(l){ return l.lid===lid; }); return MARK_COLORS[(i<0?0:i)%MARK_COLORS.length]; }
+function toolFor(unit){ return unit==='LF'?'linear':unit==='EA'?'count':'area'; }
+function markQty(m,sh){ var P=m.pts||[], f=(sh&&sh.ftPerPx)||0; if(m.type==='count') return P.length; if(!f) return 0;
+  if(m.type==='linear'){ var L=0; for(var i=1;i<P.length;i++) L+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]); return L*f; }
+  var A=0; for(var j=0;j<P.length;j++){ var a=P[j], b=P[(j+1)%P.length]; A+=a[0]*b[1]-b[0]*a[1]; } return Math.abs(A)/2*f*f; }
+function qtyIn(unit,m,sh){ if(m.type!==toolFor(unit)) return 0; var q=markQty(m,sh); return unit==='SY'?q/9:q; }
+function syncQty(x){ var sh={}; (x.sheets||[]).forEach(function(s){ sh[s.id]=s; });
+  (x.estQty||[]).forEach(function(l){ var ms=(x.marks||[]).filter(function(m){ return m.lid===l.lid; });
+    if(!ms.length){ delete l.measured; return; } var u=rinfo(l.svc).unit;
+    l.qty=Math.round(ms.reduce(function(a,m){ return a+qtyIn(u,m,sh[m.sheet]); },0)*100)/100; l.measured=true; }); }
+function parseFeet(s){ s=String(s||'').trim(); var m=s.match(/^(\d+(?:\.\d+)?)\s*'\s*-?\s*(?:(\d+(?:\.\d+)?)\s*"?)?$/); if(m) return +m[1]+(m[2]?+m[2]/12:0); var n=parseFloat(s); return isNaN(n)?0:n; }
+function fmtQty(n){ return (Math.round((+n||0)*100)/100).toLocaleString(undefined,{maximumFractionDigits:2}); }
+function catFor(p){ return DB.rates.filter(function(r){ var fl=r.id.indexOf('flr_')===0||r.id.indexOf('bath_')===0; return p.trade==='both'||(p.trade==='flooring'?fl||r.id==='demo_floor'||r.id==='demo_base':!fl); }); }
+var PDFJS='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+function loadPdfJs(){ if(window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  return new Promise(function(res,rej){ var s=document.createElement('script'); s.src=PDFJS+'pdf.min.js';
+    s.onload=function(){ window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS+'pdf.worker.min.js'; res(window.pdfjsLib); };
+    s.onerror=function(){ rej(new Error('Could not load the PDF reader')); }; document.head.appendChild(s); }); }
+function canvasBlob(cv){ return new Promise(function(res){ cv.toBlob(function(b){ res(b); },'image/jpeg',0.85); }); }
+function whiteCanvas(w,hh){ var cv=document.createElement('canvas'); cv.width=w; cv.height=hh; var cx=cv.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,w,hh); return cv; }
+// One file → [{name,w,h,blob}]: every PDF page (up to 60) becomes a sheet, images are capped at 4000px.
+function fileToSheets(file){
+  if(/pdf$/i.test(file.type)||/\.pdf$/i.test(file.name)) return loadPdfJs().then(function(lib){ return file.arrayBuffer().then(function(buf){ return lib.getDocument({data:buf}).promise; }).then(function(doc){
+    var out=[], chain=Promise.resolve(), n=Math.min(doc.numPages,60);
+    for(var i=1;i<=n;i++)(function(k){ chain=chain.then(function(){ return doc.getPage(k).then(function(pg){
+      var v0=pg.getViewport({scale:1}), v=pg.getViewport({scale:Math.min(2.5,3200/Math.max(v0.width,v0.height))}), cv=whiteCanvas(Math.round(v.width),Math.round(v.height));
+      return pg.render({canvasContext:cv.getContext('2d'),viewport:v}).promise.then(function(){ return canvasBlob(cv); })
+        .then(function(b){ out.push({name:file.name.replace(/\.pdf$/i,'')+(doc.numPages>1?' · p'+k:''),w:cv.width,h:cv.height,blob:b}); }); }); }); })(i);
+    return chain.then(function(){ return out; }); }); });
+  return new Promise(function(res,rej){ var u=URL.createObjectURL(file), im=new Image();
+    im.onload=function(){ var sc=Math.min(1,4000/Math.max(im.naturalWidth,im.naturalHeight)), cv=whiteCanvas(Math.round(im.naturalWidth*sc),Math.round(im.naturalHeight*sc));
+      cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height); URL.revokeObjectURL(u);
+      canvasBlob(cv).then(function(b){ res([{name:file.name.replace(/\.[^.]+$/,''),w:cv.width,h:cv.height,blob:b}]); }); };
+    im.onerror=function(){ URL.revokeObjectURL(u); rej(new Error('Could not read '+file.name)); }; im.src=u; }); }
 
 /* ---------- DEMEX export (Pipeline → Import accepts this file as-is) ---------- */
 function slug(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'').slice(0,40)||'client'; }
@@ -330,7 +490,7 @@ function suggestLines(p){
    '\n\nProject: '+p.name+'\nAddress: '+p.address+'\nScope:\n'+p.scope+
    '\n\nRules: one row per catalog item that applies; estimate a quantity only when the scope states or clearly implies it, otherwise use 0 and say what measurement is needed in the note; never invent square footage. Return JSON only: {"lines":[{"svc":"<id>","qty":<number>,"note":"<where this comes from / what to measure>"}],"missing":["<scope items with no catalog match>"]}';
   var call = CLOUD.sample.json ? CLOUD.sample.json(prompt,{modelTier:'default'}) : CLOUD.sample(prompt,{modelTier:'default'}).then(function(r){ var t=(r.text||'').replace(/^[\s\S]*?(\{[\s\S]*\})[\s\S]*$/,'$1'); return JSON.parse(t); });
-  return call.then(function(out){ var lines=(out&&out.lines||[]).filter(function(l){ return l&&rinfo(l.svc).unit; }).map(function(l){ return {svc:l.svc,qty:+l.qty||0,rate:'',mat:'',note:String(l.note||'')+' (AI suggestion)'}; }); return {lines:lines,missing:out&&out.missing||[]}; });
+  return call.then(function(out){ var lines=(out&&out.lines||[]).filter(function(l){ return l&&rinfo(l.svc).unit; }).map(function(l){ return {lid:uid('ln'),svc:l.svc,qty:+l.qty||0,rate:'',mat:'',note:String(l.note||'')+' (AI suggestion)'}; }); return {lines:lines,missing:out&&out.missing||[]}; });
 }
 
 /* ---------- Proposal HTML ---------- */
@@ -365,28 +525,40 @@ function Input(props){ return h('input',Object.assign({},props,{onChange:functio
 
 function App(){
   var booted=useState(false), route=useState({view:'dashboard'}), r=route[0], nav=route[1];
-  useEffect(function(){ Promise.all([CLOUD.ready_p,SERVER.ready_p]).then(function(){ load(); booted[1](true); if(CLOUD.hosted&&CLOUD.readOnly) toast('You have view-only access to this Estimatio','err'); }); },[]);
-  useEffect(function(){ var f=function(){ var hsh=(location.hash||'').replace('#',''); if(hsh==='rates'||hsh==='settings'||hsh==='projects'||hsh==='dashboard') nav({view:hsh}); }; f(); window.addEventListener('hashchange',f); return function(){ window.removeEventListener('hashchange',f); }; },[]);
+  // No hash → the main page, except behind the DEMEX server sign-in, where people come to work, not to read.
+  useEffect(function(){ Promise.all([CLOUD.ready_p,SERVER.ready_p]).then(function(){ load(); if(!location.hash&&!SERVER.on) nav({view:'home'}); booted[1](true); if(CLOUD.hosted&&CLOUD.readOnly) toast('You have view-only access to this Estimatio','err'); }); },[]);
+  useEffect(function(){ var f=function(){ var hsh=(location.hash||'').replace('#',''); if(hsh==='home'||hsh==='rates'||hsh==='settings'||hsh==='projects'||hsh==='dashboard') nav({view:hsh}); }; f(); window.addEventListener('hashchange',f); return function(){ window.removeEventListener('hashchange',f); }; },[]);
   var db=useDB();
   if(!booted[0]) return h('div',{style:{padding:'80px 0',textAlign:'center'}},h('div',{className:'brand',style:{justifyContent:'center'}},h('img',{src:LENS,alt:''}),'estimatio'),h('div',{className:'dim',style:{marginTop:10}},'Loading your estimates…'));
   function go(v,id,filter){ nav({view:v,id:id,filter:filter}); if(v!=='project') location.hash=v; window.scrollTo(0,0); }
-  var open=wsProjects().filter(function(p){return p.status==='draft'||p.status==='estimated';}).length;
+  function newBid(){ var p=newProject(); commit(function(d){ d.projects.push(p); }); go('project',p.id); }
+  if(r.view==='home') return h(React.Fragment,null,h(Landing,{go:go,start:newBid}),h(Toaster,null));
+  var titles={dashboard:'Dashboard',projects:'Bids',rates:'Rate library',settings:'Settings'}, cur=r.view==='project'?proj(r.id):null;
   return h(React.Fragment,null,
-    h('header',{className:'top'},
-      h('a',{className:'brand',href:'#dashboard',onClick:function(e){e.preventDefault();go('dashboard');}},h('img',{src:LENS,alt:''}),'estimatio',h('small',{className:'hide-sm'},'AI-driven estimating')),
-      h('nav',null,['dashboard','projects','rates','settings'].map(function(v){ return h('button',{key:v,'aria-current':r.view===v||(v==='projects'&&r.view==='project')?'page':undefined,onClick:function(){go(v);}},v[0].toUpperCase()+v.slice(1)); })),
-      h('div',{className:'spacer'}),
-      SERVER.on
-        ? h('span',{className:'row',style:{gap:8}},h('span',{className:'pill ok',title:'Workspace set by your sign-in'},wsInfo().name),h('a',{className:'btn ghost small',href:'/api/logout'},'Sign out'))
-        : h('select',{id:'ws','aria-label':'Workspace',value:WS,onChange:function(e){ setWorkspace(e.target.value); go('dashboard'); emit(); },style:{width:'auto',padding:'5px 8px',fontSize:12}},Object.keys(WORKSPACES).map(function(k){ return h('option',{key:k,value:k},WORKSPACES[k].name); })),
-      h('span',{className:'ai '+(CLOUD.sample?'':'off'),title:CLOUD.sample?'AI suggestions available':'AI not available in this view'},h('i'),CLOUD.sample?'AI online':'AI offline'),
-      SERVER.on? h('span',{className:'pill ok'},'saved to server') : CLOUD.hosted? h('span',{className:'pill '+(CLOUD.db?(CLOUD.readOnly?'warn':'ok'):'err')},CLOUD.db?(CLOUD.readOnly?'view only':'saved to cloud'):'not saved — sign in'):h('span',{className:'pill warn'},'local only')),
-    h('main',null,
-      r.view==='dashboard'&&h(Dashboard,{go:go}),
-      r.view==='projects'&&h(Projects,{go:go,filter:r.filter}),
-      r.view==='project'&&h(ProjectView,{id:r.id,go:go}),
-      r.view==='rates'&&h(Rates,null),
-      r.view==='settings'&&h(Settings,null)),
+    h('div',{className:'shell'},
+      h('aside',{className:'side'},
+        h('a',{className:'brand',href:'#dashboard',onClick:function(e){e.preventDefault();go('dashboard');}},h('img',{src:LENS,alt:''}),'estimatio'),
+        h('nav',{'aria-label':'Estimatio'},[['dashboard','Dashboard'],['projects','Bids'],['rates','Rate library'],['settings','Settings']].map(function(v){
+          return h('button',{key:v[0],'aria-label':v[1],'aria-current':r.view===v[0]||(v[0]==='projects'&&r.view==='project')?'page':undefined,onClick:function(){go(v[0]);}},h(Icon,{n:v[0]}),h('span',{className:'lbl'},v[1])); })),
+        h('div',{className:'foot'},
+          h('div',{className:'eyebrow'},'Workspace'),
+          SERVER.on
+            ? h('div',null,h('div',{style:{fontWeight:600,fontSize:13}},wsInfo().name),h('a',{className:'dim',href:'/api/logout',style:{fontSize:12}},'Sign out'))
+            : h('select',{id:'ws','aria-label':'Workspace',value:WS,onChange:function(e){ setWorkspace(e.target.value); go('dashboard'); emit(); }},Object.keys(WORKSPACES).map(function(k){ return h('option',{key:k,value:k},WORKSPACES[k].name); })),
+          h('button',{className:'btn ghost small homebtn',onClick:function(){go('home');}},h(Icon,{n:'home'}),' Estimatio home'))),
+      h('div',{className:'appmain'},
+        h('header',{className:'apptop'},
+          h('div',{className:'crumb'},cur?h(React.Fragment,null,h('a',{href:'#projects',onClick:function(e){e.preventDefault();go('projects');}},'Bids'),' / ',h('b',null,cur.name||'Untitled project')):h('b',null,titles[r.view]||'')),
+          h('div',{className:'spacer'}),
+          h('span',{className:'ai '+(CLOUD.sample?'':'off'),title:CLOUD.sample?'AI suggestions available':'AI not available in this view'},h('i'),CLOUD.sample?'AI online':'AI offline'),
+          SERVER.on? h('span',{className:'pill ok'},'saved to server') : CLOUD.hosted? h('span',{className:'pill '+(CLOUD.db?(CLOUD.readOnly?'warn':'ok'):'err')},CLOUD.db?(CLOUD.readOnly?'view only':'saved to cloud'):'not saved — sign in'):h('span',{className:'pill warn'},'local only'),
+          h('button',{className:'btn primary small',onClick:newBid},'+ New bid')),
+        h('main',{className:r.view==='project'?'wide':''},
+          r.view==='dashboard'&&h(Dashboard,{go:go}),
+          r.view==='projects'&&h(Projects,{go:go,filter:r.filter}),
+          r.view==='project'&&h(ProjectView,{id:r.id,go:go}),
+          r.view==='rates'&&h(Rates,null),
+          r.view==='settings'&&h(Settings,null)))),
     h(Toaster,null));
 }
 
@@ -400,21 +572,34 @@ function Projects(props){
   function exportDemex(){ var demo=wsProjects().filter(function(p){ return p.trade!=='flooring' && p.estQty && p.estQty.length; });
     if(!demo.length){ toast('No demolition projects with line items to send','err'); return; }
     var data=toDemex(demo); CLOUD.download('estimatio-to-demex-'+todayISO()+'.json',JSON.stringify(data,null,2)).then(function(){ commit(function(d){ demo.forEach(function(p){ var x=proj(p.id); if(x) x.demexSentAt=new Date().toISOString(); }); }); toast(demo.length+' demolition bid'+(demo.length>1?'s':'')+' exported — in DEMEX: Pipeline → Import (merge)'); }).catch(function(e){ toast(e&&e.message||'Export failed','err'); }); }
+  var all=wsProjects(), today=todayISO();
   return h('div',null,
     h('div',{className:'row',style:{justifyContent:'space-between',marginBottom:14}},
-      h('div',null,h('div',{className:'eyebrow'},'Estimates'),h('h1',null,'Projects')),
-      h('div',{className:'row'},wsInfo().demex&&h('button',{className:'btn',onClick:exportDemex,title:'Download a file DEMEX imports'},'Send demolition bids to DEMEX'),h('button',{className:'btn primary',onClick:create},'+ New project'))),
-    h('div',{className:'grid g3',style:{marginBottom:14}},
+      h('div',null,h('div',{className:'eyebrow'},'Bid board'),h('h1',null,'Bids')),
+      h('div',{className:'row'},wsInfo().demex&&h('button',{className:'btn',onClick:exportDemex,title:'Download a file DEMEX imports'},'Send demolition bids to DEMEX'),h('button',{className:'btn primary',onClick:create},'+ New bid'))),
+    h('div',{className:'grid g3',style:{marginBottom:16}},
       h('div',{className:'stat'},h('b',{className:'num'},money0(totals.open)),h('span',null,'in progress')),
       h('div',{className:'stat'},h('b',{className:'num'},money0(totals.out)),h('span',null,'out for award')),
       h('div',{className:'stat'},h('b',{className:'num'},money0(totals.won)),h('span',null,'won'))),
-    h('div',{className:'row',style:{marginBottom:12}},
-      h('input',{id:'search',placeholder:'Search projects, clients, addresses',value:q[0],onChange:function(e){q[1](e.target.value);},style:{maxWidth:360}}),
-      h('select',{id:'filter',value:f[0],onChange:function(e){f[1](e.target.value);},style:{maxWidth:180}},['all','flooring','demolition','both','draft','estimated','sent','won','lost'].map(function(o){return h('option',{key:o,value:o},o);}))),
-    ps.length? h('div',{className:'list'},ps.map(function(p){ var c=calc(p); return h('div',{key:p.id,className:'proj',onClick:function(){props.go('project',p.id);},role:'button',tabIndex:0,onKeyDown:function(e){if(e.key==='Enter')props.go('project',p.id);}},
-        h('div',null,h('div',{className:'t'},p.name||'Untitled project',' ',h('span',{className:'trade '+p.trade},p.trade)),h('div',{className:'s'},(p.client.name||'No client')+(p.address?' · '+p.address:'')+(p.dueAt?' · due '+p.dueAt:''))),
-        h('div',{style:{textAlign:'right'}},h('div',{className:'num',style:{fontWeight:600}},c.sell?money0(c.sell):'—'),h('div',{className:'s'},p.status+(p.demexSentAt?' · in DEMEX':'')+((p.corrections||[]).length?' · '+p.corrections.length+' corrections':'')))); }))
-    : h('div',{className:'empty'},h('b',null,'No projects yet'),'Start with “New project”, paste the scope, and Estimatio drafts the takeoff lines for you to price.'));
+    h('div',{className:'row',style:{justifyContent:'space-between',marginBottom:12}},
+      h('div',{className:'chips',role:'group','aria-label':'Filter by status'},['all'].concat(STATUSES).map(function(o){ var n=o==='all'?all.length:all.filter(function(p){return p.status===o;}).length;
+        return h('button',{key:o,className:'chip','aria-pressed':f[0]===o,onClick:function(){f[1](o);}},o==='all'?'All':o[0].toUpperCase()+o.slice(1),' ',h('span',{className:'dim'},n)); })),
+      h('div',{className:'row'},
+        h('input',{id:'search',placeholder:'Search bids, clients, addresses',value:q[0],onChange:function(e){q[1](e.target.value);},style:{width:260}}),
+        h('select',{id:'filter','aria-label':'Trade',value:TRADES.indexOf(f[0])>=0?f[0]:'',onChange:function(e){f[1](e.target.value||'all');},style:{width:150}},h('option',{value:''},'All trades'),TRADES.map(function(o){return h('option',{key:o,value:o},o);})))),
+    ps.length? h('div',{className:'card tablewrap',style:{padding:0}},h('table',{className:'bidtable'},
+        h('thead',null,h('tr',null,h('th',null,'Bid'),h('th',{className:'hide-sm'},'Client'),h('th',null,'Trade'),h('th',{className:'r hide-sm'},'Sheets'),h('th',{className:'r hide-sm'},'Items'),h('th',null,'Due'),h('th',{className:'r'},'Total'),h('th',null,'Status'))),
+        h('tbody',null,ps.map(function(p){ var c=calc(p), late=p.dueAt&&p.dueAt<today&&(p.status==='draft'||p.status==='estimated');
+          return h('tr',{key:p.id,onClick:function(){props.go('project',p.id);},tabIndex:0,onKeyDown:function(e){if(e.key==='Enter')props.go('project',p.id);}},
+            h('td',null,h('b',null,p.name||'Untitled project'),h('div',{className:'dim',style:{fontSize:12}},(p.bidNo?p.bidNo+' · ':'')+(p.address||'no address')+(p.demexSentAt?' · in DEMEX':''))),
+            h('td',{className:'hide-sm muted'},p.client.name||'—'),
+            h('td',null,h('span',{className:'trade '+p.trade},p.trade)),
+            h('td',{className:'r num hide-sm'},(p.sheets||[]).length||'—'),
+            h('td',{className:'r num hide-sm'},(p.estQty||[]).length||'—'),
+            h('td',{className:'num',style:{color:late?'var(--red)':'var(--fg2)',whiteSpace:'nowrap'}},p.dueAt||'—',late?' · late':''),
+            h('td',{className:'r num',style:{fontWeight:600}},c.sell?money0(c.sell):'—'),
+            h('td',null,h('span',{className:'status '+p.status},h('i'),p.status))); }))))
+    : h('div',{className:'empty'},h('b',null,all.length?'No bids match':'No bids yet'),all.length?'Clear the search or pick another status.':'Start with “New bid”, upload the plans or paste the scope, and Estimatio drafts the takeoff for you to price.'));
 }
 
 /* ---------- Dashboard ---------- */
@@ -481,17 +666,18 @@ function Dashboard(props){
 }
 
 function ProjectView(props){
-  var p=proj(props.id), tab=useState('scope');
+  var p=proj(props.id), tab=useState(p&&(p.name||(p.sheets||[]).length)?'plans':'scope');
   if(!p) return h('div',{className:'empty'},'Project not found. ',h('button',{className:'btn small',onClick:function(){props.go('projects');}},'Back'));
   function patch(k,v){ commit(function(){ var x=proj(p.id); if(!x) return; if(k.indexOf('.')>0){ var a=k.split('.'); x[a[0]]=x[a[0]]||{}; x[a[0]][a[1]]=v; } else x[k]=v; }); }
   function del(){ if(!confirmDel[0]){ confirmDel[1](true); return; } commit(function(d){ d.projects=d.projects.filter(function(x){return x.id!==p.id;}); }); toast('Project deleted'); props.go('projects'); }
   var confirmDel=useState(false), c=calc(p);
   return h('div',null,
-    h('div',{className:'row',style:{marginBottom:12}},h('button',{className:'btn ghost small',onClick:function(){props.go('projects');}},'← Projects'),h('span',{className:'trade '+p.trade},p.trade),h('span',{className:'pill'},p.status),p.demexSentAt&&h('span',{className:'pill ok'},'sent to DEMEX')),
+    h('div',{className:'row',style:{marginBottom:12}},h('button',{className:'btn ghost small',onClick:function(){props.go('projects');}},'← Bids'),h('span',{className:'trade '+p.trade},p.trade),h('span',{className:'pill'},p.status),p.demexSentAt&&h('span',{className:'pill ok'},'sent to DEMEX')),
     h('div',{className:'row',style:{justifyContent:'space-between',marginBottom:10}},
       h('h1',null,p.name||'Untitled project'),
       h('div',{className:'row'},h('div',{className:'num',style:{font:'600 22px var(--display)'}},money0(c.sell)),h('span',{className:'dim'},'total'))),
-    h('div',{className:'tabs',role:'tablist'},[['scope','Scope'],['takeoff','Takeoff & pricing'],['estimate','Estimate'],['proposal','Proposal'],['chat','✦ Ask Estimatio']].map(function(t){ return h('button',{key:t[0],role:'tab','aria-selected':tab[0]===t[0],onClick:function(){tab[1](t[0]);}},t[1]); })),
+    h('div',{className:'tabs',role:'tablist'},[['plans','Plans & takeoff'],['takeoff','Worksheet'],['estimate','Estimate'],['proposal','Proposal'],['chat','✦ Ask Estimatio'],['scope','Bid details']].map(function(t){ return h('button',{key:t[0],role:'tab','aria-selected':tab[0]===t[0],onClick:function(){tab[1](t[0]);}},t[1]); })),
+    tab[0]==='plans'&&h(PlanTakeoff,{p:p,onWorksheet:function(){tab[1]('takeoff');}}),
     tab[0]==='scope'&&h('div',{className:'grid g2'},
       h('div',{className:'card grid'},h('h2',null,'Project'),
         h(Field,{id:'name',label:'Project name'},h(Input,{id:'name',value:p.name,onChange:function(v){patch('name',v);}})),
@@ -519,9 +705,9 @@ function Takeoff(props){
   var cat=DB.rates.filter(function(r){ var fl=r.id.indexOf('flr_')===0||r.id.indexOf('bath_')===0; return p.trade==='both'||(p.trade==='flooring'?fl||r.id==='demo_floor'||r.id==='demo_base':!fl); });
   var groups={}; cat.forEach(function(r){ (groups[r.cat]=groups[r.cat]||[]).push(r); });
   function setLines(fn){ commit(function(){ var x=proj(p.id); x.estQty=fn(x.estQty||[]); }); }
-  function add(svc){ setLines(function(ls){ return ls.concat([{svc:svc||cat[0].id,qty:'',rate:'',mat:'',note:''}]); }); }
-  function upd(i,k,v){ setLines(function(ls){ return ls.map(function(l,j){ return j===i?Object.assign({},l,(function(){var o={};o[k]=v;return o;})()):l; }); }); }
-  function rm(i){ setLines(function(ls){ return ls.filter(function(_,j){return j!==i;}); }); }
+  function add(svc){ setLines(function(ls){ return ls.concat([{lid:uid('ln'),svc:svc||cat[0].id,qty:'',rate:'',mat:'',note:''}]); }); }
+  function upd(i,k,v){ commit(function(){ var x=proj(p.id); x.estQty=(x.estQty||[]).map(function(l,j){ return j===i?Object.assign({},l,(function(){var o={};o[k]=v;return o;})()):l; }); if(k==='svc') syncQty(x); }); }
+  function rm(i){ commit(function(){ var x=proj(p.id), gone=(x.estQty||[])[i]; x.estQty=(x.estQty||[]).filter(function(_,j){return j!==i;}); if(gone&&gone.lid) x.marks=(x.marks||[]).filter(function(m){return m.lid!==gone.lid;}); }); }
   function ai(){ if(busy[0]) return; if(!p.scope.trim()){ toast('Paste the scope of work first','err'); return; } busy[1](true); toast('Reading the scope…');
     suggestLines(p).then(function(out){ if(!out.lines.length){ toast('No catalog items matched — add lines by hand','err'); } else { setLines(function(ls){ var have={}; ls.forEach(function(l){have[l.svc]=1;}); return ls.concat(out.lines.filter(function(l){return !have[l.svc];})); }); toast(out.lines.length+' lines suggested — check every quantity before pricing'); } missing[1](out.missing||[]); busy[1](false); })
     .catch(function(e){ toast(e&&e.message||'AI unavailable','err'); busy[1](false); }); }
@@ -535,8 +721,9 @@ function Takeoff(props){
       h('table',{className:'sheet'},h('thead',null,h('tr',null,h('th',{style:{minWidth:260}},'Item'),h('th',{className:'r',style:{width:110}},'Qty'),h('th',{style:{width:50}},'Unit'),h('th',{className:'r',style:{width:120}},'Labor $/unit'),h('th',{className:'r',style:{width:120}},'Material $/unit'),h('th',{className:'r',style:{width:120}},'Total'),h('th',{style:{minWidth:200}},'Note / source'),h('th',{style:{width:40}}))),
         h('tbody',null,lines.length?lines.map(function(l,i){ var ri=rinfo(l.svc), base=rateOf(l.svc);
           return h('tr',{key:i},
-            h('td',null,h('select',{'aria-label':'Item',value:l.svc,onChange:function(e){upd(i,'svc',e.target.value);}},Object.keys(groups).map(function(g){ return h('optgroup',{key:g,label:g},groups[g].map(function(r){return h('option',{key:r.id,value:r.id},r.label);})); }))),
-            h('td',{className:'r'},h('input',{'aria-label':'Quantity',className:'num',type:'number',min:0,step:'any',value:l.qty,onChange:function(e){upd(i,'qty',e.target.value);},style:{textAlign:'right'}})),
+            h('td',null,h('div',{className:'row',style:{flexWrap:'nowrap',gap:8}},l.lid?h('span',{title:'Colour on the plans',style:{width:10,height:10,borderRadius:3,flex:'none',background:lineColor(p,l.lid)}}):null,
+              h('select',{'aria-label':'Item',value:l.svc,onChange:function(e){upd(i,'svc',e.target.value);}},Object.keys(groups).map(function(g){ return h('optgroup',{key:g,label:g},groups[g].map(function(r){return h('option',{key:r.id,value:r.id},r.label);})); })))),
+            h('td',{className:'r'},h('input',{'aria-label':'Quantity',className:'num',type:'number',min:0,step:'any',value:l.qty,readOnly:!!l.measured,title:l.measured?'Measured on the plans: change it on Plans & takeoff':undefined,onChange:function(e){upd(i,'qty',e.target.value);},style:{textAlign:'right',color:l.measured?'var(--teal)':undefined}})),
             h('td',{className:'dim'},ri.unit),
             h('td',{className:'r'},h('input',{'aria-label':'Labor rate',className:'num',type:'number',min:0,step:'0.01',placeholder:base.toFixed(2),value:l.rate,onChange:function(e){upd(i,'rate',e.target.value);},style:{textAlign:'right'}})),
             h('td',{className:'r'},h('input',{'aria-label':'Material cost per unit',className:'num',type:'number',min:0,step:'0.01',placeholder:'0.00',value:l.mat,onChange:function(e){upd(i,'mat',e.target.value);},style:{textAlign:'right'}})),
@@ -634,7 +821,7 @@ function chatExecutors(pid, request, log){
         l.rate=+(price/markupMult()/q - (+l.mat||0)).toFixed(4); if(l.rate<0) l.rate=0; return [b,lineView(l)]; }); },
     add_line:function(a){ var svc=String(a.svc||''); if(!rinfo(svc).unit) throw new Error('Unknown catalog id '+svc+' - use one from the catalog (count for misc items)');
       var q=+a.qty; if(!(q>0)) throw new Error('qty must be > 0');
-      return change('add_line',svc,function(y){ var l={svc:svc,qty:q,rate:'',mat:'',note:String(a.note||'')+' (added via chat)'};
+      return change('add_line',svc,function(y){ var l={lid:uid('ln'),svc:svc,qty:q,rate:'',mat:'',note:String(a.note||'')+' (added via chat)'};
         if(a.price!=null&&a.price!==''){ l.rate=+((+a.price)/markupMult()/q).toFixed(4); } else if(a.rate!=null&&a.rate!==''){ l.rate=+a.rate; }
         y.estQty=(y.estQty||[]).concat([l]); return [null,lineView(l)]; }); },
     remove_line:function(a){ var i=idx(a.index); return change('remove_line','#'+i,function(y){ var b=lineView(y.estQty[i]); y.estQty=y.estQty.filter(function(_,j){return j!==i;}); return [b,null]; }); },
@@ -732,6 +919,319 @@ function Chat(props){
       h('div',{className:'card'},h('div',{className:'row',style:{justifyContent:'space-between'}},h('h2',{style:{margin:0}},'Correction log'),h('button',{className:'btn small',onClick:undoLast,disabled:!hasUndo},'Undo last change')),
         corr.length? corr.map(function(e,i){ return h('div',{key:i,className:'total',style:{fontSize:12}},h('span',null,h('b',null,e.kind.replace(/_/g,' ')),' ',e.target,h('div',{className:'dim'},String(e.request||'').slice(0,70))),h('span',{className:'dim num'},String(e.at).slice(5,16).replace('T',' '))); })
         : h('div',{className:'dim'},'No corrections yet. Every change made here is saved with what you asked for, so DEMEX can learn from it.'))));
+}
+
+/* ---------- Icons (24px stroke set) ---------- */
+var ICONS={
+  dashboard:'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z', projects:'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
+  rates:'M20.6 13.4l-7.2 7.2a2 2 0 01-2.8 0L3 13V3h10l7.6 7.6a2 2 0 010 2.8zM7.5 7.5h.01',
+  settings:'M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0M14 4v4M8 10v4M16 16v4', home:'M3 11l9-8 9 8M5 10v10h14V10',
+  select:'M5 3l14 8-6 2-3 6z', pan:'M12 2v20M2 12h20M12 2l-3 3M12 2l3 3M12 22l-3-3M12 22l3-3M2 12l3-3M2 12l3 3M22 12l-3-3M22 12l-3 3',
+  area:'M4 7l8-4 8 5-2 11-12 1z', linear:'M4 20L20 4M3 18l3 3M18 3l3 3', count:'M7 7m-2.5 0a2.5 2.5 0 105 0 2.5 2.5 0 10-5 0M17 7m-2.5 0a2.5 2.5 0 105 0 2.5 2.5 0 10-5 0M12 17m-2.5 0a2.5 2.5 0 105 0 2.5 2.5 0 10-5 0',
+  scale:'M3 17l14-14 4 4-14 14zM7 13l2 2M10 10l2 2M13 7l2 2', upload:'M12 16V4M7 9l5-5 5 5M4 20h16',
+  fit:'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5', zin:'M11 11m-7 0a7 7 0 1014 0 7 7 0 10-14 0M21 21l-5-5M11 8v6M8 11h6', zout:'M11 11m-7 0a7 7 0 1014 0 7 7 0 10-14 0M21 21l-5-5M8 11h6',
+  doc:'M14 3H6v18h12V7zM14 3v4h4M9 13h6M9 17h6'};
+function Icon(props){ return h('svg',{className:'ico',viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:1.8,strokeLinecap:'round',strokeLinejoin:'round','aria-hidden':true},h('path',{d:ICONS[props.n]})); }
+
+/* ---------- Product illustrations for the main page (static SVG, sample numbers) ---------- */
+var MONO='JetBrains Mono,ui-monospace,monospace';
+function mockFrame(w,hh,label,activeTab){
+  var o='<svg viewBox="0 0 '+w+' '+hh+'" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" role="img" aria-label="'+label+'"><rect width="'+w+'" height="'+hh+'" fill="#0F1620"/><rect width="'+w+'" height="34" fill="#141C28"/>'+
+    '<circle cx="16" cy="17" r="4" fill="#FF5C5C"/><circle cx="30" cy="17" r="4" fill="#F3B23E"/><circle cx="44" cy="17" r="4" fill="#4FD18B"/>'+
+    '<text x="64" y="21" fill="#8A99AD" font-size="11">Bids /</text><text x="101" y="21" fill="#fff" font-size="11" font-weight="600">Retail interior strip-out</text>';
+  ['Plans &amp; takeoff','Worksheet','Estimate','Proposal'].forEach(function(t,i){ var x=w-330+i*82, on=i===activeTab;
+    o+='<rect x="'+x+'" y="8" width="76" height="18" rx="9" fill="'+(on?'#0A84FF':'#1E2837')+'"/><text x="'+(x+38)+'" y="20.5" fill="'+(on?'#fff':'#8A99AD')+'" font-size="9.5" font-weight="600" text-anchor="middle">'+t+'</text>'; });
+  return o; }
+var MOCK_WS=(function(){
+  var o=mockFrame(760,470,'Estimatio takeoff workspace: plan sheets, measuring tools and colour-coded takeoff items',0);
+  o+='<line x1="140" y1="34" x2="140" y2="470" stroke="#26303f"/><text x="12" y="54" fill="#fff" font-size="11" font-weight="600">Plans</text><text x="128" y="54" fill="#3B9DFF" font-size="10" text-anchor="end">+ Upload</text>';
+  ['A-101','A-102','A-103','M-101','E-101'].forEach(function(n,i){ var y=66+i*56;
+    o+='<rect x="8" y="'+y+'" width="124" height="48" rx="6" fill="'+(i?'none':'rgba(10,132,255,.12)')+'" stroke="'+(i?'none':'#0A84FF')+'"/><rect x="14" y="'+(y+7)+'" width="42" height="34" rx="3" fill="#fff"/>'+
+      '<path d="M18 '+(y+11)+'h34v26H18z M18 '+(y+24)+'h20 M38 '+(y+11)+'v26" stroke="#9aa4b2" stroke-width="1" fill="none"/>'+
+      '<text x="64" y="'+(y+21)+'" fill="#fff" font-size="9.5" font-weight="600">'+n+'</text><text x="64" y="'+(y+34)+'" fill="#566476" font-size="8.5">'+(i<3?'scale set':'no scale')+'</text>'; });
+  o+='<rect x="141" y="34" width="418" height="28" fill="#141C28"/>';
+  ['Select','Pan','Area','Linear','Count','Scale'].forEach(function(t,i){ var x=148+i*52, on=t==='Area';
+    o+='<rect x="'+x+'" y="40" width="48" height="16" rx="4" fill="'+(on?'rgba(10,132,255,.2)':'none')+'" stroke="'+(on?'#0A84FF':'none')+'"/><text x="'+(x+24)+'" y="51.5" fill="'+(on?'#fff':'#8A99AD')+'" font-size="9" text-anchor="middle">'+t+'</text>'; });
+  o+='<text x="550" y="51.5" fill="#8A99AD" font-size="9" text-anchor="end">42%</text><rect x="141" y="62" width="418" height="380" fill="#232b37"/><rect x="166" y="76" width="368" height="352" fill="#fff"/>';
+  o+='<path d="M188 98h324v308H188z" fill="none" stroke="#1f2933" stroke-width="3"/><path d="M188 236h170M358 98v202M358 300h154M282 236v170M430 300v106" fill="none" stroke="#1f2933" stroke-width="2.2"/>';
+  o+='<path d="M196 108h16M196 114h26M372 108h30M372 114h18M440 316h22" stroke="#c5ccd6" stroke-width="1.2"/>';
+  o+='<path d="M190 100H356V234H190Z" fill="#0A84FF" fill-opacity=".28" stroke="#0A84FF" stroke-width="2"/><path d="M360 100H510V298H360Z" fill="#2AD1B8" fill-opacity=".26" stroke="#2AD1B8" stroke-width="2"/>';
+  o+='<path d="M192 240H278V402H192Z" fill="none" stroke="#B07CFF" stroke-width="3"/><path d="M286 238H356V302H428V404" fill="none" stroke="#FF5C5C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>';
+  [[215,265],[255,265],[215,320],[255,320],[215,372],[255,372],[310,340],[340,370],[470,340],[490,380]].forEach(function(c){ o+='<circle cx="'+c[0]+'" cy="'+c[1]+'" r="5" fill="#F3B23E" stroke="#0B111A" stroke-width="1.5"/>'; });
+  o+='<path d="M434 304H508V402H452" fill="#0A84FF" fill-opacity=".12" stroke="#0A84FF" stroke-width="1.5" stroke-dasharray="5 4"/>';
+  [[434,304],[508,304],[508,402],[452,402]].forEach(function(c){ o+='<circle cx="'+c[0]+'" cy="'+c[1]+'" r="3.5" fill="#fff" stroke="#0047AB" stroke-width="1.5"/>'; });
+  o+='<text x="273" y="172" fill="#0047AB" font-size="12" font-weight="700" text-anchor="middle">1,486 SF</text><text x="435" y="204" fill="#0a7f6f" font-size="12" font-weight="700" text-anchor="middle">1,000 SF</text>';
+  o+='<rect x="141" y="442" width="418" height="28" fill="#141C28"/><text x="152" y="460" fill="#8A99AD" font-size="9.5">Scale calibrated · Area tool · Demo flooring to slab</text><text x="548" y="460" fill="#fff" font-size="9.5" text-anchor="end" font-family="'+MONO+'">612 SF</text>';
+  o+='<line x1="560" y1="34" x2="560" y2="470" stroke="#26303f"/><text x="572" y="54" fill="#fff" font-size="11" font-weight="600">Takeoff items</text><text x="748" y="54" fill="#3B9DFF" font-size="10" text-anchor="end">Worksheet →</text>';
+  [['#0A84FF','Demo flooring to slab','3 marks · Area','2,486 SF'],['#2AD1B8','Demo ACT ceiling + grid','2 marks · Area','2,486 SF'],['#FF5C5C','Demo partition walls','4 marks · Linear','148 LF'],['#B07CFF','Demo wall base','2 marks · Linear','312 LF'],['#F3B23E','Light fixtures','10 marks · Count','10 EA']].forEach(function(it,i){ var y=66+i*48;
+    o+='<rect x="568" y="'+y+'" width="184" height="40" rx="6" fill="#141C28" stroke="'+(i?'#26303f':'#0A84FF')+'"/><rect x="577" y="'+(y+9)+'" width="10" height="10" rx="2" fill="'+it[0]+'"/>'+
+      '<text x="594" y="'+(y+17)+'" fill="#fff" font-size="9.5" font-weight="600">'+it[1]+'</text><text x="594" y="'+(y+30)+'" fill="#566476" font-size="8.5">'+it[2]+'</text><text x="744" y="'+(y+30)+'" fill="#fff" font-size="9" text-anchor="end" font-family="'+MONO+'">'+it[3]+'</text>'; });
+  o+='<rect x="568" y="398" width="184" height="58" rx="8" fill="rgba(10,132,255,.1)" stroke="#0A84FF" stroke-opacity=".4"/><text x="578" y="418" fill="#8A99AD" font-size="9">Direct cost</text><text x="742" y="418" fill="#fff" font-size="10" text-anchor="end" font-family="'+MONO+'">$14,860</text>'+
+    '<text x="578" y="442" fill="#8A99AD" font-size="9">Proposal total</text><text x="742" y="442" fill="#3B9DFF" font-size="12" font-weight="700" text-anchor="end" font-family="'+MONO+'">$19,288</text>';
+  return o+'</svg>'; })();
+var MOCK_EST=(function(){
+  var o=mockFrame(760,430,'Estimatio worksheet: scope of work turned into priced takeoff lines',1);
+  o+='<rect x="16" y="50" width="230" height="364" rx="10" fill="#141C28" stroke="#26303f"/><text x="30" y="74" fill="#fff" font-size="11" font-weight="600">Scope of work</text>';
+  [[150,0],[196,1],[120,0],[180,0],[160,1],[200,0],[90,0],[176,1],[140,0],[188,0],[110,0],[170,1],[130,0]].forEach(function(b,i){ var y=90+i*17;
+    o+='<rect x="30" y="'+y+'" width="'+b[0]+'" height="7" rx="3.5" fill="'+(b[1]?'rgba(10,132,255,.45)':'#26303f')+'"/>'; });
+  o+='<rect x="30" y="370" width="202" height="28" rx="14" fill="#0A84FF"/><text x="131" y="388" fill="#fff" font-size="10" font-weight="600" text-anchor="middle">✦ Suggest lines from scope</text>';
+  o+='<rect x="262" y="50" width="482" height="24" rx="5" fill="#141C28"/>';
+  [['Item',274,'start'],['Qty',548,'end'],['Unit',558,'start'],['Rate',640,'end'],['Total',734,'end']].forEach(function(c){ o+='<text x="'+c[1]+'" y="66" fill="#566476" font-size="8.5" font-weight="600" letter-spacing=".08em" text-anchor="'+c[2]+'">'+c[0].toUpperCase()+'</text>'; });
+  [['#0A84FF','Demo flooring to slab','2,486','SF','$1.05','$2,610',0,'Measured on A-101'],['#2AD1B8','Demo ACT ceiling + grid','2,486','SF','$1.28','$3,182',0,'Measured on A-102'],['#FF5C5C','Demo partition walls','148','LF','$6.50','$962',0,'Measured on A-101'],['#F3B23E','Light fixtures','10','EA','$30.00','$300',0,'Counted on E-101'],['#B07CFF','Demo wall base','312','LF','$0.88','$275',1,'From scope · verify on A-101'],['#3BC9F5','Disposal (30yd dumpster)','4','EA','$650.00','$2,600',1,'From scope: 4 pulls']].forEach(function(r,i){ var y=78+i*40;
+    o+='<line x1="262" y1="'+(y+39)+'" x2="744" y2="'+(y+39)+'" stroke="#1E2837"/><rect x="274" y="'+(y+10)+'" width="9" height="9" rx="2" fill="'+r[0]+'"/>'+
+      '<text x="290" y="'+(y+18)+'" fill="#fff" font-size="10" font-weight="600">'+r[1]+'</text><text x="290" y="'+(y+31)+'" fill="#566476" font-size="8.5">'+r[7]+'</text>'+
+      (r[6]?'<rect x="'+(296+r[1].length*5.4)+'" y="'+(y+9)+'" width="20" height="12" rx="6" fill="rgba(42,209,184,.18)"/><text x="'+(306+r[1].length*5.4)+'" y="'+(y+18)+'" fill="#2AD1B8" font-size="7.5" font-weight="700" text-anchor="middle">AI</text>':'')+
+      '<text x="548" y="'+(y+22)+'" fill="#fff" font-size="10" text-anchor="end" font-family="'+MONO+'">'+r[2]+'</text><text x="558" y="'+(y+22)+'" fill="#8A99AD" font-size="9">'+r[3]+'</text>'+
+      '<text x="640" y="'+(y+22)+'" fill="#8A99AD" font-size="10" text-anchor="end" font-family="'+MONO+'">'+r[4]+'</text><text x="734" y="'+(y+22)+'" fill="#fff" font-size="10" text-anchor="end" font-family="'+MONO+'">'+r[5]+'</text>'; });
+  [['Direct cost','$9,929'],['Overhead 10%','$993'],['Profit 18%','$1,966']].forEach(function(t,i){ var y=340+i*16;
+    o+='<text x="560" y="'+y+'" fill="#8A99AD" font-size="9.5">'+t[0]+'</text><text x="734" y="'+y+'" fill="#fff" font-size="9.5" text-anchor="end" font-family="'+MONO+'">'+t[1]+'</text>'; });
+  o+='<line x1="560" y1="385" x2="734" y2="385" stroke="#26303f"/><text x="560" y="404" fill="#fff" font-size="11" font-weight="700">Proposal total</text><text x="734" y="404" fill="#3B9DFF" font-size="13" font-weight="700" text-anchor="end" font-family="'+MONO+'">$12,888</text>';
+  return o+'</svg>'; })();
+
+/* ---------- Main page: what Estimatio is, for people arriving at the site ---------- */
+var LP_TRADES=[['Interior selective demolition','#FF5C5C'],['Ceilings & soffits','#FF5C5C'],['MEP removal','#FF5C5C'],['Concrete & masonry','#FF5C5C'],['Exterior & sitework demo','#FF5C5C'],['Resilient · LVT / VCT / sheet','#2AD1B8'],['Carpet tile & broadloom','#2AD1B8'],['Ceramic & porcelain tile','#2AD1B8'],['Wood & laminate','#2AD1B8'],['Floor prep & moisture','#2AD1B8'],['Bathroom remodels','#0A84FF'],['Base, trim & transitions','#0A84FF']];
+var LP_FAQ=[
+  ['What is Estimatio?','The estimating engine of the DEMEX ecosystem: plan takeoff, pricing and proposals for commercial demolition and flooring contractors, in one workspace.'],
+  ['How do plan takeoffs work?','Upload a PDF plan set or sheet images. Calibrate each sheet by clicking both ends of a known dimension and typing its real length. Then trace areas (SF), runs (LF) and counts (EA). Every mark belongs to a takeoff item, and its quantity updates as you draw.'],
+  ['Does the AI make up quantities?','No. It suggests catalog line items and fills in a quantity only when the scope states one. Everything else stays at zero with a note saying what to measure, and every AI line is labelled so you can check it before pricing.'],
+  ['Which trades are covered?','Commercial selective demolition, flooring (resilient, carpet, tile, wood, prep) and bathroom remodels. Every rate in the library is editable, with Lean, Market and Premium tiers and per-item adjustments.'],
+  ['Where is my data saved?','Bids, quantities, marks and rates save to your workspace: the DEMEX server when you sign in, or the page’s shared database. Plan-sheet images stay in the browser that uploaded them, so large plan sets never leave your machine.'],
+  ['How does Estimatio connect to DEMEX?','Demolition rate ids match DEMEX one for one. On the Bids page, “Send demolition bids to DEMEX” exports a file that DEMEX’s Pipeline import accepts, so the bid lands in your pipeline with its quantities and price.'],
+  ['Can I correct an estimate in plain English?','Yes. Ask Estimatio takes instructions like “make the base bid $18,000” or “add an exclusion for roof patching”, edits the bid, and logs every change so it can be reviewed or undone.']];
+function Landing(props){
+  var go=props.go, start=props.start, tab=useState('diy');
+  function to(id){ var el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
+  function mock(svg){ return h('div',{className:'mock',dangerouslySetInnerHTML:{__html:svg}}); }
+  var tabs={
+    diy:{t:'Measure every quantity on the drawings.',svg:MOCK_WS,c:[['Upload the plan set.','PDF pages and sheet images become a sheet list, ready to open.'],['Calibrate once per sheet.','Click a known dimension, type its length, done.'],['Area, linear and count tools.','Colour-coded by takeoff item, with quantities that add up as you draw.'],['No retyping.','Measured quantities flow straight into pricing and the proposal.']]},
+    ai:{t:'Paste the scope. Get a draft takeoff.',svg:MOCK_EST,c:[['Matched to your catalog.','Line items come from your own rate library, never invented.'],['Traceable.','Every AI line says where it came from and what still needs measuring.'],['Nothing dropped.','Scope items with no catalog match are listed for you to price.'],['Plain-English corrections.','“Set the dumpsters to 5 pulls” edits the bid and logs the change.']]}};
+  var T=tabs[tab[0]];
+  return h('div',{className:'lp'},
+    h('div',{className:'announce'},'New: measure area, linear and count takeoffs right on your plan sheets.',h('a',{href:'#dashboard',onClick:function(e){e.preventDefault();go('dashboard');}},'Open the workspace →')),
+    h('header',{className:'lnav'},h('div',{className:'wrap'},
+      h('a',{className:'brand',href:'#home',onClick:function(e){e.preventDefault();window.scrollTo(0,0);}},h('img',{src:LENS,alt:''}),'estimatio'),
+      h('nav',{className:'links','aria-label':'Main page'},[['product','Product'],['trades','Trades'],['how','How it works'],['faq','FAQ']].map(function(x){ return h('a',{key:x[0],href:'#'+x[0],onClick:function(e){e.preventDefault();to(x[0]);}},x[1]); })),
+      h('div',{className:'spacer'}),
+      h('button',{className:'btn ghost',onClick:function(){go('dashboard');}},'Open workspace'),
+      h('button',{className:'btn primary',style:{borderRadius:999},onClick:start},'Start an estimate'))),
+    h('section',{className:'lhero'},h('div',{className:'wrap'},
+      h('div',null,
+        h('div',{className:'eyebrow'},'AI takeoff & estimating · demolition · flooring'),
+        h('h1',{className:'big'},'Takeoffs measured on the plans. Bids priced in minutes.'),
+        h('p',{className:'lede'},'Estimatio drafts your line items from the scope, lets you measure every quantity on the drawings, prices it with your own rate library and builds the proposal. Demolition bids hand straight off to DEMEX.'),
+        h('div',{className:'row',style:{marginTop:30,gap:12}},h('button',{className:'btn primary lg',onClick:start},'Start an estimate'),h('button',{className:'btn link',onClick:function(){to('product');}},'Take the product tour →')),
+        h('div',{className:'row',style:{marginTop:26,gap:18,color:'var(--fg2)',fontSize:13}},['Area, linear & count tools','Your rates, your markups','Proposal-ready output'].map(function(x){ return h('span',{key:x,className:'row',style:{gap:7}},h('i',{style:{width:6,height:6,borderRadius:'50%',background:'var(--green)',display:'inline-block'}}),x); }))),
+      mock(MOCK_WS))),
+    h('section',{className:'trust'},h('div',{className:'wrap'},
+      h('span',null,'Running live bids for'),
+      Object.keys(WORKSPACES).map(function(k){ var w=WORKSPACES[k]; return h('span',{key:k,className:'co'},h('i',null,w.short),h('span',null,w.name,h('span',{className:'dim',style:{display:'block',fontSize:12,fontWeight:400}},w.tag))); }),
+      h('span',{className:'co'},h('i',{style:{color:'var(--blue2)'}},'DX'),h('span',null,'DEMEX ecosystem',h('span',{className:'dim',style:{display:'block',fontSize:12,fontWeight:400}},'Qualora → Estimatio → DEMEX'))))),
+    h('section',{id:'product'},h('div',{className:'wrap',style:{textAlign:'center'}},
+      h('div',{className:'eyebrow'},'The platform'),h('h2',{className:'sec'},'Two ways to get the takeoff done'),
+      h('div',{className:'seg',role:'tablist'},[['diy','Measure it yourself'],['ai','AI-drafted']].map(function(t){ return h('button',{key:t[0],role:'tab','aria-selected':tab[0]===t[0],onClick:function(){tab[1](t[0]);}},t[1]); })),
+      h('div',{className:'split',style:{textAlign:'left'}},
+        h('div',null,h('h3',{style:{fontSize:28,letterSpacing:'-.025em',margin:0,lineHeight:1.15}},T.t),
+          h('ul',{className:'checks'},T.c.map(function(x,i){ return h('li',{key:i},h('span',null,h('b',null,x[0]),' ',x[1])); })),
+          h('button',{className:'btn primary lg',onClick:start},'Start an estimate')),
+        mock(T.svg)))),
+    h('section',{style:{background:'var(--bg2)'}},h('div',{className:'wrap'},
+      h('div',{className:'eyebrow'},'One workspace'),h('h2',{className:'sec'},'From plan set to signed proposal without switching tools'),
+      h('div',{className:'cards2'},
+        h('div',{className:'lcard'},h('h3',null,'Plan-sheet takeoffs'),h('p',null,'Upload the PDF set, calibrate each sheet from a known dimension, and trace areas, runs and counts. Every mark is colour-coded to its line item and adds up live.'),h('div',{className:'shot'},mock(MOCK_WS)),h('button',{className:'btn link',style:{alignSelf:'flex-start',color:'var(--blue2)',padding:'6px 0'},onClick:start},'Try a takeoff →')),
+        h('div',{className:'lcard'},h('h3',null,'Scope-to-estimate'),h('p',null,'Paste the ITB or RFP scope. Estimatio maps it to your rate library, flags what still needs measuring, and lists anything it could not match.'),h('div',{className:'shot'},mock(MOCK_EST)),h('button',{className:'btn link',style:{alignSelf:'flex-start',color:'var(--blue2)',padding:'6px 0'},onClick:start},'Draft from a scope →'))))),
+    h('section',null,h('div',{className:'wrap'},
+      h('div',{className:'eyebrow'},'Beyond takeoffs'),h('h2',{className:'sec'},'Price it, propose it, track it'),
+      h('div',{className:'cards3'},[
+        ['rates','Estimating','Midpoint rates from your library with Lean, Market and Premium tiers, a region factor, overhead, profit and materials-only tax.'],
+        ['doc','Proposals','A clean, print-ready proposal with unit pricing, inclusions, exclusions and terms from your company profile.'],
+        ['dashboard','Bid management','A bid board with due dates, status, pipeline value and win rate, plus one-click hand-off of demolition bids to DEMEX.']].map(function(c){
+          return h('div',{key:c[1],className:'lcard'},h('span',{className:'ic'},h(Icon,{n:c[0]})),h('h3',null,c[1]),h('p',null,c[2])); })))),
+    h('section',{id:'trades',style:{background:'var(--bg2)'}},h('div',{className:'wrap'},
+      h('div',{className:'eyebrow'},'Trades'),h('h2',{className:'sec'},'Built around the work you actually bid'),
+      h('p',{className:'lede'},'A rate library of '+DB.rates.length+' items across demolition, flooring and bathroom remodels. It’s editable and tiered, and demolition rates are shared with DEMEX.'),
+      h('div',{className:'tradegrid'},LP_TRADES.map(function(t){ return h('div',{key:t[0]},h('i',{style:{background:t[1]}}),t[0]); })))),
+    h('section',{id:'how'},h('div',{className:'wrap'},
+      h('div',{className:'eyebrow'},'How it works'),h('h2',{className:'sec'},'Four steps from invite to proposal'),
+      h('div',{className:'stepsl'},[['Create the bid','Client, address, due date and the scope from the invitation.'],['Upload & scale the plans','Drop in the PDF set and calibrate each sheet from a known dimension.'],['Measure or let AI draft','Trace areas, runs and counts, or start from AI-suggested lines and verify them.'],['Price, propose, hand off','Rates and markups apply automatically. Send the proposal and push demolition bids to DEMEX.']].map(function(s){
+        return h('div',{key:s[0]},h('b',null,s[0]),h('span',null,s[1])); })))),
+    h('section',{style:{paddingTop:20}},h('div',{className:'wrap'},h('div',{className:'ctaband'},
+      h('h2',{className:'sec'},'Your next bid starts here'),
+      h('p',null,'Create a bid, drop in the plans, and have a priced proposal ready before it’s due.'),
+      h('div',{className:'row',style:{justifyContent:'center',gap:12}},h('button',{className:'btn primary lg',onClick:start},'Start an estimate'),h('button',{className:'btn lg ghostw',onClick:function(){go('dashboard');}},'Open the workspace'))))),
+    h('section',{id:'faq',style:{paddingTop:20}},h('div',{className:'wrap'},
+      h('div',{style:{textAlign:'center'}},h('div',{className:'eyebrow'},'FAQ'),h('h2',{className:'sec'},'Questions estimators ask')),
+      h('div',{className:'faq'},LP_FAQ.map(function(f,i){ return h('details',{key:i},h('summary',null,f[0]),h('p',null,f[1])); })))),
+    h('footer',{className:'lfoot'},h('div',{className:'wrap'},
+      h('div',{className:'cols'},
+        h('div',null,h('a',{className:'brand',href:'#home',onClick:function(e){e.preventDefault();window.scrollTo(0,0);}},h('img',{src:LENS,alt:''}),'estimatio'),h('p',{className:'muted',style:{maxWidth:290,fontSize:14,lineHeight:1.55}},'AI takeoff and estimating for demolition and flooring contractors. Part of the DEMEX ecosystem.')),
+        h('div',null,h('h4',null,'Product'),[['Takeoff','product'],['Trades','trades'],['How it works','how'],['FAQ','faq']].map(function(x){ return h('a',{key:x[1],href:'#'+x[1],onClick:function(e){e.preventDefault();to(x[1]);}},x[0]); })),
+        h('div',null,h('h4',null,'Workspace'),[['Dashboard','dashboard'],['Bids','projects'],['Rate library','rates'],['Settings','settings']].map(function(x){ return h('a',{key:x[1],href:'#'+x[1],onClick:function(e){e.preventDefault();go(x[1]);}},x[0]); })),
+        h('div',null,h('h4',null,'Ecosystem'),SERVER.on
+          ? [['DEMEX','/demex/'],['Qualora','/qualora/'],['Hub','/hub/']].map(function(x){ return h('a',{key:x[0],href:x[1]},x[0]); })
+          : ['Qualora · find the work','Estimatio · price the work','DEMEX · win and run it'].map(function(x){ return h('span',{key:x,className:'muted',style:{display:'block',fontSize:14,padding:'4px 0'}},x); }))),
+      h('div',{className:'dim',style:{marginTop:36,fontSize:12}},'© '+new Date().getFullYear()+' Estimatio · Disassemble Dynamics, Inc.'))));
+}
+
+/* ---------- Plans & takeoff: sheet list | plan viewer with tools | takeoff items ---------- */
+var TOOLS=[['select','Select','V'],['pan','Pan','H'],['area','Area','A'],['linear','Linear','L'],['count','Count','C'],['scale','Set scale','S']];
+var UNIT_OF={area:'SF',linear:'LF',count:'EA'};
+function SheetThumb(props){ var url=useSheetUrl(props.id); return h('span',{className:'th',style:url?{backgroundImage:'url('+url+')'}:null}); }
+function PlanTakeoff(props){
+  var p=props.p, sheets=p.sheets||[], lines=p.estQty||[];
+  var lidSet={}; lines.forEach(function(l){ if(l.lid) lidSet[l.lid]=1; });
+  var marks=(p.marks||[]).filter(function(m){ return lidSet[m.lid]; });
+  var sidS=useState(sheets[0]?sheets[0].id:null), toolS=useState('select'), actS=useState(null), ptsS=useState([]), hovS=useState(null),
+      viewS=useState({z:0.25,x:20,y:20}), selS=useState(null), calS=useState(false), feetS=useState(''), busyS=useState(''), addS=useState(''), delS=useState(false);
+  var vpRef=React.useRef(null), drag=React.useRef(null), panned=React.useRef(false), space=React.useRef(false), keyRef=React.useRef(null);
+  var sheet=sheets.filter(function(s){ return s.id===sidS[0]; })[0]||sheets[0]||null;
+  var url=useSheetUrl(sheet&&sheet.id), V=viewS[0], tool=toolS[0], pts=ptsS[0];
+  var active=lines.filter(function(l){ return l.lid&&l.lid===actS[0]; })[0]||null;
+  var cat=catFor(p), groups={}; cat.forEach(function(r){ (groups[r.cat]=groups[r.cat]||[]).push(r); });
+  useEffect(function(){ if(lines.some(function(l){ return !l.lid; })) commit(function(){ var x=proj(p.id); (x.estQty||[]).forEach(function(l){ if(!l.lid) l.lid=uid('ln'); }); }); },[lines.length]);
+  function fit(){ var el=vpRef.current; if(!el||!sheet) return; var r=el.getBoundingClientRect(); if(!r.width) return;
+    var z=Math.max(0.02,Math.min((r.width-32)/sheet.w,(r.height-32)/sheet.h)); viewS[1]({z:z,x:(r.width-sheet.w*z)/2,y:(r.height-sheet.h*z)/2}); }
+  useEffect(function(){ fit(); ptsS[1]([]); selS[1](null); calS[1](false); delS[1](false); },[sheet&&sheet.id]);
+  useEffect(function(){ var el=vpRef.current; if(!el) return;
+    function wh(e){ e.preventDefault(); var r=el.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top;
+      viewS[1](function(v){ var z=Math.max(0.02,Math.min(8,v.z*(e.deltaY<0?1.15:1/1.15))); return {z:z,x:mx-(mx-v.x)*z/v.z,y:my-(my-v.y)*z/v.z}; }); }
+    el.addEventListener('wheel',wh,{passive:false}); return function(){ el.removeEventListener('wheel',wh); }; },[]);
+  function zoomBy(f){ var el=vpRef.current; if(!el) return; var r=el.getBoundingClientRect(), mx=r.width/2, my=r.height/2;
+    viewS[1](function(v){ var z=Math.max(0.02,Math.min(8,v.z*f)); return {z:z,x:mx-(mx-v.x)*z/v.z,y:my-(my-v.y)*z/v.z}; }); }
+  function setTool(t){ toolS[1](t); ptsS[1]([]); calS[1](false); hovS[1](null); }
+  function toolForItem(l){ var t=toolFor(rinfo(l.svc).unit); return t==='count'||(sheet&&sheet.ftPerPx)?t:(sheet?'scale':'select'); }
+  function pick(l){ actS[1](l.lid); selS[1](null);
+    var mine=marks.filter(function(m){ return m.lid===l.lid; });
+    if(mine.length&&sheet&&!mine.some(function(m){ return m.sheet===sheet.id; })) sidS[1](mine[0].sheet);
+    var t=toolForItem(l); setTool(t); if(t==='scale') toast('Set the scale on this sheet first: click both ends of a known dimension'); }
+  function toImg(e){ var r=vpRef.current.getBoundingClientRect(); return [Math.round((e.clientX-r.left-V.x)/V.z*10)/10,Math.round((e.clientY-r.top-V.y)/V.z*10)/10]; }
+  function canDraw(type){ if(!sheet) return false;
+    if(!active){ toast('Pick a takeoff item on the right, or add one, first','err'); return false; }
+    var ri=rinfo(active.svc), want=toolFor(ri.unit);
+    if(want!==type){ toast(ri.label+' is measured in '+ri.unit+'. Use the '+want[0].toUpperCase()+want.slice(1)+' tool','err'); return false; }
+    if(type!=='count'&&!sheet.ftPerPx){ toast('Set the scale on this sheet first','err'); setTool('scale'); return false; }
+    return true; }
+  function addMark(type,P){ var lid=active.lid, shid=sheet.id; commit(function(){ var x=proj(p.id); x.marks=(x.marks||[]).concat([{id:uid('mk'),lid:lid,sheet:shid,type:type,pts:P}]); syncQty(x); }); }
+  function finish(){ var P=pts.filter(function(q,i){ return !i||Math.hypot(q[0]-pts[i-1][0],q[1]-pts[i-1][1])>0.5; });
+    if(tool==='area'&&P.length>=3) addMark('area',P); else if(tool==='linear'&&P.length>=2) addMark('linear',P);
+    else if(P.length) toast(tool==='area'?'An area needs at least 3 points':'A run needs at least 2 points','err');
+    ptsS[1]([]); }
+  function delMark(id){ commit(function(){ var x=proj(p.id); x.marks=(x.marks||[]).filter(function(m){ return m.id!==id; }); syncQty(x); }); selS[1](null); }
+  function onClick(e){ if(panned.current){ panned.current=false; return; } if(!sheet||tool==='pan'||space.current) return; var pt=toImg(e);
+    if(tool==='select'){ selS[1](null); return; }
+    if(tool==='scale'){ if(pts.length===1){ ptsS[1]([pts[0],pt]); calS[1](true); feetS[1](''); } else { ptsS[1]([pt]); calS[1](false); } return; }
+    if(!canDraw(tool)) return;
+    if(tool==='count'){ addMark('count',[pt]); return; }
+    ptsS[1](pts.concat([pt])); }
+  function down(e){ if(e.button===1||tool==='pan'||space.current){ e.preventDefault(); drag.current={x:e.clientX,y:e.clientY,vx:V.x,vy:V.y,moved:false}; try{ e.currentTarget.setPointerCapture(e.pointerId); }catch(_){} } }
+  function move(e){ var d=drag.current;
+    if(d){ if(Math.abs(e.clientX-d.x)+Math.abs(e.clientY-d.y)>3) d.moved=true; viewS[1]({z:V.z,x:d.vx+e.clientX-d.x,y:d.vy+e.clientY-d.y}); return; }
+    if(sheet&&pts.length&&(tool==='area'||tool==='linear'||tool==='scale')) hovS[1](toImg(e)); }
+  function up(){ if(drag.current&&drag.current.moved) panned.current=true; drag.current=null; }
+  function applyScale(e){ if(e) e.preventDefault(); var ft=parseFeet(feetS[0]), a=pts[0], b=pts[1], px=a&&b?Math.hypot(b[0]-a[0],b[1]-a[1]):0;
+    if(!(ft>0)||!(px>2)){ toast('Enter the real length, e.g. 24 or 24\'6"','err'); return; }
+    var shid=sheet.id, note=String(feetS[0]).trim();
+    commit(function(){ var x=proj(p.id); x.sheets=(x.sheets||[]).map(function(s){ return s.id===shid?Object.assign({},s,{ftPerPx:ft/px,scaleNote:note}):s; }); syncQty(x); });
+    toast('Scale set on '+(sheet.name||'this sheet')+'. Quantities on it are updated.'); calS[1](false); ptsS[1]([]); toolS[1](active?toolFor(rinfo(active.svc).unit):'select'); }
+  keyRef.current=function(e,isUp){ var t=e.target, tag=t&&t.tagName;
+    if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||(t&&t.isContentEditable)) return;
+    if(e.key===' '){ if(t===document.body||(vpRef.current&&vpRef.current.contains(t))){ space.current=!isUp; e.preventDefault(); } return; }
+    if(isUp||e.ctrlKey||e.metaKey||e.altKey) return;
+    var k=e.key.toLowerCase(), map={v:'select',h:'pan',a:'area',l:'linear',c:'count',s:'scale'};
+    if(!sheet) return;
+    if(map[k]){ setTool(map[k]); return; }
+    if(k==='escape'){ ptsS[1]([]); calS[1](false); selS[1](null); return; }
+    if(k==='enter'){ finish(); return; }
+    if(k==='f'){ fit(); return; } if(k==='+'||k==='='){ zoomBy(1.25); return; } if(k==='-'){ zoomBy(0.8); return; }
+    if(k==='backspace'||k==='delete'){ if(pts.length){ ptsS[1](pts.slice(0,-1)); e.preventDefault(); } else if(selS[0]){ delMark(selS[0]); e.preventDefault(); } } };
+  useEffect(function(){ function kd(e){ keyRef.current(e,false); } function ku(e){ keyRef.current(e,true); }
+    window.addEventListener('keydown',kd); window.addEventListener('keyup',ku); return function(){ window.removeEventListener('keydown',kd); window.removeEventListener('keyup',ku); }; },[]);
+  function upload(e){ var files=[].slice.call(e.target.files||[]); e.target.value=''; if(!files.length) return; var added=[]; busyS[1]('Reading plans…');
+    files.reduce(function(ch,f){ return ch.then(function(){ return fileToSheets(f).then(function(list){ return list.reduce(function(c2,s){ return c2.then(function(){ var id=uid('sh');
+      return IMG.put(id,s.blob).then(function(){ added.push({id:id,name:s.name,w:s.w,h:s.h,ftPerPx:0,addedAt:new Date().toISOString()}); busyS[1]('Reading plans… '+added.length+' sheet'+(added.length>1?'s':'')); }); }); },Promise.resolve()); }); }); },Promise.resolve())
+    .catch(function(err){ toast(err&&err.message||'Could not read that file','err'); })
+    .then(function(){ busyS[1](''); if(!added.length) return; commit(function(){ var x=proj(p.id); x.sheets=(x.sheets||[]).concat(added); }); sidS[1](added[0].id); setTool('scale');
+      toast(added.length+' sheet'+(added.length>1?'s':'')+' added. Set the scale: click both ends of a known dimension.'); }); }
+  function delSheet(){ if(!sheet) return; if(!delS[0]){ delS[1](true); return; } var shid=sheet.id;
+    commit(function(){ var x=proj(p.id); x.sheets=(x.sheets||[]).filter(function(s){ return s.id!==shid; }); x.marks=(x.marks||[]).filter(function(m){ return m.sheet!==shid; }); syncQty(x); });
+    IMG.del(shid).catch(function(){}); if(SHEET_URLS[shid]){ URL.revokeObjectURL(SHEET_URLS[shid]); delete SHEET_URLS[shid]; } sidS[1](null); delS[1](false); toast('Sheet removed'); }
+  function rename(v){ var shid=sheet.id; commit(function(){ var x=proj(p.id); x.sheets=(x.sheets||[]).map(function(s){ return s.id===shid?Object.assign({},s,{name:v}):s; }); }); }
+  function addItem(){ var svc=addS[0]; if(!svc) return; var l={lid:uid('ln'),svc:svc,qty:'',rate:'',mat:'',note:'Measured on plans'};
+    commit(function(){ var x=proj(p.id); x.estQty=(x.estQty||[]).concat([l]); }); addS[1](''); actS[1](l.lid); setTool(toolForItem(l)); }
+
+  var shMarks=sheet?marks.filter(function(m){ return m.sheet===sheet.id; }):[], sw=1/V.z, c=calc(p);
+  var col=function(lid){ return lineColor(p,lid); }, actCol=active?col(active.lid):'#0A84FF';
+  var draftP=pts.concat(hovS[0]&&pts.length&&!calS[0]?[hovS[0]]:[]);
+  var liveQ=(tool==='area'||tool==='linear')&&draftP.length>1&&sheet&&sheet.ftPerPx?markQty({type:tool,pts:draftP},sheet):null;
+  var selM=selS[0]?marks.filter(function(m){ return m.id===selS[0]; })[0]:null;
+  function pathOf(P,closed){ return P.map(function(q,i){ return (i?'L':'M')+q[0]+' '+q[1]; }).join(' ')+(closed?' Z':''); }
+  function markEl(m){ var color=col(m.lid), on=m.lid===actS[0], isSel=m.id===selS[0];
+    var common={key:m.id,style:{pointerEvents:tool==='select'?'auto':'none',cursor:'pointer'},onClick:function(ev){ ev.stopPropagation(); selS[1](m.id); actS[1](m.lid); }};
+    if(m.type==='count') return h('circle',Object.assign(common,{cx:m.pts[0][0],cy:m.pts[0][1],r:(isSel?9:7)*sw,fill:color,stroke:isSel?'#fff':'#0B111A',strokeWidth:2*sw}));
+    return h('path',Object.assign(common,{d:pathOf(m.pts,m.type==='area'),fill:m.type==='area'?color:'none',fillOpacity:m.type==='area'?(on||isSel?.34:.2):0,stroke:color,
+      strokeWidth:(m.type==='linear'?4:2)*sw,strokeDasharray:isSel?(7*sw)+' '+(4*sw):null,strokeLinejoin:'round',strokeLinecap:'round'})); }
+  var selLabel=null;
+  if(selM&&sheet&&selM.sheet===sheet.id){ var P=selM.pts, cx=0, cy=0; P.forEach(function(q){ cx+=q[0]; cy+=q[1]; }); cx/=P.length; cy/=P.length;
+    selLabel=h('text',{x:cx,y:cy-(selM.type==='count'?14*sw:0),textAnchor:'middle',dominantBaseline:'middle',style:{font:'700 '+(13*sw)+'px Inter,sans-serif',paintOrder:'stroke',pointerEvents:'none'},fill:'#0B111A',stroke:'#fff',strokeWidth:4*sw},fmtQty(markQty(selM,sheet))+' '+UNIT_OF[selM.type]); }
+  var draftEl=draftP.length?h('g',{style:{pointerEvents:'none'}},
+    h('path',{d:pathOf(draftP,tool==='area'&&draftP.length>2),fill:tool==='area'?actCol:'none',fillOpacity:.16,stroke:tool==='scale'?'#F3B23E':actCol,strokeWidth:2*sw,strokeDasharray:(6*sw)+' '+(4*sw)}),
+    pts.map(function(q,i){ return h('circle',{key:i,cx:q[0],cy:q[1],r:4*sw,fill:'#fff',stroke:tool==='scale'?'#B07800':'#0047AB',strokeWidth:1.5*sw}); })):null;
+  var uploadInput=h('input',{type:'file',accept:'application/pdf,image/*',multiple:true,onChange:upload,style:{display:'none'}});
+
+  return h('div',{className:'tk'},
+    h('div',{className:'tk-pane l'},
+      h('div',{className:'tk-head'},h('span',null,'Plans ',h('span',{className:'dim'},sheets.length)),h('label',{className:'btn small',style:{cursor:'pointer'}},h(Icon,{n:'upload'}),' Upload',uploadInput)),
+      h('div',{className:'tk-list'},
+        busyS[0]?h('div',{className:'dim',style:{fontSize:12,padding:6}},busyS[0]):null,
+        sheets.length? sheets.map(function(s){ var n=marks.filter(function(m){ return m.sheet===s.id; }).length;
+          return h('button',{key:s.id,className:'sheet-i','aria-current':sheet&&s.id===sheet.id?'true':undefined,onClick:function(){ sidS[1](s.id); }},
+            h(SheetThumb,{id:s.id}),h('span',{style:{minWidth:0}},h('span',{className:'nm'},s.name||'Sheet'),h('span',{className:'mt',style:{color:s.ftPerPx?undefined:'var(--amber)'}},(s.ftPerPx?'scale set':'no scale')+(n?' · '+n+' mark'+(n>1?'s':''):'')))); })
+        : (busyS[0]?null:h('div',{className:'dim',style:{fontSize:12,padding:6,lineHeight:1.5}},'Upload PDF plan sets or sheet images. Each PDF page becomes a sheet.')))),
+    h('div',{className:'tk-center'},
+      h('div',{className:'tk-tools',role:'toolbar','aria-label':'Takeoff tools'},
+        TOOLS.map(function(t){ return h('button',{key:t[0],className:'tool','aria-pressed':tool===t[0],title:t[1]+' ('+t[2]+')',onClick:function(){ setTool(t[0]); },disabled:!sheet},h(Icon,{n:t[0]}),h('span',{className:'hide-sm'},t[1]),h('span',{className:'kbd hide-sm'},t[2])); }),
+        h('span',{className:'tk-sep'}),
+        h('button',{className:'tool',title:'Zoom out (-)','aria-label':'Zoom out',onClick:function(){ zoomBy(0.8); },disabled:!sheet},h(Icon,{n:'zout'})),
+        h('span',{className:'num dim',style:{fontSize:12,minWidth:42,textAlign:'center'}},sheet?Math.round(V.z*100)+'%':'—'),
+        h('button',{className:'tool',title:'Zoom in (+)','aria-label':'Zoom in',onClick:function(){ zoomBy(1.25); },disabled:!sheet},h(Icon,{n:'zin'})),
+        h('button',{className:'tool',title:'Fit sheet (F)','aria-label':'Fit sheet',onClick:fit,disabled:!sheet},h(Icon,{n:'fit'})),
+        h('div',{className:'spacer'}),
+        (tool==='area'||tool==='linear')&&pts.length?h('button',{className:'btn primary small',onClick:finish},'Finish (Enter)'):null),
+      h('div',{className:'vp',ref:vpRef,tabIndex:-1,style:{cursor:tool==='pan'?'grab':tool==='select'?'default':'crosshair'},onPointerDown:down,onPointerMove:move,onPointerUp:up,onPointerCancel:up,onClick:onClick,
+          onDoubleClick:function(e){ if(tool==='area'||tool==='linear'){ e.preventDefault(); finish(); } },onMouseLeave:function(){ hovS[1](null); }},
+        sheet? h('div',{className:'page',style:{width:sheet.w,height:sheet.h,transform:'translate('+V.x+'px,'+V.y+'px) scale('+V.z+')'}},
+            url? h('img',{src:url,width:sheet.w,height:sheet.h,alt:sheet.name||'Plan sheet',draggable:false})
+              : h('div',{className:'drop',style:{fontSize:14/V.z,color:'#555'}},h('div',null,h('b',{style:{color:'#111',fontSize:18/V.z}},url===''?'This sheet’s image is on another device':'Loading sheet…'),url===''?'Plan images stay in the browser that uploaded them. Marks and quantities are saved with the bid.':'')),
+            h('svg',{className:'ov',width:sheet.w,height:sheet.h,viewBox:'0 0 '+sheet.w+' '+sheet.h},shMarks.map(markEl),selLabel,draftEl))
+          : h('div',{className:'drop'},h('div',null,h('b',null,'Drop in the plans'),'Upload a PDF plan set or sheet images, set the scale from any known dimension, then measure with Area, Linear and Count.',
+              h('div',{style:{marginTop:16}},h('label',{className:'btn primary',style:{cursor:'pointer'}},'Upload plans',uploadInput)))),
+        calS[0]? h('form',{className:'calib',onSubmit:applyScale,onClick:function(e){ e.stopPropagation(); },onPointerDown:function(e){ e.stopPropagation(); },onDoubleClick:function(e){ e.stopPropagation(); }},
+            h('span',null,'Real length'),h('input',{autoFocus:true,value:feetS[0],placeholder:'e.g. 24\'6"',onChange:function(e){ feetS[1](e.target.value); },'aria-label':'Real length of the line in feet'}),
+            h('span',{className:'dim'},'ft'),h('button',{className:'btn primary small',type:'submit'},'Set scale'),h('button',{className:'btn ghost small',type:'button',onClick:function(){ calS[1](false); ptsS[1]([]); }},'Cancel')):null),
+      h('div',{className:'tk-status'},
+        sheet? h('input',{'aria-label':'Sheet name',value:sheet.name||'',onChange:function(e){ rename(e.target.value); },style:{width:160,padding:'3px 7px',fontSize:12}}):h('span',{className:'dim'},'No sheet open'),
+        sheet? (sheet.ftPerPx? h('span',null,'Scale calibrated'+(sheet.scaleNote?' from '+sheet.scaleNote+(/['"]/.test(sheet.scaleNote)?'':' ft'):'')) : h('span',{style:{color:'var(--amber)'}},'No scale yet. Press S, then click both ends of a known dimension')):null,
+        active? h('span',{className:'row',style:{gap:6,flexWrap:'nowrap'}},h('i',{style:{display:'inline-block',width:9,height:9,borderRadius:2,background:actCol}}),rinfo(active.svc).label):(sheet?h('span',{className:'dim'},'Pick a takeoff item to measure'):null),
+        liveQ!=null? h('span',{className:'num',style:{color:'#fff'}},fmtQty(liveQ)+' '+UNIT_OF[tool]):null,
+        tool==='scale'&&!calS[0]&&sheet? h('span',{className:'dim'},pts.length?'Now click the other end':'Click one end of a known dimension'):null,
+        selM? h('span',{className:'row',style:{gap:6}},'Selected: ',h('b',{className:'num'},fmtQty(markQty(selM,sheets.filter(function(s){ return s.id===selM.sheet; })[0]))+' '+UNIT_OF[selM.type]),h('button',{className:'btn ghost small',onClick:function(){ delMark(selM.id); }},'Delete')):null,
+        h('div',{className:'spacer'}),
+        sheet? h('button',{className:'btn ghost small danger',onClick:delSheet,onBlur:function(){ delS[1](false); }},delS[0]?'Click again to remove':'Remove sheet'):null)),
+    h('div',{className:'tk-pane r'},
+      h('div',{className:'tk-head'},h('span',null,'Takeoff items ',h('span',{className:'dim'},lines.length)),h('button',{className:'btn ghost small',onClick:props.onWorksheet},'Worksheet →')),
+      h('div',{className:'tk-list'},
+        lines.length? lines.map(function(l){ if(!l.lid) return null; var ri=rinfo(l.svc), n=marks.filter(function(m){ return m.lid===l.lid; }).length;
+          return h('button',{key:l.lid,className:'item','aria-current':l.lid===actS[0]?'true':undefined,onClick:function(){ pick(l); }},
+            h('span',{className:'sw',style:{background:col(l.lid)}}),
+            h('span',{style:{minWidth:0}},h('span',{className:'nm'},ri.label),h('span',{className:'mt'},(n?n+' mark'+(n>1?'s':''):(+l.qty?'typed quantity':'not measured'))+' · '+({area:'Area',linear:'Linear',count:'Count'})[toolFor(ri.unit)])),
+            h('span',{className:'q'},fmtQty(l.qty)+' '+ri.unit)); })
+        : h('div',{className:'dim',style:{fontSize:12,padding:6,lineHeight:1.5}},'No takeoff items yet. Add one below, or use “Suggest lines from scope” on the Worksheet tab.')),
+      h('div',{style:{padding:10,borderTop:'1px solid var(--line)',display:'grid',gap:8}},
+        h('div',{className:'row',style:{flexWrap:'nowrap',gap:6}},
+          h('select',{'aria-label':'Catalog item to add',value:addS[0],onChange:function(e){ addS[1](e.target.value); },style:{fontSize:12,padding:'6px 8px'}},h('option',{value:''},'Add takeoff item…'),
+            Object.keys(groups).map(function(g){ return h('optgroup',{key:g,label:g},groups[g].map(function(r){ return h('option',{key:r.id,value:r.id},r.label+' ('+r.unit+')'); })); })),
+          h('button',{className:'btn primary small',onClick:addItem,disabled:!addS[0]},'Add')),
+        h('div',{className:'total',style:{border:0,padding:0}},h('span',{className:'muted'},'Direct cost'),h('b',{className:'num'},money0(c.direct))),
+        h('div',{className:'total',style:{border:0,padding:0}},h('span',{className:'muted'},'Proposal total'),h('b',{className:'num',style:{color:'var(--blue2)'}},money0(c.sell))))));
 }
 
 function Rates(){
