@@ -5,14 +5,118 @@
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>DEMEX — Operations Cockpit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>/* theme: 'light' | 'dark' | unset (= follow the system). Set before first paint. */
+try{var __t=localStorage.getItem('demex_theme');if(__t==='light'||__t==='dark')document.documentElement.setAttribute('data-theme',__t);}catch(e){}
+</script>
 <style>
-  :root{--red:#e8332a;--ink:#0b0b0c;--panel:#141416;--line:rgba(255,255,255,.10);}
-  html,body{margin:0;background:var(--ink);color:#e9e9ea;font-family:'DM Sans',system-ui,sans-serif;}
+  /* ---- design tokens (dark is the default; light via system preference or the toggle) ---- */
+  :root{
+    color-scheme:dark;
+    --red:#e8332a;--red2:#ff5a4d;--teal:#2AD1B8;--teal2:#5fe3cf;
+    --ink:#0b0b0c;--panel:#141416;--panel2:#1c1c1f;--panel3:#232327;
+    --line:rgba(255,255,255,.10);--line2:rgba(255,255,255,.20);
+    --t1:#ececee;--t2:#a2a2a6;--t3:#7c7c81;
+    --green:#22c97a;--gold:#d4aa3c;--blue:#7db3ff;--purple:#c9a4ff;
+    --onaccent:#fff;--hover:rgba(255,255,255,.045);--sel:rgba(42,209,184,.14);
+    --shadow:0 1px 0 rgba(255,255,255,.04) inset,0 8px 24px rgba(0,0,0,.28);
+    --shadow-lg:0 24px 60px rgba(0,0,0,.55);
+    --focus:#2AD1B8;--tip-bg:#f4f4f5;--tip-fg:#0b0b0c;--scroll:#2a2a2d;--bar-bg:rgba(10,10,11,.82);
+  }
+  :root[data-theme="light"]{
+    color-scheme:light;
+    --red:#d42a21;--red2:#c4241b;--teal:#0f9e8a;--teal2:#0b7d6d;
+    --ink:#f3f4f6;--panel:#ffffff;--panel2:#f1f2f5;--panel3:#e8eaee;
+    --line:rgba(16,18,24,.10);--line2:rgba(16,18,24,.20);
+    --t1:#14161b;--t2:#4b4f58;--t3:#6b707a;
+    --green:#0f8a52;--gold:#946d0c;--blue:#2563c9;--purple:#6d44c4;
+    --hover:rgba(16,18,24,.04);--sel:rgba(15,158,138,.12);
+    --shadow:0 1px 2px rgba(16,18,24,.06),0 6px 18px rgba(16,18,24,.06);
+    --shadow-lg:0 24px 60px rgba(16,18,24,.18);
+    --focus:#0f9e8a;--tip-bg:#14161b;--tip-fg:#fff;--scroll:#c9ccd3;--bar-bg:rgba(243,244,246,.85);
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      color-scheme:light;
+      --red:#d42a21;--red2:#c4241b;--teal:#0f9e8a;--teal2:#0b7d6d;
+      --ink:#f3f4f6;--panel:#ffffff;--panel2:#f1f2f5;--panel3:#e8eaee;
+      --line:rgba(16,18,24,.10);--line2:rgba(16,18,24,.20);
+      --t1:#14161b;--t2:#4b4f58;--t3:#6b707a;
+      --green:#0f8a52;--gold:#946d0c;--blue:#2563c9;--purple:#6d44c4;
+      --hover:rgba(16,18,24,.04);--sel:rgba(15,158,138,.12);
+      --shadow:0 1px 2px rgba(16,18,24,.06),0 6px 18px rgba(16,18,24,.06);
+      --shadow-lg:0 24px 60px rgba(16,18,24,.18);
+      --focus:#0f9e8a;--tip-bg:#14161b;--tip-fg:#fff;--scroll:#c9ccd3;--bar-bg:rgba(243,244,246,.85);
+    }
+  }
+  html,body{margin:0;background:var(--ink);color:var(--t1);font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  body{font-size:14px;line-height:1.45;}
+  #root{overflow-x:clip;min-width:0;}
   *{box-sizing:border-box;}
   ::-webkit-scrollbar{width:10px;height:10px;}
-  ::-webkit-scrollbar-thumb{background:#2a2a2d;border-radius:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:8px;border:2px solid transparent;background-clip:padding-box;}
   ::-webkit-scrollbar-track{background:transparent;}
+  ::selection{background:var(--sel);}
+  a{color:var(--teal);}
+  /* ---- interactive primitives ---- */
+  .dx-btn{transition:transform .12s ease,filter .15s ease,background-color .15s ease,box-shadow .15s ease,border-color .15s ease;-webkit-tap-highlight-color:transparent;}
+  .dx-btn:hover{filter:brightness(1.08);box-shadow:0 2px 10px rgba(0,0,0,.18);}
+  .dx-btn.ghost:hover{background-color:var(--hover)!important;border-color:var(--line2)!important;}
+  .dx-btn:active{transform:translateY(1px) scale(.99);}
+  .dx-btn:disabled{opacity:.5;cursor:not-allowed;}
+  button:focus-visible,[role="button"]:focus-visible,a:focus-visible,summary:focus-visible,.dx-click:focus-visible{outline:2px solid var(--focus);outline-offset:2px;}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--focus)!important;box-shadow:0 0 0 3px var(--sel);}
+  input,select,textarea{transition:border-color .15s ease,box-shadow .15s ease;}
+  input::placeholder,textarea::placeholder{color:var(--t3);}
+  .dx-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);}
+  .dx-click{cursor:pointer;transition:transform .15s ease,border-color .15s ease,background-color .15s ease,box-shadow .15s ease;}
+  .dx-click:hover{border-color:var(--line2)!important;background-color:var(--panel2)!important;}
+  .dx-lift:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);}
+  .dx-nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;min-width:0;flex:1 1 auto;}
+  .dx-nav::-webkit-scrollbar{display:none;}
+  .dx-navi{transition:color .15s ease,background-color .15s ease;white-space:nowrap;}
+  .dx-navi:hover{color:var(--t1)!important;background:var(--hover);}
+  .dx-table{width:100%;border-collapse:collapse;}
+  .dx-table tbody tr{transition:background-color .12s ease;}
+  .dx-table tbody tr:hover{background:var(--hover);}
+  .dx-th{cursor:pointer;user-select:none;white-space:nowrap;}
+  .dx-th:hover{color:var(--t1)!important;}
+  .dx-scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;}
+  .dx-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:5px 11px;border-radius:999px;border:1px solid var(--line2);background:transparent;color:var(--t2);cursor:pointer;font-family:inherit;transition:all .15s ease;}
+  .dx-chip:hover{color:var(--t1);border-color:var(--t3);}
+  .dx-chip.on{background:var(--sel);color:var(--t1);border-color:var(--teal);}
+  .dx-chip b{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:11px;color:var(--t3);}
+  .dx-tip{position:fixed;z-index:9990;pointer-events:none;background:var(--tip-bg);color:var(--tip-fg);font-size:12px;line-height:1.35;padding:7px 10px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.3);width:max-content;max-width:min(280px,calc(100vw - 16px));transform:translate(-50%,calc(-100% - 12px));white-space:normal;}
+  .dx-tip b{font-weight:700;}
+  .dx-tip .m{font-family:'JetBrains Mono',monospace;font-size:11px;opacity:.8;}
+  .dx-bar{transition:opacity .15s ease,filter .15s ease;cursor:pointer;}
+  .dx-chart:hover .dx-bar{opacity:.45;}
+  .dx-chart .dx-bar:hover,.dx-chart .dx-bar.on{opacity:1;filter:brightness(1.12);}
+  .dx-hbar{display:grid;grid-template-columns:96px minmax(0,1fr) auto;align-items:center;gap:10px;padding:6px 6px;border-radius:8px;cursor:pointer;transition:background-color .12s ease;}
+  .dx-hbar:hover,.dx-hbar.on{background:var(--hover);}
+  .dx-hbar .trk{height:10px;border-radius:6px;background:var(--panel2);overflow:hidden;}
+  .dx-hbar .fill{height:100%;border-radius:6px;transition:width .5s cubic-bezier(.2,.8,.2,1);}
+  .dx-pulse{animation:dxpulse 1.6s ease-in-out infinite;}
+  @keyframes dxpulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+  .dx-ifr-full{position:fixed!important;inset:0!important;z-index:9500!important;border-radius:0!important;height:100vh!important;margin:0!important;}
+  .dx-resize{resize:vertical;overflow:hidden;}
+  /* ---- responsive layout helpers (inline grids collapse on narrow screens) ---- */
+  @media (max-width:1100px){
+    .dx-grid-3{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;}
+    .dx-grid-3 > .dx-dock{grid-column:1 / -1;height:auto!important;position:static!important;}
+  }
+  @media (max-width:820px){
+    .dx-grid,.dx-grid-3{grid-template-columns:minmax(0,1fr)!important;}
+    .dx-pad{padding:14px 14px!important;}
+    .dx-paper{padding:18px 16px!important;overflow-x:auto!important;}
+    .dx-hide-sm{display:none!important;}
+    .dx-topbar{padding:8px 12px!important;gap:8px 10px!important;flex-wrap:wrap;}
+    .dx-topbar .dx-nav{order:5;flex-basis:100%;margin:0 -4px;}
+    .dx-ingest{margin-left:auto;}
+    .dx-ingest .dx-btn{margin-left:0!important;padding:7px 10px!important;}
+    .dx-hbar{grid-template-columns:78px minmax(0,1fr) auto;}
+    .dx-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;flex-basis:100%!important;}
+  }
   .mono{font-family:'JetBrains Mono',monospace;}
   .syne{font-family:'Syne',sans-serif;}
   /* boot */
@@ -27,7 +131,9 @@
   @keyframes load{to{width:100%;}}
   @keyframes fade{to{opacity:1;}}
   .bstat{margin-top:14px;font-family:'JetBrains Mono';font-size:11px;color:#5f5f63;letter-spacing:1px;height:16px;}
-  @media(prefers-reduced-motion:reduce){.bgrid i,.bword,.bbar>i{animation:none;opacity:1;width:100%;}}
+  @media(prefers-reduced-motion:reduce){.bgrid i,.bword,.bbar>i{animation:none;opacity:1;width:100%;}
+    *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important;}
+    .dx-click:hover,.dx-lift:hover,.dx-btn:active{transform:none!important;}}
   .fade-in{animation:fadein .25s ease;}
   @keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
   input,select,textarea{font-family:inherit;}
@@ -1123,22 +1229,26 @@ const {
   useReducer,
   useCallback
 } = React;
+/* Colors are CSS custom properties (see :root in <head>) so light/dark themes switch without re-rendering.
+   Never concatenate hex alpha onto these — use dxAlpha(color, pct). */
 const C = {
-  red: '#e8332a',
-  red2: '#ff5a4d',
-  ink: '#0b0b0c',
-  panel: '#141416',
-  panel2: '#1c1c1f',
-  line: 'rgba(255,255,255,.10)',
-  line2: 'rgba(255,255,255,.20)',
-  t1: '#e9e9ea',
-  t2: '#9a9a9d',
-  t3: '#6f6f72',
-  green: '#22c97a',
-  gold: '#d4aa3c',
-  blue: '#7db3ff',
-  purple: '#c9a4ff'
+  red: 'var(--red)',
+  red2: 'var(--red2)',
+  ink: 'var(--ink)',
+  panel: 'var(--panel)',
+  panel2: 'var(--panel2)',
+  line: 'var(--line)',
+  line2: 'var(--line2)',
+  t1: 'var(--t1)',
+  t2: 'var(--t2)',
+  t3: 'var(--t3)',
+  green: 'var(--green)',
+  gold: 'var(--gold)',
+  blue: 'var(--blue)',
+  purple: 'var(--purple)',
+  teal: 'var(--teal)'
 };
+const dxAlpha = (c, pct) => 'color-mix(in srgb, ' + c + ' ' + pct + '%, transparent)';
 const money = n => '$' + Math.round(n || 0).toLocaleString();
 const STPILL = {
   invited: C.blue,
@@ -1191,7 +1301,9 @@ const Pill = ({
     letterSpacing: 1,
     textTransform: 'uppercase',
     color: STPILL[status] || C.t2,
-    border: '0.5px solid ' + (STPILL[status] || C.t2) + '66',
+    border: '1px solid ' + dxAlpha(STPILL[status] || C.t2, 45),
+    background: dxAlpha(STPILL[status] || C.t2, 10),
+    whiteSpace: 'nowrap',
     borderRadius: 999,
     padding: '2px 8px'
   }
@@ -1201,19 +1313,26 @@ const Btn = ({
   onClick,
   primary,
   ghost,
-  style
+  style,
+  title,
+  disabled
 }) => /*#__PURE__*/React.createElement("button", {
   onClick: onClick,
-  className: "syne",
+  title: title,
+  disabled: disabled,
+  type: "button",
+  className: "syne dx-btn" + (primary ? '' : ' ghost'),
   style: {
-    fontWeight: 800,
+    fontWeight: 700,
     fontSize: 12,
-    border: primary ? 'none' : '0.5px solid ' + C.line2,
-    borderRadius: 8,
-    padding: '8px 13px',
-    cursor: 'pointer',
+    letterSpacing: .2,
+    border: primary ? '1px solid transparent' : '1px solid ' + C.line2,
+    borderRadius: 9,
+    padding: '8px 14px',
+    cursor: disabled ? 'not-allowed' : 'pointer',
     background: primary ? C.red : 'transparent',
-    color: primary ? '#fff' : C.t1,
+    color: primary ? 'var(--onaccent)' : C.t1,
+    boxShadow: primary ? '0 1px 0 rgba(255,255,255,.18) inset, 0 4px 14px ' + dxAlpha(C.red, 28) : 'none',
     ...style
   }
 }, children);
@@ -1455,7 +1574,7 @@ function ProjectBridgeActions(props) {
     }).catch(fail);
   }
   return /*#__PURE__*/React.createElement("div", {
-    style: { display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 14, paddingTop: 14, borderTop: '0.5px solid ' + C.line }
+    style: { display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 14, paddingTop: 14, borderTop: '1px solid ' + C.line }
   }, /*#__PURE__*/React.createElement(Btn, {
     ghost: true, onClick: runTakeoff, style: { opacity: busy === 'takeoff' ? 0.6 : 1 }
   }, busy === 'takeoff' ? 'Running…' : 'Run Visual Takeoff'), /*#__PURE__*/React.createElement(Btn, {
@@ -1490,13 +1609,13 @@ function CorrectionStats(props) {
   var removed = corr.filter(function (c) { return c.kind === 'removed'; }).length;
   var addedN = corr.filter(function (c) { return c.kind === 'added'; }).length;
   return /*#__PURE__*/React.createElement("div", {
-    style: { background: C.panel, border: '0.5px solid ' + C.line, borderRadius: 12, padding: '15px 16px', marginTop: 14 }
+    style: { background: C.panel, border: '1px solid ' + C.line, borderRadius: 12, padding: '15px 16px', marginTop: 14 }
   }, /*#__PURE__*/React.createElement("div", { className: "syne", style: { fontWeight: 800, fontSize: 13, marginBottom: 4 } },
     "Takeoff corrections ", /*#__PURE__*/React.createElement("span", { style: { color: C.t3, fontSize: 11, fontWeight: 400 } }, "· what your edits teach the AI")),
     /*#__PURE__*/React.createElement("div", { style: { fontSize: 11, color: C.t3, marginBottom: 8 } },
       corr.length + " correction(s) captured" + (removed ? ' · ' + removed + ' AI item(s) deleted' : '') + (addedN ? ' · ' + addedN + ' scope item(s) the AI missed' : '')),
     rows.length ? rows.map(function (r) {
-      return /*#__PURE__*/React.createElement("div", { key: r.svc, style: { display: 'flex', alignItems: 'center', gap: 10, padding: '5px 0', borderTop: '0.5px solid ' + C.line } },
+      return /*#__PURE__*/React.createElement("div", { key: r.svc, style: { display: 'flex', alignItems: 'center', gap: 10, padding: '5px 0', borderTop: '1px solid ' + C.line } },
         /*#__PURE__*/React.createElement("span", { style: { fontSize: 12.5, color: C.t1, flex: 1 } }, r.svc, " ", /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 10, color: C.t3 } }, "n=" + r.n + (r.n < 3 ? ' (thin)' : ''))),
         /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 12, color: r.avg > 0 ? C.green : C.red2 } },
           "AI runs " + (r.avg > 0 ? 'low' : 'high') + " by " + Math.abs(Math.round(r.avg * 10) / 10) + "% avg"));
@@ -1506,7 +1625,7 @@ function AIVisionSummary(props) {
   var s = (props.p || {}).ai_vision_summary;
   if (!s) return null;
   return /*#__PURE__*/React.createElement("div", {
-    style: { marginTop: 14, padding: '12px 14px', background: C.panel2, border: '0.5px solid ' + C.line, borderLeft: '2px solid ' + C.purple, borderRadius: 10 }
+    style: { marginTop: 14, padding: '12px 14px', background: C.panel2, border: '1px solid ' + C.line, borderLeft: '2px solid ' + C.purple, borderRadius: 10 }
   }, /*#__PURE__*/React.createElement("div", { style: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 } },
     /*#__PURE__*/React.createElement("span", { className: "syne", style: { fontWeight: 800, fontSize: 12.5 } }, "AI vision takeoff summary"),
     /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 10, color: C.t3 } }, "AI-generated · pages " + (s.pages || []).join(', ') + (s.scale_found ? ' · scale ' + s.scale_found : ' · scale not found') + " · verify every quantity")),
@@ -1535,14 +1654,14 @@ function AIScopeSuggestions(props) {
     DX.commit({ type: 'updateProject', id: id, patch: { ai_scope_suggestions: null } });
   }
   return /*#__PURE__*/React.createElement("div", {
-    style: { marginTop: 14, padding: '12px 14px', background: C.panel2, border: '0.5px solid ' + C.line, borderLeft: '2px solid ' + C.purple, borderRadius: 10 }
+    style: { marginTop: 14, padding: '12px 14px', background: C.panel2, border: '1px solid ' + C.line, borderLeft: '2px solid ' + C.purple, borderRadius: 10 }
   }, /*#__PURE__*/React.createElement("div", { style: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 } },
     /*#__PURE__*/React.createElement("span", { className: "syne", style: { fontWeight: 800, fontSize: 12.5 } }, "AI scope suggestions"),
     /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 10, color: C.t3 } }, "AI-generated from sheet text · pages " + (s.pages || []).join(', ') + " · verify everything"),
     /*#__PURE__*/React.createElement(Btn, { ghost: true, onClick: dismiss, style: { marginLeft: 'auto', padding: '3px 9px', fontSize: 10.5, color: C.t3 } }, "Dismiss all")),
     s.suggestions.map(function (sg, ix) {
       var isAdded = added[(sg.svc || '') + '|' + (sg.item || sg.svc || '')];
-      return /*#__PURE__*/React.createElement("div", { key: ix, style: { display: 'flex', alignItems: 'flex-start', gap: 10, padding: '6px 0', borderTop: ix ? '0.5px solid ' + C.line : 'none' } },
+      return /*#__PURE__*/React.createElement("div", { key: ix, style: { display: 'flex', alignItems: 'flex-start', gap: 10, padding: '6px 0', borderTop: ix ? '1px solid ' + C.line : 'none' } },
         /*#__PURE__*/React.createElement("div", { style: { flex: 1, minWidth: 0 } },
           /*#__PURE__*/React.createElement("div", { style: { fontSize: 12.5, color: C.t1 } }, sg.item || sg.svc, " ", /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 10, color: sg.confidence === 'high' ? C.green : sg.confidence === 'low' ? C.red2 : C.gold } }, sg.confidence || '')),
           /*#__PURE__*/React.createElement("div", { style: { fontSize: 11, color: C.t3 } }, (sg.svc || '') + (sg.unit ? ' · ' + sg.unit : '') + (sg.sheet_ref ? ' · ' + sg.sheet_ref : ''), sg.reason ? ' — ' + sg.reason : '')),
@@ -1640,9 +1759,9 @@ function RateAccuracyPanel(props) {
       /*#__PURE__*/React.createElement("input", {
         type: 'number', value: amt, placeholder: 'Enter internal bid amount…',
         onChange: function (e) { setAmt(e.target.value); },
-        style: { flex: 1, background: C.panel, border: '0.5px solid ' + (z ? z.color : C.line2), color: C.t1, borderRadius: 8, padding: '9px 11px', fontSize: 14, outline: 'none' }
+        style: { flex: 1, background: C.panel, border: '1px solid ' + (z ? z.color : C.line2), color: C.t1, borderRadius: 8, padding: '9px 11px', fontSize: 14, outline: 'none' }
       })),
-    z ? /*#__PURE__*/React.createElement("div", { style: { marginTop: 10, borderRadius: 10, border: '0.5px solid ' + z.color, background: 'rgba(255,255,255,.03)', padding: '10px 12px', display: 'flex', gap: 10, alignItems: 'center' } },
+    z ? /*#__PURE__*/React.createElement("div", { style: { marginTop: 10, borderRadius: 10, border: '1px solid ' + z.color, background: 'rgba(255,255,255,.03)', padding: '10px 12px', display: 'flex', gap: 10, alignItems: 'center' } },
       /*#__PURE__*/React.createElement("div", { style: { width: 11, height: 11, borderRadius: '50%', background: z.color, flex: '0 0 auto', boxShadow: '0 0 10px ' + z.color } }),
       /*#__PURE__*/React.createElement("div", null,
         /*#__PURE__*/React.createElement("div", { className: "syne", style: { fontWeight: 800, fontSize: 13, color: z.color, letterSpacing: .5 } }, z.label),
@@ -1658,33 +1777,48 @@ function RateAccuracyPanel(props) {
     /*#__PURE__*/React.createElement("select", {
       value: trade,
       onChange: function (e) { setTrade(e.target.value); },
-      style: { flex: 1, background: C.panel, border: '0.5px solid ' + C.line2, color: C.t1, borderRadius: 8, padding: '7px 9px', fontSize: 12, outline: 'none' }
+      style: { flex: 1, background: C.panel, border: '1px solid ' + C.line2, color: C.t1, borderRadius: 8, padding: '7px 9px', fontSize: 12, outline: 'none' }
     }, [/*#__PURE__*/React.createElement("option", { key: '__all', value: '' }, 'All scopes')].concat(
       trades.map(function (t) {
         var name = String(t.trade || '');
         return /*#__PURE__*/React.createElement("option", { key: name, value: name }, cap(name) + ' (' + (t.decided || 0) + ')');
       })))) : null;
-  return /*#__PURE__*/React.createElement("div", { style: { marginTop: 14, paddingTop: 14, borderTop: '0.5px solid ' + C.line } },
+  return /*#__PURE__*/React.createElement("div", { style: { marginTop: 14, paddingTop: 14, borderTop: '1px solid ' + C.line } },
     /*#__PURE__*/React.createElement(SectionLabel, { color: C.t3 }, 'BID ACCURACY CHECK'), scopeSel, body);
 }
+/* KPI tile. Pass onClick (and optionally hint) to make it a link to the list behind the number. */
 const Stat = ({
   v,
   l,
-  color
+  color,
+  onClick,
+  hint
 }) => /*#__PURE__*/React.createElement("div", {
+  onClick: onClick,
+  onKeyDown: onClick ? e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(e); } } : undefined,
+  role: onClick ? 'button' : undefined,
+  tabIndex: onClick ? 0 : undefined,
+  title: onClick ? (hint || 'Show the list') : undefined,
+  className: 'dx-card fade-in' + (onClick ? ' dx-click dx-lift' : ''),
   style: {
     background: C.panel,
-    border: '0.5px solid ' + C.line,
-    borderRadius: 12,
-    padding: '14px 15px'
+    border: '1px solid ' + C.line,
+    borderRadius: 14,
+    padding: '15px 16px 13px',
+    position: 'relative',
+    minWidth: 0
   }
 }, /*#__PURE__*/React.createElement("div", {
   className: "syne",
   style: {
     fontWeight: 800,
-    fontSize: 24,
+    fontSize: 25,
     color: color || C.t1,
-    lineHeight: 1
+    lineHeight: 1,
+    letterSpacing: -.3,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis'
   }
 }, v), /*#__PURE__*/React.createElement("div", {
   className: "mono",
@@ -1693,9 +1827,15 @@ const Stat = ({
     letterSpacing: 1,
     textTransform: 'uppercase',
     color: C.t3,
-    marginTop: 7
+    marginTop: 8,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6
   }
-}, l));
+}, l, onClick ? /*#__PURE__*/React.createElement("span", {
+  'aria-hidden': true,
+  style: { marginLeft: 'auto', color: C.teal, fontSize: 12 }
+}, "→") : null));
 const Empty = ({
   children
 }) => /*#__PURE__*/React.createElement("div", {
@@ -1719,6 +1859,187 @@ const SectionLabel = ({
   }
 }, children);
 
+/* ════════ Interactive data helpers: tooltips, SVG charts, sortable tables ════════
+   Small, dependency-free. Charts use real store data only; empty data renders an empty state. */
+const ce = React.createElement;
+const moneyShort = n => {
+  n = +n || 0;
+  const a = Math.abs(n), sg = n < 0 ? '-' : '';
+  if (a >= 1e6) return sg + '$' + (a / 1e6).toFixed(a >= 1e7 ? 0 : 1) + 'M';
+  if (a >= 1e3) return sg + '$' + Math.round(a / 1e3) + 'k';
+  return sg + '$' + Math.round(a);
+};
+/* One floating tooltip per chart. show(evt, node) positions it above the pointer/element. */
+function useTip() {
+  const [tip, setTip] = useState(null);
+  const show = (e, content) => {
+    let x, y;
+    if (e && e.clientX != null && e.type && e.type.indexOf('mouse') === 0) { x = e.clientX; y = e.clientY; }
+    else if (e && e.currentTarget && e.currentTarget.getBoundingClientRect) { const r = e.currentTarget.getBoundingClientRect(); x = r.left + r.width / 2; y = r.top; }
+    else return;
+    y = Math.max(60, y);
+    setTip({ x, y, content });
+  };
+  const hide = () => setTip(null);
+  return [tip, show, hide];
+}
+function DxTip({ tip }) {
+  const ref = useRef(null);
+  // keep the bubble on screen: measure after render and nudge horizontally / flip below when near the top
+  React.useLayoutEffect(() => {
+    const el = ref.current; if (!el || !tip) return;
+    el.style.marginLeft = '0px';
+    const r = el.getBoundingClientRect(), vw = window.innerWidth;
+    let dx = 0;
+    if (r.right > vw - 8) dx = vw - 8 - r.right;
+    if (r.left + dx < 8) dx = 8 - r.left;
+    el.style.marginLeft = dx + 'px';
+    if (r.top < 4) el.style.transform = 'translate(-50%, 18px)'; else el.style.transform = '';
+  });
+  if (!tip) return null;
+  return ce("div", { ref, className: "dx-tip", role: "tooltip", style: { left: tip.x, top: tip.y } }, tip.content);
+}
+function useWidth(ref, fallback) {
+  const [w, setW] = useState(fallback || 320);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const upd = () => { const nw = Math.round(el.getBoundingClientRect().width); if (nw > 0) setW(nw); };
+    upd();
+    if (typeof ResizeObserver === 'function') { const ro = new ResizeObserver(upd); ro.observe(el); return () => ro.disconnect(); }
+    window.addEventListener('resize', upd); return () => window.removeEventListener('resize', upd);
+  }, []);
+  return w;
+}
+/* Vertical column chart.
+   data: [{key, label, short?, value, color?, sub?, tip?, parts?:[{value,color}]}]  — tip overrides the tooltip body;
+   parts (with stack) draws a stacked column. onPick(key|null) fires on click / Enter; active = selected key. */
+function DxColumns({ data, height, fmt, onPick, active, color, empty, ariaLabel, stack }) {
+  const ref = useRef(null);
+  const W = useWidth(ref, 360);
+  const [tip, show, hide] = useTip();
+  const H = height || 150;
+  fmt = fmt || (v => String(v));
+  if (!data || !data.length || !data.some(d => (d.value || 0) > 0)) {
+    return ce("div", { ref, style: { height: H, display: 'grid', placeItems: 'center', color: C.t3, fontSize: 12, border: '1px dashed ' + C.line, borderRadius: 10, textAlign: 'center', padding: 10 } }, empty || 'No data yet');
+  }
+  const padL = 40, padR = 6, padT = 10, padB = 22;
+  const iw = Math.max(40, W - padL - padR), ih = H - padT - padB;
+  const max = Math.max.apply(null, data.map(d => d.value || 0)) || 1;
+  const nice = (() => { const p = Math.pow(10, Math.floor(Math.log10(max))); const m = max / p; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p; })();
+  const n = data.length, slot = iw / n, bw = Math.max(3, Math.min(42, slot * 0.66));
+  const every = Math.ceil(n / Math.max(1, Math.floor(iw / 44)));
+  const ticks = [0, nice / 2, nice];
+  return ce("div", { ref, className: "dx-chart", style: { position: 'relative', width: '100%' }, onMouseLeave: hide },
+    ce("svg", { width: W, height: H, role: "group", 'aria-label': ariaLabel || 'Chart', style: { display: 'block', overflow: 'visible' } },
+      ticks.map((t, i) => ce("g", { key: 't' + i },
+        ce("line", { x1: padL, x2: W - padR, y1: padT + ih - ih * t / nice, y2: padT + ih - ih * t / nice, style: { stroke: 'var(--line)' }, strokeDasharray: i ? '3 4' : null }),
+        ce("text", { x: padL - 6, y: padT + ih - ih * t / nice + 3, textAnchor: 'end', style: { fill: 'var(--t3)', fontSize: 9.5, fontFamily: 'JetBrains Mono, monospace' } }, fmt(t, true)))),
+      data.map((d, i) => {
+        const v = d.value || 0, bh = Math.max(v > 0 ? 2 : 0, ih * v / nice);
+        const x = padL + slot * i + (slot - bw) / 2, y = padT + ih - bh;
+        const on = active != null && active === d.key;
+        const body = d.tip || ce(React.Fragment, null, ce("b", null, d.label), ce("br"), ce("span", null, fmt(v)), d.sub ? ce("div", { className: "m" }, d.sub) : null, onPick ? ce("div", { className: "m" }, on ? 'click to clear' : 'click to filter') : null);
+        const segs = stack && d.parts ? d.parts : null;
+        return ce("g", {
+          key: d.key,
+          className: 'dx-bar' + (on ? ' on' : ''),
+          tabIndex: onPick ? 0 : undefined,
+          role: onPick ? 'button' : undefined,
+          'aria-label': d.label + ': ' + fmt(v) + (d.sub ? ', ' + d.sub : ''),
+          'aria-pressed': onPick ? on : undefined,
+          onMouseMove: e => show(e, body),
+          onFocus: e => show(e, body),
+          onBlur: hide,
+          onClick: onPick ? () => onPick(on ? null : d.key) : undefined,
+          onKeyDown: onPick ? e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(on ? null : d.key); } } : undefined,
+          style: { outline: 'none', cursor: onPick ? 'pointer' : 'default' }
+        },
+          ce("rect", { x: padL + slot * i, y: padT, width: slot, height: ih, style: { fill: 'transparent' } }),
+          segs ? (() => { let acc = 0; return segs.map((sg, j) => { const sh = ih * (sg.value || 0) / nice; acc += sh; return ce("rect", { key: j, x, y: padT + ih - acc, width: bw, height: Math.max(0, sh), style: { fill: sg.color } }); }); })()
+            : ce("rect", { x, y, width: bw, height: bh, rx: 3, style: { fill: d.color || color || 'var(--teal)' } }),
+          on ? ce("rect", { x: x - 2, y: y - 2, width: bw + 4, height: bh + 4, rx: 4, style: { fill: 'none', stroke: 'var(--t1)', strokeWidth: 1.2 } }) : null,
+          (i % every === 0 || on) ? ce("text", { x: x + bw / 2, y: H - 6, textAnchor: 'middle', style: { fill: on ? 'var(--t1)' : 'var(--t3)', fontSize: 9.5, fontFamily: 'JetBrains Mono, monospace' } }, d.short || d.label) : null);
+      })),
+    ce(DxTip, { tip }));
+}
+/* Horizontal bars (stages, categories). data: [{key,label,value,display,color,sub}] */
+function DxHBars({ data, onPick, active, fmt }) {
+  const [tip, show, hide] = useTip();
+  fmt = fmt || (v => String(v));
+  const max = Math.max.apply(null, (data || []).map(d => d.value || 0).concat([1]));
+  return ce("div", { onMouseLeave: hide, role: 'list' },
+    (data || []).map(d => {
+      const on = active != null && active === d.key;
+      const body = ce(React.Fragment, null, ce("b", null, d.label), ce("br"), d.display || fmt(d.value), d.sub ? ce("div", { className: "m" }, d.sub) : null, onPick ? ce("div", { className: "m" }, on ? 'click to clear' : 'click to filter') : null);
+      return ce("div", {
+        key: d.key, role: 'listitem', className: 'dx-hbar' + (on ? ' on' : ''),
+        tabIndex: onPick ? 0 : undefined,
+        'aria-pressed': onPick ? on : undefined,
+        onMouseMove: e => show(e, body), onFocus: e => show(e, body), onBlur: hide,
+        onClick: onPick ? () => onPick(on ? null : d.key) : undefined,
+        onKeyDown: onPick ? e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(on ? null : d.key); } } : undefined,
+        style: { cursor: onPick ? 'pointer' : 'default' }
+      },
+        ce("span", { style: { fontSize: 12, color: on ? C.t1 : C.t2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: on ? 700 : 500 } }, d.label),
+        ce("span", { className: "trk" }, ce("span", { className: "fill", style: { display: 'block', width: Math.max(d.value > 0 ? 2 : 0, 100 * (d.value || 0) / max) + '%', background: d.color || C.teal } })),
+        ce("span", { className: "mono", style: { fontSize: 11, color: C.t1, textAlign: 'right', minWidth: 44 } }, d.display || fmt(d.value)));
+    }),
+    ce(DxTip, { tip }));
+}
+/* Sortable rows. cols: {key: row => comparable}. Returns [sortedRows, th(key|null, label, style)]. */
+function useSortable(rows, cols, initKey, initDir) {
+  const [sk, setSk] = useState(initKey || null);
+  const [dir, setDir] = useState(initDir || 1);
+  const sorted = React.useMemo(() => {
+    if (!sk || !cols[sk]) return rows;
+    const f = cols[sk];
+    return rows.slice().sort((a, b) => {
+      const x = f(a), y = f(b);
+      const xe = x == null || x === '', ye = y == null || y === '';
+      if (xe || ye) return xe && ye ? 0 : xe ? 1 : -1;
+      if (typeof x === 'string' || typeof y === 'string') return String(x).localeCompare(String(y), undefined, { numeric: true, sensitivity: 'base' }) * dir;
+      return (x - y) * dir;
+    });
+  }, [rows, sk, dir]);
+  const flip = key => { if (sk === key) setDir(-dir); else { setSk(key); setDir(1); } };
+  const th = (key, label, style) => ce("th", {
+    key: key || label,
+    className: key ? 'mono dx-th' : 'mono',
+    'aria-sort': key && sk === key ? (dir > 0 ? 'ascending' : 'descending') : undefined,
+    tabIndex: key ? 0 : undefined,
+    onClick: key ? () => flip(key) : undefined,
+    onKeyDown: key ? e => { if (e.key === 'Enter') flip(key); } : undefined,
+    style: Object.assign({ textAlign: 'left', fontSize: 10, letterSpacing: 1, textTransform: 'uppercase', color: key && sk === key ? C.t1 : C.t3, padding: '10px 14px', borderBottom: '1px solid ' + C.line, fontWeight: 500, background: C.panel, position: 'sticky', top: 0, zIndex: 1 }, style || {})
+  }, label, key ? ce("span", { 'aria-hidden': true, style: { marginLeft: 5, opacity: sk === key ? 1 : .35 } }, sk === key ? (dir > 0 ? '▲' : '▼') : '⇅') : null);
+  return [sorted, th];
+}
+function DxSearch({ value, onChange, placeholder, style }) {
+  return ce("div", { style: Object.assign({ position: 'relative', minWidth: 0 }, style || {}) },
+    ce("span", { 'aria-hidden': true, style: { position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: C.t3, fontSize: 13, pointerEvents: 'none' } }, '⌕'),
+    ce("input", { type: 'search', value, placeholder: placeholder || 'Filter…', 'aria-label': placeholder || 'Filter',
+      onChange: e => onChange(e.target.value),
+      style: Object.assign({}, inputStyle, { paddingLeft: 30, paddingTop: 7, paddingBottom: 7 }) }));
+}
+const dxNorm = s => String(s || '').toLowerCase();
+const monthKey = d => { if (!d) return null; const m = String(d).match(/^(\d{4})-(\d{2})/); return m ? m[1] + '-' + m[2] : null; };
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const monthLabel = k => { if (!k) return ''; const p = k.split('-'); return MONTHS[+p[1] - 1] + ' ' + p[0]; };
+function lastMonths(n) {
+  const out = [], d = new Date(); d.setDate(1);
+  for (let i = n - 1; i >= 0; i--) { const x = new Date(d.getFullYear(), d.getMonth() - i, 1); out.push(x.getFullYear() + '-' + ('0' + (x.getMonth() + 1)).slice(-2)); }
+  return out;
+}
+/* Card shell used by the newer panels. */
+function Card({ title, sub, right, children, style, pad }) {
+  return ce("section", { className: 'dx-card fade-in', style: Object.assign({ background: C.panel, border: '1px solid ' + C.line, borderRadius: 14, padding: pad == null ? '15px 16px' : pad, minWidth: 0 }, style || {}) },
+    (title || right) ? ce("div", { style: { display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 12, flexWrap: 'wrap' } },
+      ce("div", { style: { minWidth: 0 } },
+        ce("div", { className: 'syne', style: { fontWeight: 800, fontSize: 14, letterSpacing: .2 } }, title),
+        sub ? ce("div", { style: { fontSize: 11.5, color: C.t3, marginTop: 2 } }, sub) : null),
+      right ? ce("div", { style: { marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' } }, right) : null) : null,
+    children);
+}
+
 /* ---------- Toast ---------- */
 function Toaster() {
   const [t, setT] = useState(null);
@@ -1739,14 +2060,19 @@ function Toaster() {
       bottom: 24,
       left: '50%',
       transform: 'translateX(-50%)',
-      background: '#000',
-      border: '0.5px solid ' + (t.kind === 'err' ? C.red : C.line2),
+      background: C.panel,
+      border: '1px solid ' + (t.kind === 'err' ? C.red : C.line2),
+      borderLeft: '3px solid ' + (t.kind === 'err' ? C.red : C.teal),
       color: t.kind === 'err' ? C.red2 : C.t1,
       padding: '11px 18px',
-      borderRadius: 10,
+      borderRadius: 12,
       fontSize: 13,
+      boxShadow: 'var(--shadow-lg)',
+      maxWidth: 'calc(100vw - 32px)',
       zIndex: 9998
-    }
+    },
+    role: 'status',
+    className: 'fade-in'
   }, t.msg);
 }
 
@@ -1775,11 +2101,14 @@ function Modal({
     className: "fade-in",
     style: {
       background: C.ink,
-      border: '0.5px solid ' + C.line2,
-      borderRadius: 16,
+      border: '1px solid ' + C.line2,
+      borderRadius: 18,
       width: 'min(620px,100%)',
-      padding: '22px 24px'
-    }
+      padding: '22px 24px',
+      boxShadow: 'var(--shadow-lg)'
+    },
+    role: 'dialog',
+    'aria-modal': true
   }, /*#__PURE__*/React.createElement("div", {
     className: "syne",
     style: {
@@ -1809,8 +2138,8 @@ const Field = ({
 const inputStyle = {
   width: '100%',
   background: C.panel2,
-  border: '0.5px solid ' + C.line2,
-  borderRadius: 7,
+  border: '1px solid ' + C.line2,
+  borderRadius: 9,
   color: C.t1,
   fontSize: 13,
   padding: '9px 11px'
@@ -1865,7 +2194,7 @@ function Boot({
       bottom: 24,
       right: 24,
       background: 'none',
-      border: '0.5px solid ' + C.line2,
+      border: '1px solid ' + C.line2,
       color: C.t3,
       borderRadius: 6,
       padding: '5px 11px',
@@ -1939,7 +2268,7 @@ function CommandPalette({
     style: {
       width: 'min(560px,92%)',
       background: C.ink,
-      border: '0.5px solid ' + C.line2,
+      border: '1px solid ' + C.line2,
       borderRadius: 14,
       overflow: 'hidden'
     }
@@ -1962,7 +2291,7 @@ function CommandPalette({
       width: '100%',
       background: 'transparent',
       border: 'none',
-      borderBottom: '0.5px solid ' + C.line,
+      borderBottom: '1px solid ' + C.line,
       color: C.t1,
       fontSize: 15,
       padding: '16px 18px',
@@ -1984,7 +2313,7 @@ function CommandPalette({
       fontSize: 13,
       cursor: 'pointer',
       color: C.t1,
-      borderBottom: '0.5px solid ' + C.line
+      borderBottom: '1px solid ' + C.line
     },
     onMouseEnter: e => e.currentTarget.style.background = C.panel,
     onMouseLeave: e => e.currentTarget.style.background = 'transparent'
@@ -2195,14 +2524,14 @@ function AgentDock({
       flexDirection: 'column',
       height: '100%',
       background: C.panel,
-      border: '0.5px solid ' + C.line,
+      border: '1px solid ' + C.line,
       borderRadius: 12,
       overflow: 'hidden'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '13px 15px',
-      borderBottom: '0.5px solid ' + C.line,
+      borderBottom: '1px solid ' + C.line,
       display: 'flex',
       alignItems: 'center',
       gap: 8
@@ -2255,7 +2584,7 @@ function AgentDock({
       whiteSpace: 'pre-wrap',
       lineHeight: 1.55,
       background: m.who === 'user' ? C.panel2 : 'transparent',
-      border: m.who === 'user' ? '0.5px solid ' + C.line2 : 'none',
+      border: m.who === 'user' ? '1px solid ' + C.line2 : 'none',
       borderRadius: 9,
       padding: m.who === 'user' ? '8px 11px' : 0
     }
@@ -2264,7 +2593,7 @@ function AgentDock({
     style: {
       marginTop: 8,
       background: C.panel2,
-      border: '0.5px solid ' + C.line,
+      border: '1px solid ' + C.line,
       borderRadius: 8,
       padding: 10,
       fontSize: 11,
@@ -2277,7 +2606,7 @@ function AgentDock({
       marginTop: 8,
       fontSize: 11,
       color: C.red2,
-      border: '0.5px solid ' + C.line2,
+      border: '1px solid ' + C.line2,
       borderRadius: 7,
       padding: '5px 11px',
       textDecoration: 'none'
@@ -2291,7 +2620,7 @@ function AgentDock({
       marginTop: 8,
       fontSize: 11,
       color: C.red2,
-      border: '0.5px solid ' + C.line2,
+      border: '1px solid ' + C.line2,
       borderRadius: 7,
       padding: '5px 11px',
       textDecoration: 'none'
@@ -2307,7 +2636,7 @@ function AgentDock({
   }, "Open ", m.go, " →"))))), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '10px 12px',
-      borderTop: '0.5px solid ' + C.line
+      borderTop: '1px solid ' + C.line
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -2323,7 +2652,7 @@ function AgentDock({
     style: {
       fontSize: 10.5,
       color: C.t2,
-      border: '0.5px solid ' + C.line2,
+      border: '1px solid ' + C.line2,
       borderRadius: 999,
       padding: '5px 10px',
       cursor: 'pointer'
@@ -2364,6 +2693,8 @@ function Dashboard({
   onOpen
 }) {
   const db = useStore();
+  const [dayF, setDayF] = useState(null);      // week-ahead day filter for "bids to win"
+  const [pick, setPick] = useState({ stage: null, month: null }); // chart click-through filter
   const fups = db.followups.filter(f => !f.done);
   const submitted = db.projects.filter(p => p.status === 'submitted');
   const open = db.projects.filter(p => ['invited', 'estimating', 'submitted'].includes(p.status));
@@ -2402,6 +2733,7 @@ function Dashboard({
   for (var _wi = 0; _wi < 7; _wi++) {
     var _dd = new Date(_wt.getTime() + _wi * 864e5);
     weekAhead.push({
+      iso: _iso(_dd),
       ds: _dd.getMonth() + 1 + '/' + _dd.getDate(),
       dow: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][_dd.getDay()],
       cnt: bidsToWin.filter(function (x) {
@@ -2445,14 +2777,41 @@ function Dashboard({
     }]
   });
   const cols = [['invited', 'Invited'], ['estimating', 'Estimating'], ['submitted', 'Submitted'], ['won', 'Won']];
+  // ---- chart data (real store data only) ----
+  const STAGES = [['invited', 'Invited'], ['estimating', 'Estimating'], ['submitted', 'Submitted'], ['won', 'Won'], ['lost', 'Lost']];
+  const stageData = STAGES.map(([st, lab]) => {
+    const items = db.projects.filter(p => p.status === st);
+    const val = items.reduce((s, p) => s + DX.revenueOf(p), 0);
+    return { key: st, label: lab, value: items.length, display: items.length + ' \u00b7 ' + moneyShort(val), sub: money(val) + ' total bid value', color: STPILL[st] };
+  });
+  const months = lastMonths(12);
+  const pMonth = p => monthKey(p.dueAt || p.submittedAt || p.createdAt);
+  const monthData = months.map(mk => {
+    const items = db.projects.filter(p => pMonth(p) === mk);
+    const by = st => items.filter(p => p.status === st).length;
+    const val = items.reduce((s, p) => s + DX.revenueOf(p), 0);
+    const parts = [{ value: by('won'), color: 'var(--green)' }, { value: by('submitted'), color: 'var(--purple)' }, { value: by('estimating') + by('invited'), color: 'var(--gold)' }, { value: by('lost'), color: 'var(--red2)' }];
+    return {
+      key: mk, label: monthLabel(mk), short: MONTHS[+mk.slice(5) - 1], value: items.length, parts,
+      tip: ce(React.Fragment, null, ce("b", null, monthLabel(mk)), ce("br"), items.length + ' bid' + (items.length === 1 ? '' : 's') + ' \u00b7 ' + money(val),
+        ce("div", { className: 'm' }, 'won ' + by('won') + ' \u00b7 submitted ' + by('submitted') + ' \u00b7 open ' + (by('estimating') + by('invited')) + ' \u00b7 lost ' + by('lost')),
+        ce("div", { className: 'm' }, pick.month === mk ? 'click to clear' : 'click to list these bids'))
+    };
+  });
+  const picked = (pick.stage || pick.month) ? db.projects.filter(p => (!pick.stage || p.status === pick.stage) && (!pick.month || pMonth(p) === pick.month)).sort((a, b) => DX.revenueOf(b) - DX.revenueOf(a)) : null;
+  const pickedLabel = [pick.stage ? (STAGES.filter(x => x[0] === pick.stage)[0] || [0, pick.stage])[1] : null, pick.month ? monthLabel(pick.month) : null].filter(Boolean).join(' \u00b7 ');
+  const pipeHash = () => 'pipeline/' + [pick.stage, pick.month ? 'm' + pick.month : null].filter(Boolean).join('+');
+  const bidsShown = dayF ? bidsToWin.filter(x => x.p.dueAt === dayF) : bidsToWin;
   return /*#__PURE__*/React.createElement("div", {
+    className: "dx-grid-3 dx-pad",
     style: {
       display: 'grid',
       gridTemplateColumns: 'minmax(0,1.35fr) minmax(0,1fr) 300px',
-      gap: 14,
-      padding: '20px 22px'
+      gap: 16,
+      padding: '20px 22px',
+      alignItems: 'start'
     }
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(SectionLabel, {
+  }, /*#__PURE__*/React.createElement("div", { style: { minWidth: 0 } }, /*#__PURE__*/React.createElement(SectionLabel, {
     color: C.gold
   }, "BIDS TO WIN · EARLIEST DUE FIRST"), /*#__PURE__*/React.createElement("div", {
     className: "mono",
@@ -2468,15 +2827,25 @@ function Dashboard({
       marginBottom: 11
     }
   }, weekAhead.map(function (wd, wx) {
+    var on = dayF === wd.iso;
     return /*#__PURE__*/React.createElement("div", {
       key: wx,
+      role: wd.cnt ? 'button' : undefined,
+      tabIndex: wd.cnt ? 0 : undefined,
+      'aria-pressed': wd.cnt ? on : undefined,
+      title: wd.cnt ? wd.cnt + ' bid' + (wd.cnt > 1 ? 's' : '') + ' due ' + wd.dow + ' ' + wd.ds + (on ? ' \u2014 click to show all' : ' \u2014 click to show only these') : 'Nothing due ' + wd.dow + ' ' + wd.ds,
+      onClick: wd.cnt ? function () { setDayF(on ? null : wd.iso); } : undefined,
+      onKeyDown: wd.cnt ? function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setDayF(on ? null : wd.iso); } } : undefined,
+      className: wd.cnt ? 'dx-click' : undefined,
       style: {
         flex: 1,
+        minWidth: 0,
         textAlign: 'center',
-        padding: '6px 2px',
-        borderRadius: 7,
-        border: '0.5px solid ' + (wd.cnt ? C.red : C.line),
-        background: wd.cnt ? 'rgba(232,51,42,.08)' : 'transparent'
+        padding: '7px 2px',
+        borderRadius: 10,
+        border: '1px solid ' + (on ? C.teal : wd.cnt ? dxAlpha(C.red, 70) : C.line),
+        background: on ? 'var(--sel)' : wd.cnt ? dxAlpha(C.red, 9) : 'transparent',
+        cursor: wd.cnt ? 'pointer' : 'default'
       }
     }, /*#__PURE__*/React.createElement("div", {
       className: "mono",
@@ -2498,20 +2867,30 @@ function Dashboard({
         color: wd.cnt ? C.red2 : C.t3
       }
     }, wd.cnt || '·'));
-  })), bidsToWin.length ? bidsToWin.slice(0, 8).map(function (b) {
+  })), dayF ? /*#__PURE__*/React.createElement("div", {
+    className: "mono",
+    style: { fontSize: 10.5, color: C.teal, margin: '-3px 0 9px', display: 'flex', gap: 8, alignItems: 'center' }
+  }, "showing bids due " + dayF, /*#__PURE__*/React.createElement("span", {
+    role: "button", tabIndex: 0, onClick: () => setDayF(null), onKeyDown: e => { if (e.key === 'Enter') setDayF(null); },
+    style: { cursor: 'pointer', color: C.t2, textDecoration: 'underline' }
+  }, "show all")) : null, bidsShown.length ? bidsShown.slice(0, 8).map(function (b) {
     var col = b.stt === 'PAST DUE' || b.stt === 'TIGHT' ? C.red2 : b.stt === 'SOON' ? C.gold : C.green;
     return /*#__PURE__*/React.createElement("div", {
       key: b.p.id,
       onClick: () => onOpen(b.p.id),
+      onKeyDown: e => { if (e.key === 'Enter') onOpen(b.p.id); },
+      role: "button",
+      tabIndex: 0,
+      className: "dx-click fade-in",
       style: {
         display: 'flex',
         alignItems: 'center',
         gap: 10,
         background: C.panel,
-        border: '0.5px solid ' + C.line,
-        borderLeft: '2px solid ' + col,
-        borderRadius: '0 8px 8px 0',
-        padding: '9px 11px',
+        border: '1px solid ' + C.line,
+        borderLeft: '3px solid ' + col,
+        borderRadius: '4px 10px 10px 4px',
+        padding: '10px 12px',
         marginBottom: 7,
         cursor: 'pointer'
       }
@@ -2562,11 +2941,12 @@ function Dashboard({
     color: C.red
   }, "NEEDS YOU NOW"), triage.length ? triage.map((t, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
+    className: "fade-in",
     style: {
       background: C.panel,
-      border: '0.5px solid ' + C.line,
-      borderLeft: '2px solid ' + t.tone,
-      borderRadius: '0 9px 9px 0',
+      border: '1px solid ' + C.line,
+      borderLeft: '3px solid ' + t.tone,
+      borderRadius: '4px 12px 12px 4px',
       padding: '12px 13px',
       marginBottom: 9
     }
@@ -2596,7 +2976,71 @@ function Dashboard({
       padding: '5px 11px',
       fontSize: 11
     }
-  }, a.l))))) : /*#__PURE__*/React.createElement(Empty, null, "Nothing needs you right now.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(SectionLabel, null, "PIPELINE"), /*#__PURE__*/React.createElement("div", {
+  }, a.l))))) : /*#__PURE__*/React.createElement(Empty, null, "Nothing needs you right now.")), /*#__PURE__*/React.createElement("div", { style: { minWidth: 0 } }, /*#__PURE__*/React.createElement(SectionLabel, null, "PULSE"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(2,minmax(0,1fr))',
+      gap: 10,
+      marginBottom: 16
+    }
+  }, /*#__PURE__*/React.createElement(Stat, {
+    v: open.length,
+    l: "open bids",
+    onClick: () => nav('pipeline/open'),
+    hint: 'Open the invited, estimating and submitted bids'
+  }), /*#__PURE__*/React.createElement(Stat, {
+    v: money(outForAward),
+    l: "out for award",
+    color: C.gold,
+    onClick: () => nav('pipeline/submitted'),
+    hint: 'Open the submitted bids awaiting award'
+  }), /*#__PURE__*/React.createElement(Stat, {
+    v: wr == null ? '\u2014' : wr + '%',
+    l: wr == null ? 'win rate \u00b7 no data' : 'win rate',
+    color: wr == null ? C.t3 : C.t1,
+    onClick: () => nav('pipeline/decided'),
+    hint: 'Open the won and lost bids behind the win rate'
+  }), /*#__PURE__*/React.createElement(Stat, {
+    v: fups.length,
+    l: "follow-ups due",
+    color: fups.length ? C.red2 : C.t1,
+    onClick: () => nav('clients'),
+    hint: 'Open follow-ups on the Clients page'
+  })), /*#__PURE__*/React.createElement(Card, {
+    title: 'Pipeline by stage',
+    sub: 'Bid count and value \u00b7 click a stage to list its bids',
+    style: { marginBottom: 12 }
+  }, /*#__PURE__*/React.createElement(DxHBars, {
+    data: stageData,
+    active: pick.stage,
+    onPick: k => setPick(p => Object.assign({}, p, { stage: k }))
+  })), /*#__PURE__*/React.createElement(Card, {
+    title: 'Bids by month',
+    sub: 'Last 12 months by due date \u00b7 won / submitted / open / lost',
+    style: { marginBottom: 12 }
+  }, /*#__PURE__*/React.createElement(DxColumns, {
+    data: monthData,
+    stack: true,
+    height: 150,
+    active: pick.month,
+    ariaLabel: 'Bids by month',
+    empty: 'No bids with dates in the last 12 months',
+    fmt: (v, axis) => axis ? String(Math.round(v)) : v + ' bids',
+    onPick: k => setPick(p => Object.assign({}, p, { month: k }))
+  })), picked ? /*#__PURE__*/React.createElement(Card, {
+    title: pickedLabel + ' \u00b7 ' + picked.length + ' bid' + (picked.length === 1 ? '' : 's'),
+    sub: money(picked.reduce((s, p) => s + DX.revenueOf(p), 0)) + ' total \u00b7 largest first',
+    style: { marginBottom: 16, borderColor: C.teal },
+    right: [/*#__PURE__*/React.createElement(Btn, { key: 'c', ghost: true, onClick: () => setPick({ stage: null, month: null }), style: { padding: '4px 10px', fontSize: 11 } }, "Clear"), /*#__PURE__*/React.createElement(Btn, { key: 'o', ghost: true, onClick: () => nav(pipeHash()), style: { padding: '4px 10px', fontSize: 11 } }, "Open in Pipeline \u2192")]
+  }, picked.length ? picked.slice(0, 12).map(p => /*#__PURE__*/React.createElement("div", {
+    key: p.id,
+    role: "button",
+    tabIndex: 0,
+    onClick: () => onOpen(p.id),
+    onKeyDown: e => { if (e.key === 'Enter') onOpen(p.id); },
+    className: "dx-click",
+    style: { display: 'flex', alignItems: 'center', gap: 10, padding: '7px 8px', borderRadius: 8, border: '1px solid transparent' }
+  }, /*#__PURE__*/React.createElement("span", { style: { flex: 1, minWidth: 0, fontSize: 12.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, p.name), /*#__PURE__*/React.createElement(Pill, { status: p.status }), /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 11, color: C.t2, minWidth: 64, textAlign: 'right' } }, DX.revenueOf(p) ? money(DX.revenueOf(p)) : '\u2014'))) : /*#__PURE__*/React.createElement(Empty, null, "No bids match."), picked.length > 12 ? /*#__PURE__*/React.createElement("div", { className: "mono", style: { fontSize: 10.5, color: C.t3, padding: '6px 8px 0' } }, "+", picked.length - 12, " more in Pipeline") : null) : null, /*#__PURE__*/React.createElement(SectionLabel, null, "PIPELINE"), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: '1fr 1fr',
@@ -2604,38 +3048,59 @@ function Dashboard({
       marginBottom: 12
     }
   }, cols.map(([st, lab]) => {
-    const items = db.projects.filter(p => p.status === st);
+    // Newest first, capped: the full column lives on the Pipeline page.
+    const all = db.projects.filter(p => p.status === st);
+    const items = all.slice().sort((a, b) => String(b.dueAt || b.createdAt || '').localeCompare(String(a.dueAt || a.createdAt || ''))).slice(0, 5);
     return /*#__PURE__*/React.createElement("div", {
       key: st,
       style: {
         background: C.panel,
-        border: '0.5px solid ' + C.line,
-        borderRadius: 9,
+        border: '1px solid ' + C.line,
+        borderTop: '2px solid ' + STPILL[st],
+        borderRadius: 12,
         padding: 9,
-        minHeight: 74
+        minHeight: 74,
+        minWidth: 0
       }
     }, /*#__PURE__*/React.createElement("div", {
-      className: "mono",
+      className: "mono dx-click",
+      role: "button",
+      tabIndex: 0,
+      title: 'Open all ' + lab.toLowerCase() + ' bids in Pipeline',
+      onClick: () => nav('pipeline/' + st),
+      onKeyDown: e => { if (e.key === 'Enter') nav('pipeline/' + st); },
       style: {
         fontSize: 10,
         color: C.t3,
-        marginBottom: 6
+        marginBottom: 6,
+        display: 'flex',
+        justifyContent: 'space-between',
+        borderRadius: 6,
+        padding: '2px 4px',
+        border: '1px solid transparent'
       }
-    }, lab.toUpperCase()), items.map(p => /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("span", null, lab.toUpperCase()), /*#__PURE__*/React.createElement("span", null, all.length)), items.map(p => /*#__PURE__*/React.createElement("div", {
       key: p.id,
       onClick: () => onOpen(p.id),
+      onKeyDown: e => { if (e.key === 'Enter') onOpen(p.id); },
+      role: "button",
+      tabIndex: 0,
+      className: "dx-click",
       style: {
         background: C.panel2,
-        border: '0.5px solid ' + C.line,
-        borderRadius: 6,
+        border: '1px solid ' + C.line,
+        borderRadius: 8,
         padding: 7,
         marginBottom: 5,
         cursor: 'pointer'
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontSize: 11,
-        color: C.t1
+        fontSize: 11.5,
+        color: C.t1,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
       }
     }, p.name.split(',')[0]), /*#__PURE__*/React.createElement("div", {
       className: "mono",
@@ -2643,33 +3108,20 @@ function Dashboard({
         fontSize: 10,
         color: C.t2
       }
-    }, DX.revenueOf(p) ? money(DX.revenueOf(p)) : '—'))));
-  })), /*#__PURE__*/React.createElement(SectionLabel, null, "PULSE"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: 10
-    }
-  }, /*#__PURE__*/React.createElement(Stat, {
-    v: open.length,
-    l: "open bids"
-  }), /*#__PURE__*/React.createElement(Stat, {
-    v: money(outForAward),
-    l: "out for award",
-    color: C.gold
-  }), /*#__PURE__*/React.createElement(Stat, {
-    v: wr == null ? '—' : wr + '%',
-    l: wr == null ? 'win rate · no data' : 'win rate',
-    color: wr == null ? C.t3 : C.t1
-  }), /*#__PURE__*/React.createElement(Stat, {
-    v: fups.length,
-    l: "follow-ups due",
-    color: fups.length ? C.red2 : C.t1
+    }, DX.revenueOf(p) ? money(DX.revenueOf(p)) : '—'))), all.length > items.length ? /*#__PURE__*/React.createElement("div", {
+      role: "button",
+      tabIndex: 0,
+      onClick: () => nav('pipeline/' + st),
+      onKeyDown: e => { if (e.key === 'Enter') nav('pipeline/' + st); },
+      className: "mono",
+      style: { fontSize: 10.5, color: C.teal, cursor: 'pointer', padding: '3px 4px' }
+    }, "+", all.length - items.length, " more \u2192") : null);
   }))), /*#__PURE__*/React.createElement("div", {
+    className: "dx-dock",
     style: {
       height: 'calc(100vh - 132px)',
       position: 'sticky',
-      top: 0
+      top: 64
     }
   }, /*#__PURE__*/React.createElement(AgentDock, {
     nav: nav,
@@ -2702,7 +3154,7 @@ function StaleBidsPanel({ onOpen }) {
     DX.toast(name.split(',')[0] + ' → ' + status + ' — pricing bands updated on next refresh', 'ok');
   };
   return /*#__PURE__*/React.createElement("div", {
-    style: { background: C.panel, border: '0.5px solid ' + C.line, borderLeft: '2px solid ' + C.gold, borderRadius: 10, padding: '10px 14px', marginBottom: 14 }
+    style: { background: C.panel, border: '1px solid ' + C.line, borderLeft: '2px solid ' + C.gold, borderRadius: 10, padding: '10px 14px', marginBottom: 14 }
   }, /*#__PURE__*/React.createElement("div", {
     style: { display: 'flex', alignItems: 'center', gap: 10 }
   }, /*#__PURE__*/React.createElement("span", { style: { fontSize: 12.5, color: C.t1 } },
@@ -2711,7 +3163,7 @@ function StaleBidsPanel({ onOpen }) {
     open ? /*#__PURE__*/React.createElement("div", { style: { marginTop: 10, maxHeight: 300, overflowY: 'auto' } },
       stale.map(({ p, age }) => /*#__PURE__*/React.createElement("div", {
         key: p.id,
-        style: { display: 'flex', alignItems: 'center', gap: 10, padding: '7px 4px', borderTop: '0.5px solid ' + C.line }
+        style: { display: 'flex', alignItems: 'center', gap: 10, padding: '7px 4px', borderTop: '1px solid ' + C.line }
       },
         /*#__PURE__*/React.createElement("span", { onClick: () => onOpen && onOpen(p.id), style: { fontSize: 12.5, color: C.t1, cursor: 'pointer', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, p.name),
         /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 11, color: C.t3, flexShrink: 0 } }, (p.bidAmount ? '$' + Math.round(p.bidAmount).toLocaleString() : 'no amount') + ' · ' + (age != null ? age + 'd' : 'undated')),
@@ -2719,15 +3171,53 @@ function StaleBidsPanel({ onOpen }) {
         /*#__PURE__*/React.createElement(Btn, { ghost: true, onClick: () => resolve(p.id, 'lost', p.name), style: { padding: '3px 9px', fontSize: 11, color: C.red2, borderColor: C.red2 } }, "Lost"),
         /*#__PURE__*/React.createElement(Btn, { ghost: true, onClick: () => setSkipped(s => ({ ...s, [p.id]: true })), style: { padding: '3px 9px', fontSize: 11, color: C.t3 } }, "Still open")))) : null);
 }
+/* Route filters: #/pipeline/<tokens joined by +>  — tokens: a status, 'open' (invited+estimating+submitted),
+   'decided' (won+lost) or 'mYYYY-MM' (month of the bid's due date). Charts and KPI tiles link here. */
+const PIPE_COLS = [['invited', 'Invited'], ['estimating', 'Estimating'], ['submitted', 'Submitted'], ['won', 'Won'], ['lost', 'Lost']];
+function parsePipeFilter(param) {
+  const st = {}, out = { st: null, month: null };
+  String(param || '').split('+').filter(Boolean).forEach(t => {
+    t = decodeURIComponent(t);
+    if (t === 'open') { st.invited = st.estimating = st.submitted = 1; }
+    else if (t === 'decided') { st.won = st.lost = 1; }
+    else if (/^m\d{4}-\d{2}$/.test(t)) out.month = t.slice(1);
+    else if (PIPE_COLS.some(c => c[0] === t)) st[t] = 1;
+  });
+  if (Object.keys(st).length) out.st = st;
+  return out;
+}
 function Pipeline({
   onNew,
   onOpen
 }) {
   const db = useStore();
+  const [, nav, routeParam] = useHashRoute();
   const [tab, setTab] = useState('board');
-  const cols = [['invited', 'Invited'], ['estimating', 'Estimating'], ['submitted', 'Submitted'], ['won', 'Won'], ['lost', 'Lost']];
+  const [q, setQ] = useState('');
+  const [limit, setLimit] = useState(150);
+  const [colAll, setColAll] = useState({});
+  const f = parsePipeFilter(routeParam);
+  const cols = PIPE_COLS;
   const fileRef = useRef();
+  const setFilter = (st, month) => {
+    const toks = Object.keys(st || {}).filter(k => st[k]);
+    const parts = (toks.length === cols.length ? [] : toks).concat(month ? ['m' + month] : []);
+    nav('pipeline' + (parts.length ? '/' + parts.join('+') : ''));
+  };
+  const toggleSt = k => { const st = Object.assign({}, f.st || {}); if (st[k]) delete st[k]; else st[k] = 1; setFilter(st, f.month); };
+  const qn = dxNorm(q.trim());
+  const base = db.projects.filter(p => (!f.month || monthKey(p.dueAt || p.submittedAt || p.createdAt) === f.month) &&
+    (!qn || dxNorm(p.name + ' ' + (p.bidNo || '') + ' ' + (p.address || '') + ' ' + (p.scope || '') + ' ' + DX.client(p.client_id).name).indexOf(qn) >= 0));
+  const rows = base.filter(p => !f.st || f.st[p.status]);
+  const total = rows.reduce((s, p) => s + DX.revenueOf(p), 0);
+  const [sorted, th] = useSortable(rows, {
+    name: p => dxNorm(p.name), client: p => dxNorm(DX.client(p.client_id).name), bid: p => p.bidNo || '',
+    status: p => ['invited', 'estimating', 'submitted', 'won', 'lost'].indexOf(p.status), value: p => DX.revenueOf(p) || null, due: p => p.dueAt || ''
+  }, 'due', -1);
+  const td = { padding: '10px 14px', borderBottom: '1px solid ' + C.line };
+  const filtered = !!(f.st || f.month || qn);
   return /*#__PURE__*/React.createElement("div", {
+    className: "dx-pad",
     style: {
       padding: '20px 22px'
     }
@@ -2735,24 +3225,28 @@ function Pipeline({
     style: {
       display: 'flex',
       alignItems: 'center',
-      marginBottom: 18
+      marginBottom: 16,
+      gap: 12,
+      flexWrap: 'wrap'
     }
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "syne",
     style: {
       fontWeight: 800,
-      fontSize: 22
+      fontSize: 24,
+      letterSpacing: -.2
     }
   }, "Pipeline"), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 12,
+      fontSize: 12.5,
       color: C.t2
     }
   }, "Every bid and job. Move cards forward as they progress.")), /*#__PURE__*/React.createElement("div", {
     style: {
       marginLeft: 'auto',
       display: 'flex',
-      gap: 8
+      gap: 8,
+      flexWrap: 'wrap'
     }
   }, /*#__PURE__*/React.createElement("input", {
     ref: fileRef,
@@ -2781,41 +3275,71 @@ function Pipeline({
   }, "+ New Project"))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
-      gap: 6,
-      marginBottom: 14
+      gap: 8,
+      marginBottom: 14,
+      alignItems: 'center',
+      flexWrap: 'wrap'
     }
-  }, [['board', 'Board'], ['table', 'Table']].map(([k, l]) => /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("div", {
+    role: "tablist",
+    style: { display: 'flex', gap: 2, padding: 3, borderRadius: 11, background: C.panel, border: '1px solid ' + C.line }
+  }, [['board', 'Board'], ['table', 'Table']].map(([k, l]) => /*#__PURE__*/React.createElement("button", {
     key: k,
+    type: "button",
+    role: "tab",
+    'aria-selected': tab === k,
     onClick: () => setTab(k),
-    className: "syne",
+    className: "syne dx-btn ghost",
     style: {
-      fontWeight: 800,
+      fontWeight: 700,
       fontSize: 12,
-      padding: '6px 12px',
-      borderRadius: 7,
+      padding: '6px 14px',
+      borderRadius: 8,
       cursor: 'pointer',
-      background: tab === k ? C.panel : 'transparent',
-      border: '0.5px solid ' + (tab === k ? C.line2 : 'transparent'),
+      background: tab === k ? C.panel2 : 'transparent',
+      border: '1px solid ' + (tab === k ? C.line2 : 'transparent'),
       color: tab === k ? C.t1 : C.t2
     }
-  }, l))), /*#__PURE__*/React.createElement(StaleBidsPanel, { onOpen: onOpen }), tab === 'board' ? /*#__PURE__*/React.createElement("div", {
+  }, l))), cols.map(([k, l]) => {
+    const n = base.filter(p => p.status === k).length;
+    const on = !!(f.st && f.st[k]);
+    return /*#__PURE__*/React.createElement("button", {
+      key: k, type: "button", className: 'dx-chip' + (on ? ' on' : ''), 'aria-pressed': on,
+      onClick: () => toggleSt(k), title: (on ? 'Remove ' : 'Show only ') + l.toLowerCase() + ' bids'
+    }, /*#__PURE__*/React.createElement("span", { 'aria-hidden': true, style: { width: 7, height: 7, borderRadius: 9, background: STPILL[k] } }), l, /*#__PURE__*/React.createElement("b", null, n));
+  }), f.month ? /*#__PURE__*/React.createElement("button", {
+    type: "button", className: "dx-chip on", onClick: () => setFilter(f.st, null), title: 'Clear the month filter'
+  }, "Due ", monthLabel(f.month), " ✕") : null, filtered ? /*#__PURE__*/React.createElement("button", {
+    type: "button", className: "dx-chip", onClick: () => { setQ(''); nav('pipeline'); }
+  }, "Clear filters") : null, /*#__PURE__*/React.createElement(DxSearch, {
+    value: q, onChange: setQ, placeholder: 'Search name, client, bid #, address…', style: { marginLeft: 'auto', width: 280, maxWidth: '100%' }
+  })), filtered ? /*#__PURE__*/React.createElement("div", {
+    className: "mono",
+    style: { fontSize: 11, color: C.t3, margin: '-4px 0 12px' }
+  }, rows.length, " of ", db.projects.length, " projects · ", money(total)) : null, /*#__PURE__*/React.createElement(StaleBidsPanel, { onOpen: onOpen }), tab === 'board' ? /*#__PURE__*/React.createElement("div", {
+    className: "dx-scroll-x",
+    style: { paddingBottom: 6 }
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(5,1fr)',
+      gridTemplateColumns: 'repeat(' + cols.filter(([st]) => !f.st || f.st[st]).length + ',minmax(210px,1fr))',
       gap: 11,
       alignItems: 'start'
     }
-  }, cols.map(([st, lab]) => {
-    const items = db.projects.filter(p => p.status === st);
-    const val = items.reduce((s, p) => s + DX.revenueOf(p), 0);
+  }, cols.filter(([st]) => !f.st || f.st[st]).map(([st, lab]) => {
+    const all = rows.filter(p => p.status === st);
+    const items = colAll[st] ? all : all.slice(0, 60);
+    const val = all.reduce((s, p) => s + DX.revenueOf(p), 0);
     return /*#__PURE__*/React.createElement("div", {
       key: st,
       style: {
         background: C.panel,
-        border: '0.5px solid ' + C.line,
-        borderRadius: 12,
+        border: '1px solid ' + C.line,
+        borderTop: '2px solid ' + STPILL[st],
+        borderRadius: 14,
         padding: 10,
-        minHeight: 120
+        minHeight: 120,
+        minWidth: 0
       }
     }, /*#__PURE__*/React.createElement("div", {
       className: "syne",
@@ -2829,122 +3353,103 @@ function Pipeline({
         marginBottom: 10
       }
     }, /*#__PURE__*/React.createElement("span", null, lab), /*#__PURE__*/React.createElement("span", {
+      className: "mono",
       style: {
-        color: C.t3
+        color: C.t3,
+        fontWeight: 500
       }
-    }, items.length)), items.map(p => /*#__PURE__*/React.createElement("div", {
+    }, all.length, val ? ' · ' + moneyShort(val) : '')), items.map(p => /*#__PURE__*/React.createElement("div", {
       key: p.id,
       onClick: () => onOpen(p.id),
+      onKeyDown: e => { if (e.key === 'Enter') onOpen(p.id); },
+      role: "button",
+      tabIndex: 0,
+      className: "dx-click",
       style: {
         background: C.panel2,
-        border: '0.5px solid ' + C.line,
-        borderRadius: 9,
+        border: '1px solid ' + C.line,
+        borderRadius: 10,
         padding: 10,
-        marginBottom: 9,
+        marginBottom: 8,
         cursor: 'pointer'
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontSize: 12,
-        color: C.t1
+        fontSize: 12.5,
+        color: C.t1,
+        lineHeight: 1.3
       }
     }, p.name), /*#__PURE__*/React.createElement("div", {
       className: "mono",
       style: {
         fontSize: 10,
         color: C.t2,
-        marginTop: 4,
+        marginTop: 5,
         display: 'flex',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        gap: 8
       }
-    }, /*#__PURE__*/React.createElement("span", null, DX.client(p.client_id).name.split('—')[0].trim()), /*#__PURE__*/React.createElement("span", null, DX.revenueOf(p) ? money(DX.revenueOf(p)) : '—')))), val ? /*#__PURE__*/React.createElement("div", {
-      className: "mono",
-      style: {
-        fontSize: 10,
-        color: C.t3,
-        textAlign: 'right',
-        marginTop: 4
-      }
-    }, money(val)) : null);
-  })) : /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("span", { style: { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, DX.client(p.client_id).name.split('—')[0].trim()), /*#__PURE__*/React.createElement("span", { style: { flex: '0 0 auto' } }, DX.revenueOf(p) ? money(DX.revenueOf(p)) : '—')))), all.length > items.length ? /*#__PURE__*/React.createElement(Btn, {
+      ghost: true,
+      onClick: () => setColAll(c => Object.assign({}, c, { [st]: true })),
+      style: { width: '100%', padding: '6px 10px', fontSize: 11 }
+    }, "Show all ", all.length) : null, !all.length ? /*#__PURE__*/React.createElement("div", { style: { fontSize: 11.5, color: C.t3, padding: '10px 2px' } }, "Nothing here.") : null);
+  }))) : /*#__PURE__*/React.createElement("div", {
+    className: "dx-card dx-scroll-x",
     style: {
       background: C.panel,
-      border: '0.5px solid ' + C.line,
-      borderRadius: 12,
-      overflow: 'hidden'
+      border: '1px solid ' + C.line,
+      borderRadius: 14,
+      maxHeight: '72vh',
+      overflowY: 'auto'
     }
   }, /*#__PURE__*/React.createElement("table", {
+    className: "dx-table",
     style: {
-      width: '100%',
-      borderCollapse: 'collapse',
-      fontSize: 12.5
+      fontSize: 12.5,
+      minWidth: 720
     }
-  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, ['Project', 'Client', 'Bid #', 'Status', 'Value', 'Due'].map(h => /*#__PURE__*/React.createElement("th", {
-    key: h,
-    className: "mono",
-    style: {
-      textAlign: 'left',
-      fontSize: 10,
-      letterSpacing: 1,
-      textTransform: 'uppercase',
-      color: C.t3,
-      padding: '9px 11px',
-      borderBottom: '0.5px solid ' + C.line
-    }
-  }, h)))), /*#__PURE__*/React.createElement("tbody", null, db.projects.map(p => /*#__PURE__*/React.createElement("tr", {
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, th('name', 'Project'), th('client', 'Client'), th('bid', 'Bid #'), th('status', 'Status'), th('value', 'Value', { textAlign: 'right' }), th('due', 'Due'))), /*#__PURE__*/React.createElement("tbody", null, sorted.slice(0, limit).map(p => /*#__PURE__*/React.createElement("tr", {
     key: p.id,
     onClick: () => onOpen(p.id),
+    onKeyDown: e => { if (e.key === 'Enter') onOpen(p.id); },
+    tabIndex: 0,
     style: {
       cursor: 'pointer'
     }
   }, /*#__PURE__*/React.createElement("td", {
-    style: {
-      padding: '10px 11px',
-      borderBottom: '0.5px solid ' + C.line
-    }
+    style: td
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       color: C.t1
     }
-  }, p.name), /*#__PURE__*/React.createElement("div", {
+  }, p.name), p.scope ? /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 10,
-      color: C.t3
+      fontSize: 10.5,
+      color: C.t3,
+      maxWidth: 460,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap'
     }
-  }, p.scope)), /*#__PURE__*/React.createElement("td", {
-    style: {
-      padding: '10px 11px',
-      borderBottom: '0.5px solid ' + C.line,
-      color: C.t2
-    }
+  }, p.scope) : null), /*#__PURE__*/React.createElement("td", {
+    style: Object.assign({}, td, { color: C.t2 })
   }, DX.client(p.client_id).name), /*#__PURE__*/React.createElement("td", {
     className: "mono",
-    style: {
-      padding: '10px 11px',
-      borderBottom: '0.5px solid ' + C.line,
-      color: C.t2,
-      fontSize: 11
-    }
+    style: Object.assign({}, td, { color: C.t2, fontSize: 11 })
   }, p.bidNo || '—'), /*#__PURE__*/React.createElement("td", {
-    style: {
-      padding: '10px 11px',
-      borderBottom: '0.5px solid ' + C.line
-    }
+    style: td
   }, /*#__PURE__*/React.createElement(Pill, {
     status: p.status
   })), /*#__PURE__*/React.createElement("td", {
-    style: {
-      padding: '10px 11px',
-      borderBottom: '0.5px solid ' + C.line
-    }
+    className: "mono",
+    style: Object.assign({}, td, { textAlign: 'right', fontSize: 12 })
   }, DX.revenueOf(p) ? money(DX.revenueOf(p)) : '—'), /*#__PURE__*/React.createElement("td", {
-    style: {
-      padding: '10px 11px',
-      borderBottom: '0.5px solid ' + C.line,
-      color: dueColor(p.dueAt),
-      fontSize: 11
-    }
-  }, p.dueAt || '—')))))));
+    className: "mono",
+    style: Object.assign({}, td, { color: dueColor(p.dueAt), fontSize: 11 })
+  }, p.dueAt || '—'))))), sorted.length > limit ? /*#__PURE__*/React.createElement("div", {
+    style: { padding: 12, textAlign: 'center' }
+  }, /*#__PURE__*/React.createElement(Btn, { ghost: true, onClick: () => setLimit(l => l + 300) }, "Show more (", sorted.length - limit, " left)")) : null, !sorted.length ? /*#__PURE__*/React.createElement(Empty, null, "No projects match these filters.") : null));
 }
 
 /* ════════ CLIENTS workspace ════════ */
@@ -2955,7 +3460,22 @@ function Clients({
   const [expC, setExpC] = React.useState(null);
   const db = useStore();
   const overdue = db.followups.filter(f => !f.done && f.due <= DX.todayISO());
+  const [q, setQ] = useState('');
+  // project count + value per client, computed once per render instead of per row
+  const byClient = React.useMemo(() => {
+    const m = {};
+    db.projects.forEach(p => { const k = p.client_id; if (!m[k]) m[k] = { n: 0, v: 0 }; m[k].n++; m[k].v += DX.revenueOf(p); });
+    return m;
+  }, [db.projects, db.projects.length]);
+  const qn = dxNorm(q.trim());
+  const clientRows = db.clients.filter(c => !qn || dxNorm([c.name, c.type, c.contactName, c.email, c.phone, c.address].concat((c.contacts || []).map(x => x.name + ' ' + (x.email || ''))).join(' ')).indexOf(qn) >= 0);
+  const [sortedClients, th] = useSortable(clientRows, {
+    name: c => dxNorm(c.name), type: c => dxNorm(c.type), contact: c => dxNorm(c.contactName), phone: c => c.phone || '',
+    n: c => (byClient[c.id] || {}).n || 0, v: c => (byClient[c.id] || {}).v || 0,
+    contacts: c => (c.contacts ? c.contacts.length : 0)
+  }, 'contacts', -1);
   return /*#__PURE__*/React.createElement("div", {
+    className: "dx-pad",
     style: {
       padding: '20px 22px'
     }
@@ -2963,13 +3483,16 @@ function Clients({
     style: {
       display: 'flex',
       alignItems: 'center',
-      marginBottom: 18
+      marginBottom: 18,
+      gap: 12,
+      flexWrap: 'wrap'
     }
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "syne",
     style: {
       fontWeight: 800,
-      fontSize: 22
+      fontSize: 24,
+      letterSpacing: -.2
     }
   }, "Clients & Follow-up"), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -2991,7 +3514,7 @@ function Clients({
   }, "+ Client"))), /*#__PURE__*/React.createElement("div", {
     style: {
       background: C.panel,
-      border: '0.5px solid ' + C.line,
+      border: '1px solid ' + C.line,
       borderRadius: 12,
       padding: '15px 16px',
       marginBottom: 14
@@ -3015,7 +3538,7 @@ function Clients({
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: '8px 0',
-      borderBottom: '0.5px solid ' + C.line
+      borderBottom: '1px solid ' + C.line
     }
   }, /*#__PURE__*/React.createElement("label", {
     style: {
@@ -3049,34 +3572,26 @@ function Clients({
       color: dueColor(f.due)
     }
   }, f.due))) : /*#__PURE__*/React.createElement(Empty, null, "All caught up.")), /*#__PURE__*/React.createElement("div", {
+    style: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, flexWrap: 'wrap' }
+  }, /*#__PURE__*/React.createElement("div", { className: "syne", style: { fontWeight: 800, fontSize: 14 } }, "Clients"), /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 11, color: C.t3 } }, clientRows.length, qn ? ' of ' + db.clients.length : ''), /*#__PURE__*/React.createElement(DxSearch, {
+    value: q, onChange: setQ, placeholder: 'Filter clients, contacts, email…', style: { marginLeft: 'auto', width: 300, maxWidth: '100%' }
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "dx-card dx-scroll-x",
     style: {
       background: C.panel,
-      border: '0.5px solid ' + C.line,
-      borderRadius: 12,
-      overflow: 'hidden'
+      border: '1px solid ' + C.line,
+      borderRadius: 14,
+      maxHeight: '75vh',
+      overflowY: 'auto'
     }
   }, /*#__PURE__*/React.createElement("table", {
+    className: "dx-table",
     style: {
-      width: '100%',
-      borderCollapse: 'collapse',
-      fontSize: 12.5
+      fontSize: 12.5,
+      minWidth: 680
     }
-  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, ['Client', 'Type', 'Primary Contact', 'Phone', 'Projects', 'Value'].map(h => /*#__PURE__*/React.createElement("th", {
-    key: h,
-    className: "mono",
-    style: {
-      textAlign: 'left',
-      fontSize: 10,
-      letterSpacing: 1,
-      textTransform: 'uppercase',
-      color: C.t3,
-      padding: '9px 11px',
-      borderBottom: '0.5px solid ' + C.line
-    }
-  }, h)))), /*#__PURE__*/React.createElement("tbody", null, db.clients.slice().sort(function (a, b) {
-    return (b.contacts ? b.contacts.length : 0) - (a.contacts ? a.contacts.length : 0);
-  }).map(function (c) {
-    var cps = db.projects.filter(p => p.client_id === c.id);
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, th('name', 'Client'), th('type', 'Type'), th('contact', 'Primary Contact'), th('phone', 'Phone'), th('n', 'Projects'), th('v', 'Value'))), /*#__PURE__*/React.createElement("tbody", null, sortedClients.map(function (c) {
+    var cps = byClient[c.id] || { n: 0, v: 0 };
     var cons = c.contacts || [];
     var op = expC === c.id;
     return /*#__PURE__*/React.createElement(React.Fragment, {
@@ -3089,7 +3604,7 @@ function Clients({
     }, /*#__PURE__*/React.createElement("td", {
       style: {
         padding: '10px 11px',
-        borderBottom: '0.5px solid ' + C.line
+        borderBottom: '1px solid ' + C.line
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -3103,13 +3618,13 @@ function Clients({
     }, c.address)), /*#__PURE__*/React.createElement("td", {
       style: {
         padding: '10px 11px',
-        borderBottom: '0.5px solid ' + C.line,
+        borderBottom: '1px solid ' + C.line,
         color: C.t2
       }
     }, c.type), /*#__PURE__*/React.createElement("td", {
       style: {
         padding: '10px 11px',
-        borderBottom: '0.5px solid ' + C.line,
+        borderBottom: '1px solid ' + C.line,
         color: C.t2,
         fontSize: 11
       }
@@ -3125,25 +3640,25 @@ function Clients({
     }, "+", cons.length - 1, " more") : null), /*#__PURE__*/React.createElement("td", {
       style: {
         padding: '10px 11px',
-        borderBottom: '0.5px solid ' + C.line,
+        borderBottom: '1px solid ' + C.line,
         color: C.t2,
         fontSize: 11
       }
     }, c.phone || '\u2014'), /*#__PURE__*/React.createElement("td", {
       style: {
         padding: '10px 11px',
-        borderBottom: '0.5px solid ' + C.line
+        borderBottom: '1px solid ' + C.line
       }
-    }, cps.length), /*#__PURE__*/React.createElement("td", {
+    }, cps.n), /*#__PURE__*/React.createElement("td", {
       style: {
         padding: '10px 11px',
-        borderBottom: '0.5px solid ' + C.line
+        borderBottom: '1px solid ' + C.line
       }
-    }, money(cps.reduce((s, p) => s + DX.revenueOf(p), 0)))), op && cons.length ? /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    }, money(cps.v))), op && cons.length ? /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
       colSpan: "6",
       style: {
         padding: '2px 11px 10px',
-        borderBottom: '0.5px solid ' + C.line,
+        borderBottom: '1px solid ' + C.line,
         background: C.panel2
       }
     }, cons.map(function (ct, ix) {
@@ -3182,7 +3697,7 @@ function Clients({
         }
       }, ct.phone || ''));
     }))) : null);
-  })))));
+  }))), !sortedClients.length ? /*#__PURE__*/React.createElement(Empty, null, qn ? 'No clients match “' + q + '”.' : 'No clients yet.') : null));
 }
 
 /* ════════ PERFORMANCE workspace (jobcost + profit + pricing IQ + settings) ════════ */
@@ -3212,7 +3727,32 @@ function Performance({
   });
   const intel = DX.computeIntel();
   const [key, setKeyV] = useState(DX.getKey() || '');
+  const [mPick, setMPick] = useState(null);   // month clicked in the revenue chart
+  const [wq, setWq] = useState('');
+  const [wLimit, setWLimit] = useState(40);
+  const wonMonth = p => monthKey(p.awardedAt || p.submittedAt || p.dueAt || p.createdAt);
+  const revMonths = lastMonths(12).map(mk => {
+    const js = won.filter(p => wonMonth(p) === mk);
+    const v = js.reduce((s, p) => s + DX.revenueOf(p), 0);
+    return { key: mk, label: monthLabel(mk), short: MONTHS[+mk.slice(5) - 1], value: v, sub: js.length + ' job' + (js.length === 1 ? '' : 's') + ' awarded' };
+  });
+  // Jobs with logged actuals: variance of actual vs estimated direct cost
+  const varRows = won.map(p => ({ p, e: DX.estTotal(p).direct, a: DX.actualTotal(p.id).sum || 0 })).filter(x => x.a > 0 && x.e > 0)
+    .sort((x, y) => Math.abs(y.a - y.e) - Math.abs(x.a - x.e)).slice(0, 16);
+  const varData = varRows.map(x => {
+    const pct = (x.a - x.e) / x.e * 100;
+    return {
+      key: x.p.id, label: x.p.name.split(',')[0], short: x.p.name.split(/[,:\-]/)[0].slice(0, 8), value: Math.abs(x.a - x.e),
+      color: x.a > x.e ? 'var(--red2)' : 'var(--green)',
+      tip: ce(React.Fragment, null, ce("b", null, x.p.name), ce("br"), 'est ' + money(x.e) + ' · actual ' + money(x.a),
+        ce("div", { className: 'm' }, (pct > 0 ? '+' : '') + Math.round(pct) + '% ' + (x.a > x.e ? 'over' : 'under') + ' estimate'), ce("div", { className: 'm' }, 'click to log a cost'))
+    };
+  });
+  const wqn = dxNorm(wq.trim());
+  const wonShown = won.filter(p => (!mPick || wonMonth(p) === mPick) && (!wqn || dxNorm(p.name + ' ' + DX.client(p.client_id).name).indexOf(wqn) >= 0))
+    .sort((x, y) => String(wonMonth(y) || '').localeCompare(String(wonMonth(x) || '')));
   return /*#__PURE__*/React.createElement("div", {
+    className: "dx-pad",
     style: {
       padding: '20px 22px'
     }
@@ -3220,7 +3760,8 @@ function Performance({
     className: "syne",
     style: {
       fontWeight: 800,
-      fontSize: 22
+      fontSize: 24,
+      letterSpacing: -.2
     }
   }, "Performance"), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -3237,7 +3778,9 @@ function Performance({
     }
   }, /*#__PURE__*/React.createElement(Stat, {
     v: money(rev),
-    l: "awarded revenue"
+    l: "awarded revenue",
+    onClick: () => { location.hash = '#/pipeline/won'; },
+    hint: 'Open the won jobs in Pipeline'
   }), /*#__PURE__*/React.createElement(Stat, {
     v: money(rev - actCost),
     l: "realized profit",
@@ -3249,9 +3792,26 @@ function Performance({
     v: intel.sampleJobs,
     l: "jobs learned from"
   })), /*#__PURE__*/React.createElement("div", {
+    className: "dx-grid",
+    style: { display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: 14, marginBottom: 14 }
+  }, /*#__PURE__*/React.createElement(Card, {
+    title: 'Awarded revenue by month',
+    sub: 'Last 12 months · click a month to list its jobs below'
+  }, /*#__PURE__*/React.createElement(DxColumns, {
+    data: revMonths, height: 160, active: mPick, color: 'var(--green)', ariaLabel: 'Awarded revenue by month',
+    fmt: (v, axis) => axis ? moneyShort(v) : money(v), onPick: setMPick,
+    empty: 'No awarded jobs dated in the last 12 months'
+  })), /*#__PURE__*/React.createElement(Card, {
+    title: 'Cost variance on logged jobs',
+    sub: 'Actual vs estimated direct cost · red = over, green = under'
+  }, /*#__PURE__*/React.createElement(DxColumns, {
+    data: varData, height: 160, ariaLabel: 'Cost variance by job',
+    fmt: (v, axis) => axis ? moneyShort(v) : money(v) + ' variance', onPick: k => { if (k) onLogCost(k); },
+    empty: 'Log actual costs on an awarded job to see estimate accuracy here'
+  }))), /*#__PURE__*/React.createElement("div", {
     style: {
       background: C.panel,
-      border: '0.5px solid ' + C.line,
+      border: '1px solid ' + C.line,
       borderRadius: 12,
       padding: '15px 16px',
       marginBottom: 14
@@ -3263,13 +3823,13 @@ function Performance({
       fontSize: 13,
       marginBottom: 10
     }
-  }, "Awarded jobs — estimated vs actual"), won.length ? won.map(p => {
+  }, "Awarded jobs — estimated vs actual", mPick ? /*#__PURE__*/React.createElement("span", { className: "mono", style: { fontSize: 10.5, color: C.teal, fontWeight: 400, marginLeft: 8 } }, "awarded ", monthLabel(mPick), " · ", /*#__PURE__*/React.createElement("span", { role: "button", tabIndex: 0, onClick: () => setMPick(null), onKeyDown: e => { if (e.key === 'Enter') setMPick(null); }, style: { cursor: 'pointer', textDecoration: 'underline', color: C.t2 } }, "clear")) : null), won.length > 8 ? /*#__PURE__*/React.createElement(DxSearch, { value: wq, onChange: setWq, placeholder: 'Filter awarded jobs…', style: { marginBottom: 8, maxWidth: 340 } }) : null, wonShown.length ? wonShown.slice(0, wLimit).map(p => {
     const a = DX.actualTotal(p.id),
       e = DX.estTotal(p);
     return /*#__PURE__*/React.createElement("div", {
       key: p.id,
       style: {
-        borderBottom: '0.5px solid ' + C.line,
+        borderBottom: '1px solid ' + C.line,
         padding: '10px 0'
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -3300,10 +3860,10 @@ function Performance({
         color: a.sum > e.direct ? C.red2 : C.green
       }
     }, money(a.sum))));
-  }) : /*#__PURE__*/React.createElement(Empty, null, "No awarded jobs yet. Win a bid and log its costs to start tracking profit.")), /*#__PURE__*/React.createElement("div", {
+  }).concat(wonShown.length > wLimit ? [/*#__PURE__*/React.createElement("div", { key: 'more', style: { paddingTop: 10, textAlign: 'center' } }, /*#__PURE__*/React.createElement(Btn, { ghost: true, onClick: () => setWLimit(l => l + 100) }, "Show more (", wonShown.length - wLimit, " left)"))] : []) : /*#__PURE__*/React.createElement(Empty, null, won.length ? "No awarded jobs match." : "No awarded jobs yet. Win a bid and log its costs to start tracking profit.")), /*#__PURE__*/React.createElement("div", {
     style: {
       background: C.panel,
-      border: '0.5px solid ' + C.line,
+      border: '1px solid ' + C.line,
       borderRadius: 12,
       padding: '15px 16px',
       marginBottom: 14
@@ -3370,7 +3930,7 @@ function Performance({
   })()))) : /*#__PURE__*/React.createElement(Empty, null, "Complete and log costs on a job to generate pricing intelligence. Nothing is inferred from invented data.")), /*#__PURE__*/React.createElement(CorrectionStats, { db: db }), /*#__PURE__*/React.createElement("div", {
     style: {
       background: C.panel,
-      border: '0.5px solid ' + C.line,
+      border: '1px solid ' + C.line,
       borderRadius: 12,
       padding: '15px 16px'
     }
@@ -3408,65 +3968,358 @@ function Performance({
   }, "Audit trail: ", (db.audit || []).length, " events recorded. Latest: ", (db.audit || [])[0] ? db.audit[0].summary + ' · ' + db.audit[0].ts.slice(0, 16).replace('T', ' ') : 'none yet', ".")));
 }
 
-/* ════════ ESTIMATING workspace (wraps existing engine) ════════ */
-function Estimating() {
-  const [show, setShow] = useState(false);
-  if (show) return /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '10px 16px',
-      height: 'calc(100vh - 56px)',
-      display: 'flex',
-      flexDirection: 'column'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 10,
-      marginBottom: 8
-    }
-  }, /*#__PURE__*/React.createElement(Btn, {
-    ghost: true,
-    onClick: () => setShow(false),
-    style: {
-      padding: '6px 11px',
-      fontSize: 11
-    }
-  }, "← Overview"), /*#__PURE__*/React.createElement("div", {
-    className: "syne",
-    style: {
-      fontWeight: 800,
-      fontSize: 16
-    }
-  }, "Estimator"), /*#__PURE__*/React.createElement(Btn, {
-    ghost: true,
-    style: {
-      marginLeft: 'auto',
-      padding: '6px 11px',
-      fontSize: 11
-    },
-    onClick: () => window.open('demex_v24_os.html#app', '_blank')
-  }, "Open in new tab ↗")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      background: C.panel,
-      border: '0.5px solid ' + C.line,
-      borderRadius: 12,
-      overflow: 'hidden'
-    }
-  }, /*#__PURE__*/React.createElement("iframe", {
-    src: "demex_v24_os.html#app",
-    title: "DEMEX estimator",
-    style: {
-      width: '100%',
-      height: '100%',
-      border: 'none',
-      background: '#000'
-    }
-  })));
-  return /*#__PURE__*/React.createElement(EstimatingHero, {
-    onLaunch: () => setShow(true)
+/* ════════ ESTIMATES page: live Estimatio (takeoffs & markups) + DEMEX estimate setup + linked estimates ════════
+   Estimatio runs in an iframe from the same server (/estimatio/), so it shares the sign-in and the shared-state API.
+   Its data is read from GET /api/state?app=estimatio (server mode) or, when the bridge runs in local mode and
+   Estimatio keeps its workspace in this browser, from its localStorage key — same origin, read-only here. */
+const ESTIMATIO_LS = 'estimatio_db_v1';
+const EST_TIER = { Lean: 0.85, Market: 1.0, Premium: 1.2 };
+/* Same math as Estimatio's calc(): direct = Σ qty × (labor rate + material $/unit); OH on direct; profit on
+   direct+OH; tax on materials (or all). A blank line rate falls back to Estimatio's rate library mid × tier × region × override. */
+function estimatioRate(payload, svc) {
+  const rates = (payload && payload.rates) || [];
+  let r = rates.filter(x => x.id === svc)[0];
+  if (!r) r = (DX.get().rates || []).filter(x => x.id === svc)[0];
+  if (!r) return 0;
+  const st = (payload && payload.settings) || {};
+  const ov = ((payload && payload.rateOverrides) || {})[svc];
+  const adj = (typeof ov === 'number' && !isNaN(ov)) ? (1 + ov / 100) : 1;
+  return ((+r.low + +r.high) / 2) * (EST_TIER[st.tier] || 1) * (+st.regionMult || 1) * adj;
+}
+function estimatioInfo(payload, svc) {
+  const r = ((payload && payload.rates) || []).filter(x => x.id === svc)[0] || (DX.get().rates || []).filter(x => x.id === svc)[0];
+  return r || { label: svc, unit: '' };
+}
+function estimatioCalc(payload, p) {
+  const s = Object.assign({ overheadPct: 10, profitPct: 18, taxPct: 0, taxMaterialsOnly: true }, (payload && payload.settings) || {});
+  const lines = (p.estQty || []).filter(l => l.svc && +l.qty > 0);
+  let labor = 0, mat = 0;
+  lines.forEach(l => { const q = +l.qty || 0, r = (l.rate != null && l.rate !== '') ? +l.rate : estimatioRate(payload, l.svc), m = +l.mat || 0; labor += q * r; mat += q * m; });
+  const direct = labor + mat, oh = direct * ((+s.overheadPct || 0) / 100), profit = (direct + oh) * ((+s.profitPct || 0) / 100);
+  const taxBase = s.taxMaterialsOnly ? mat : (direct + oh + profit), tax = taxBase * ((+s.taxPct || 0) / 100);
+  return { lines, labor, mat, direct, oh, profit, tax, sell: direct + oh + profit + tax };
+}
+/* DEMEX estQty rows for an Estimatio project — identical to Estimatio's own toDemex() export. */
+function estimatioEstQty(payload, p, c) {
+  return c.lines.map(l => {
+    const ri = estimatioInfo(payload, l.svc);
+    return { svc: l.svc, label: ri.label, qty: +l.qty, unit: ri.unit, rate: (l.rate != null && l.rate !== '') ? +l.rate : estimatioRate(payload, l.svc), mat: +l.mat || 0, note: l.note || '', notes: l.note || '' };
   });
+}
+/* ---- name / address matching ---- */
+const EST_STOP = new Set(('the a an and of at for to in on by with inc llc co corp company group demo demolition interior exterior selective removal remove ' +
+  'project projects phase bid bids itb rfp rfq re new renovation renovations remodel tenant improvement improvements ti buildout build out fit ' +
+  'plus flooring floor scope work package bp fl pa ga al sc nc tx ny oh va md nj de tn ky ms la ca az nv ut mi il wi mn ia mo ar ok ks ne ' +
+  'sd nd mt wy id wa or me nh vt ma ri ct wv dc usa us suite ste unit units bldg building st street ave avenue rd road blvd dr drive hwy highway ' +
+  'parkway pkwy way ln lane ct court pl place plaza mall center centre circle cir ter terrace n s e w ne nw se sw').split(' '));
+function estTokens(str) {
+  return String(str || '').toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').split(' ')
+    .filter(t => t.length >= 2 && !EST_STOP.has(t)).map(t => t.replace(/^0+(?=\d)/, ''));
+}
+function buildMatcher(projects) {
+  const df = {}, N = projects.length || 1;
+  const toks = {};
+  projects.forEach(p => {
+    const nt = Array.from(new Set(estTokens(p.name))), at = Array.from(new Set(estTokens(p.address)));
+    toks[p.id] = { name: nt, addr: at, client: estTokens(DX.client(p.client_id).name) };
+    new Set(nt.concat(at)).forEach(t => { df[t] = (df[t] || 0) + 1; });
+  });
+  const idf = t => Math.log(1 + N / (1 + (df[t] || 0)));
+  const w = arr => arr.reduce((s, t) => s + idf(t), 0);
+  // score in [0,1]: IDF-weighted Dice on names, blended with how much of the Estimatio address shows up in the DEMEX project
+  function score(ep, p) {
+    const T = toks[p.id]; if (!T) return 0;
+    const en = Array.from(new Set(estTokens(ep.name))), ea = Array.from(new Set(estTokens(ep.address)));
+    const dn = new Set(T.name);
+    const shared = en.filter(t => dn.has(t));
+    const den = w(en) + w(T.name);
+    let nameScore = den ? 2 * w(shared) / den : 0;
+    // client name as weak evidence
+    const ec = estTokens(ep.client && ep.client.name);
+    if (ec.length && T.client.length && ec.some(t => T.client.indexOf(t) >= 0)) nameScore = Math.min(1, nameScore + 0.06);
+    if (!ea.length) return nameScore;
+    const dset = new Set(T.addr.concat(T.name));
+    const hits = ea.filter(t => dset.has(t));
+    const addrScore = w(ea) ? w(hits) / w(ea) : 0;
+    if (!T.addr.length) return Math.min(1, nameScore * 0.92 + addrScore * 0.3);
+    return 0.72 * nameScore + 0.28 * Math.min(1, addrScore * 1.6);
+  }
+  return { score };
+}
+/* Suggest one DEMEX project per Estimatio project (greedy, best score first; skips projects already linked elsewhere). */
+function suggestLinks(estProjects, projects) {
+  const m = buildMatcher(projects);
+  const linkedIds = {};
+  projects.forEach(p => { if (p.estimatio_id) linkedIds[p.id] = p.estimatio_id; });
+  const cand = {};
+  estProjects.forEach(ep => {
+    // near-ties (duplicate invitations for the same job) go to the most recent one
+    const rec = p => String(p.dueAt || p.createdAt || p.id || '');
+    cand[ep.id] = projects.map(p => ({ p, s: m.score(ep, p) })).filter(x => x.s > 0.12)
+      .sort((a, b) => (Math.abs(b.s - a.s) < 0.01 ? rec(b.p).localeCompare(rec(a.p)) : b.s - a.s)).slice(0, 8);
+  });
+  const pairs = [];
+  estProjects.forEach(ep => cand[ep.id].forEach(x => pairs.push({ e: ep.id, p: x.p.id, s: x.s })));
+  pairs.sort((a, b) => b.s - a.s);   // stable: keeps each list's recency tie-break
+  const usedE = {}, usedP = {}, out = {};
+  pairs.forEach(x => {
+    if (usedE[x.e] || usedP[x.p] || x.s < 0.6) return;   // below 60% we ask instead of guessing
+    if (linkedIds[x.p] && linkedIds[x.p] !== x.e) return;
+    usedE[x.e] = usedP[x.p] = 1; out[x.e] = x;
+  });
+  return { best: out, cand };
+}
+/* Poll Estimatio's saved state. Every ~20s while visible, plus on focus / visibility / the iframe losing focus. */
+function useEstimatioState(enabled) {
+  const [st, setSt] = useState({ loading: true, error: null, source: null, version: null, payload: null, checkedAt: null, changedAt: null, server: null });
+  const sigRef = useRef(null);
+  const busy = useRef(false);
+  const refresh = useCallback(() => {
+    if (busy.current) return Promise.resolve();
+    if (location.protocol === 'file:') { setSt(s => Object.assign({}, s, { loading: false, error: 'Open DEMEX through the DEMEX server to see Estimatio estimates.' })); return Promise.resolve(); }
+    busy.current = true;
+    const mode = fetch('/api/mode', { cache: 'no-store' }).then(r => r.json()).catch(() => ({}));
+    const state = fetch('/api/state?app=estimatio', { cache: 'no-store' }).then(r => r.json().then(d => ({ r, d }))).catch(e => ({ err: e }));
+    return Promise.all([mode, state]).then(([m, x]) => {
+      let payload = null, source = null, version = null, error = null;
+      if (x && x.d && x.d.ok && x.d.payload && Array.isArray(x.d.payload.projects)) { payload = x.d.payload; source = 'server'; version = 'v' + (x.d.version || 0); }
+      else if (x && x.r && !x.r.ok) error = (x.d && x.d.error) || ('Estimatio state unavailable (' + x.r.status + ')');
+      else if (x && x.err) error = bridgeErr(x.err);
+      // Local mode: Estimatio saves its workspace in this browser, not on the server.
+      if (!(m && m.server)) {
+        try {
+          const raw = localStorage.getItem(ESTIMATIO_LS);
+          if (raw) {
+            const ls = JSON.parse(raw);
+            if (ls && Array.isArray(ls.projects) && ls.projects.some(p => (p.ws || 'ddd') === 'ddd')) {
+              payload = ls; source = 'browser'; error = null;
+              let h = 0; for (let i = 0; i < raw.length; i += 7) h = (h * 31 + raw.charCodeAt(i)) | 0;
+              version = 'b' + raw.length + '.' + (h >>> 0).toString(36);
+            }
+          }
+        } catch (e) {}
+      }
+      const sig = source ? source + ':' + version : null;
+      const now = Date.now();
+      setSt(s => {
+        const changed = sig !== sigRef.current;
+        sigRef.current = sig;
+        return { loading: false, error: payload ? null : error, source, version, payload, checkedAt: now, changedAt: changed ? now : s.changedAt, server: !!(m && m.server) };
+      });
+    }).finally(() => { busy.current = false; });
+  }, []);
+  useEffect(() => {
+    if (!enabled) return;
+    refresh();
+    const tick = () => { if (document.visibilityState === 'visible') refresh(); };
+    const iv = setInterval(tick, 20000);
+    const onVis = () => { if (document.visibilityState === 'visible') refresh(); };
+    const onStorage = e => { if (!e.key || e.key === ESTIMATIO_LS) refresh(); };
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('storage', onStorage);
+    return () => { clearInterval(iv); window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', onVis); window.removeEventListener('storage', onStorage); };
+  }, [enabled]);
+  return [st, refresh];
+}
+function useNowTick(ms) {
+  const [, bump] = useReducer(x => x + 1, 0);
+  useEffect(() => { const iv = setInterval(bump, ms || 10000); return () => clearInterval(iv); }, []);
+}
+const agoText = t => {
+  if (!t) return '';
+  const s = Math.round((Date.now() - t) / 1000);
+  if (s < 20) return 'just now';
+  if (s < 60) return s + 's ago';
+  if (s < 3600) return Math.round(s / 60) + ' min ago';
+  return new Date(t).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+};
+const EST_STATUS_COL = { draft: C.t3, estimated: C.gold, sent: C.purple, won: C.green, lost: C.red2 };
+function LinkedEstimatioPanel({ st, refresh, onFocusPid }) {
+  const db = useStore();
+  useNowTick(10000);
+  const [showAll, setShowAll] = useState(false);
+  const payload = st.payload;
+  const eps = (payload && payload.projects || []).filter(p => (p.ws || 'ddd') === 'ddd');
+  const linkSig = db.projects.filter(p => p.estimatio_id).map(p => p.id + '=' + p.estimatio_id).join(',');
+  const sug = React.useMemo(() => suggestLinks(eps, db.projects), [st.version, db.projects.length, eps.length, linkSig]);
+  const linkedOf = ep => db.projects.filter(p => p.estimatio_id === ep.id || p.id === 'pj_est_' + ep.id)[0] || null;
+  const link = (ep, pid) => {
+    const now = new Date().toISOString();
+    db.projects.filter(p => p.estimatio_id === ep.id && p.id !== pid).forEach(p => DX.commit({ type: 'updateProject', id: p.id, patch: { estimatio_id: null, estimatio_linkedAt: null } }));
+    if (pid) {
+      const r = DX.commit({ type: 'updateProject', id: pid, patch: { estimatio_id: ep.id, estimatio_linkedAt: now } });
+      if (r.ok) DX.toast('Linked to ' + (DX.proj(pid) || {}).name, 'ok');
+    } else DX.toast('Unlinked ' + ep.name, 'ok');
+  };
+  const pull = (ep, p) => {
+    const c = estimatioCalc(payload, ep);
+    if (!c.lines.length) { DX.toast('That Estimatio estimate has no priced lines yet', 'err'); return; }
+    const sell = Math.round(c.sell);
+    const had = (p.bidAmount || 0) || (p.estimate && p.estimate.lines && p.estimate.lines.length);
+    if (had && !confirm('Pull Estimatio into "' + p.name + '"?\n\nBid amount: ' + money(p.bidAmount || 0) + ' → ' + money(sell) +
+      '\nLine items: ' + ((p.estQty || []).length) + ' → ' + c.lines.length + '\nEst. costs: labor ' + money(c.labor) + ', material ' + money(c.mat) +
+      '\n\nThe values from before the first pull are kept on the project, so this can be undone.')) return;
+    const eq = estimatioEstQty(payload, ep, c);
+    const now = new Date().toISOString();
+    const prev = p.estimatio_prev || { at: now, bidAmount: p.bidAmount || 0, estCosts: p.estCosts || null, estQty: p.estQty || null, estimated_quantities: p.estimated_quantities || null, estimate: p.estimate || null };
+    const r1 = DX.commit({ type: 'saveEstimate', id: p.id, estimate: { lines: eq.map(l => ({ svc: l.svc, qty: l.qty, rate: l.rate })), direct: c.direct, oh: c.oh, profit: c.profit, sell: c.sell, savedAt: now, source: 'estimatio' }, estQty: eq });
+    if (!r1.ok) return;
+    DX.commit({ type: 'updateProject', id: p.id, patch: {
+      bidAmount: sell,
+      estCosts: Object.assign({}, p.estCosts || {}, { labor: Math.round(c.labor), disposal: 0, equipment: 0, material: Math.round(c.mat), sub: 0 }),
+      estimatio_id: ep.id,
+      estimatio_pull: { at: now, version: st.version, source: st.source, sell: c.sell, lines: c.lines.length, status: ep.status || '' },
+      estimatio_prev: prev
+    } });
+    DX.toast('Pulled ' + c.lines.length + ' lines · ' + money(sell) + ' into ' + p.name.split(',')[0], 'ok');
+    onFocusPid && onFocusPid(p.id);
+  };
+  const undo = p => {
+    const v = p.estimatio_prev; if (!v) return;
+    if (!confirm('Restore "' + p.name + '" to its values from before the first Estimatio pull (bid ' + money(v.bidAmount || 0) + ')?')) return;
+    DX.commit({ type: 'updateProject', id: p.id, patch: { bidAmount: v.bidAmount || 0, estCosts: v.estCosts || {}, estQty: v.estQty || [], estimated_quantities: v.estimated_quantities || [], estimate: v.estimate || null, estimatio_pull: null, estimatio_prev: null } });
+    DX.toast('Restored the pre-pull estimate', 'ok');
+  };
+  const byName = React.useMemo(() => db.projects.slice().sort((a, b) => String(a.name).localeCompare(String(b.name))), [db.projects.length]);
+  const srcLabel = st.source === 'server' ? 'DEMEX server (' + st.version + ')' : st.source === 'browser' ? 'Estimatio in this browser (local mode)' : '—';
+  const rows = eps.map(ep => {
+    const c = estimatioCalc(payload, ep);
+    const lp = linkedOf(ep);
+    const sg = sug.best[ep.id];
+    return { ep, c, lp, sg, cand: sug.cand[ep.id] || [] };
+  }).sort((a, b) => (b.lp ? 1 : 0) - (a.lp ? 1 : 0) || String(b.ep.createdAt || '').localeCompare(String(a.ep.createdAt || '')));
+  const shown = showAll ? rows : rows.slice(0, 25);
+  const nLinked = rows.filter(r => r.lp).length;
+  const cell = { padding: '11px 12px', borderBottom: '1px solid ' + C.line, verticalAlign: 'top' };
+  return ce(Card, {
+    title: 'Linked Estimatio estimates',
+    sub: eps.length ? eps.length + ' Estimatio bid' + (eps.length === 1 ? '' : 's') + ' · ' + nLinked + ' linked to DEMEX projects · source: ' + srcLabel : 'Matches Estimatio takeoffs to DEMEX projects so their quantities and totals can be pulled in.',
+    right: [
+      ce("span", { key: 'u', className: 'mono', 'aria-live': 'polite', style: { fontSize: 10.5, color: st.changedAt && Date.now() - st.changedAt < 20000 ? C.teal : C.t3 } },
+        st.loading ? 'checking…' : st.changedAt ? 'updated ' + agoText(st.changedAt) + (st.checkedAt && st.checkedAt !== st.changedAt ? ' · checked ' + agoText(st.checkedAt) : '') : ''),
+      ce(Btn, { key: 'r', ghost: true, onClick: () => refresh(), style: { padding: '5px 11px', fontSize: 11 } }, 'Refresh')
+    ]
+  },
+    st.error && !payload ? ce("div", { style: { fontSize: 12.5, color: C.t2, padding: '6px 0' } }, st.error) : null,
+    !st.loading && payload && !eps.length ? ce(Empty, null, 'No Disassemble Dynamics bids in Estimatio yet. Create one above — it will show up here within 20 seconds of saving.') : null,
+    !st.loading && !payload && !st.error ? ce(Empty, null, 'Estimatio has not saved anything yet. Start a bid in the Estimatio panel above.') : null,
+    eps.length ? ce("div", { className: 'dx-scroll-x' }, ce("table", { className: 'dx-table', style: { fontSize: 12.5, minWidth: 860 } },
+      ce("thead", null, ce("tr", null, ['Estimatio bid', 'Trade / status', 'Lines', 'Sell price', 'DEMEX project', ''].map((h, i) => ce("th", {
+        key: i, className: 'mono', style: { textAlign: i === 2 || i === 3 ? 'right' : 'left', fontSize: 10, letterSpacing: 1, textTransform: 'uppercase', color: C.t3, padding: '9px 12px', borderBottom: '1px solid ' + C.line, fontWeight: 500 }
+      }, h)))),
+      ce("tbody", null, shown.map(({ ep, c, lp, sg, cand }) => {
+        const pulled = lp && lp.estimatio_pull;
+        const stale = pulled && Math.round(pulled.sell) !== Math.round(c.sell);
+        const selVal = lp ? lp.id : sg ? sg.p : '';
+        const candIds = new Set(cand.map(x => x.p.id));
+        return ce("tr", { key: ep.id },
+          ce("td", { style: cell },
+            ce("div", { style: { color: C.t1, fontWeight: 500 } }, ep.name || 'Untitled'),
+            ce("div", { style: { fontSize: 11, color: C.t3, marginTop: 2 } }, [ep.bidNo, ep.address, ep.client && ep.client.name].filter(Boolean).join(' · ') || '—')),
+          ce("td", { style: cell },
+            ce("div", { className: 'mono', style: { fontSize: 11, color: C.t2, textTransform: 'capitalize' } }, ep.trade || '—'),
+            ce("span", { className: 'mono', style: { display: 'inline-block', marginTop: 4, fontSize: 10, letterSpacing: 1, textTransform: 'uppercase', padding: '1px 7px', borderRadius: 999, color: EST_STATUS_COL[ep.status] || C.t2, border: '1px solid ' + dxAlpha(EST_STATUS_COL[ep.status] || C.t2, 45) } }, ep.status || 'draft')),
+          ce("td", { className: 'mono', style: Object.assign({}, cell, { textAlign: 'right' }) }, c.lines.length, (ep.estQty || []).length > c.lines.length ? ce("div", { style: { fontSize: 10, color: C.t3 } }, (ep.estQty.length - c.lines.length) + ' unpriced') : null),
+          ce("td", { className: 'mono', style: Object.assign({}, cell, { textAlign: 'right', color: C.gold, fontWeight: 500 }) }, c.lines.length ? money(c.sell) : '—',
+            c.lines.length ? ce("div", { style: { fontSize: 10, color: C.t3, fontWeight: 400 } }, 'direct ' + moneyShort(c.direct)) : null),
+          ce("td", { style: Object.assign({}, cell, { minWidth: 250 }) },
+            ce("select", {
+              value: selVal, 'aria-label': 'DEMEX project for ' + ep.name,
+              onChange: e => link(ep, e.target.value || null),
+              style: Object.assign({}, inputStyle, { padding: '6px 8px', fontSize: 12, borderColor: lp ? dxAlpha(C.teal, 70) : C.line2 })
+            },
+              ce("option", { value: '' }, lp ? '— unlink —' : '— not linked —'),
+              cand.length ? ce("optgroup", { label: 'Best matches' }, cand.map(x => ce("option", { key: x.p.id, value: x.p.id }, Math.round(x.s * 100) + '% · ' + x.p.name))) : null,
+              ce("optgroup", { label: 'All projects' }, byName.filter(p => !candIds.has(p.id)).map(p => ce("option", { key: p.id, value: p.id }, p.name)))),
+            lp ? ce("div", { style: { fontSize: 11, color: C.teal, marginTop: 5 } }, '✓ linked', ce("span", { style: { color: C.t3 } }, ' · ', ce(Pill, { status: lp.status }), ' bid ', lp.bidAmount ? money(lp.bidAmount) : '—'))
+              : sg ? ce("div", { style: { fontSize: 11, color: C.t2, marginTop: 5, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' } },
+                ce("span", null, 'Suggested (' + Math.round(sg.s * 100) + '% match) — not saved yet'),
+                ce(Btn, { ghost: true, onClick: () => link(ep, sg.p), style: { padding: '3px 9px', fontSize: 11, borderColor: C.teal, color: C.teal } }, 'Confirm link'))
+              : ce("div", { style: { fontSize: 11, color: C.t3, marginTop: 5 } }, 'No confident match — pick the DEMEX project')),
+          ce("td", { style: Object.assign({}, cell, { textAlign: 'right', whiteSpace: 'nowrap' }) },
+            ce(Btn, { primary: !!lp, ghost: !lp, disabled: !lp || !c.lines.length, title: lp ? 'Copy quantities, rates and totals into ' + lp.name : 'Link a DEMEX project first',
+              onClick: () => lp && pull(ep, lp), style: { padding: '6px 12px', fontSize: 11.5 } }, pulled ? (stale ? 'Pull changes' : 'Pull again') : 'Pull into DEMEX'),
+            pulled ? ce("div", { className: 'mono', style: { fontSize: 10, color: stale ? C.gold : C.t3, marginTop: 5 } }, stale ? 'Estimatio changed since pull' : 'pulled ' + String(pulled.at).slice(0, 16).replace('T', ' ')) : null,
+            lp ? ce("div", { style: { marginTop: 4, display: 'flex', gap: 10, justifyContent: 'flex-end' } },
+              ce("span", { role: 'button', tabIndex: 0, className: 'mono', onClick: () => onFocusPid && onFocusPid(lp.id), onKeyDown: e => { if (e.key === 'Enter' && onFocusPid) onFocusPid(lp.id); }, style: { fontSize: 10.5, color: C.t2, cursor: 'pointer', textDecoration: 'underline' } }, 'open in builder'),
+              lp.estimatio_prev ? ce("span", { role: 'button', tabIndex: 0, className: 'mono', onClick: () => undo(lp), onKeyDown: e => { if (e.key === 'Enter') undo(lp); }, style: { fontSize: 10.5, color: C.t3, cursor: 'pointer', textDecoration: 'underline' } }, 'undo pull') : null) : null));
+      })))) : null,
+    rows.length > shown.length ? ce("div", { style: { textAlign: 'center', paddingTop: 10 } }, ce(Btn, { ghost: true, onClick: () => setShowAll(true) }, 'Show all ' + rows.length)) : null);
+}
+function Estimating() {
+  const db = useStore();
+  const [, nav] = useHashRoute();
+  const [full, setFull] = useState(false);
+  const [legacy, setLegacy] = useState(false);
+  const [focus, setFocus] = useState({ pid: null, tick: 0 });
+  const [loaded, setLoaded] = useState(false);
+  const ifr = useRef(null);
+  const [est, refresh] = useEstimatioState(true);
+  const http = location.protocol !== 'file:';
+  const estUrl = '/estimatio/#projects';
+  const legacyUrl = http ? '/demex_v24_os.html#app' : 'demex_v24_os.html#app';
+  // Same-origin iframe: refresh our view of Estimatio's data whenever focus leaves it (the user just worked there).
+  const onLoad = () => {
+    setLoaded(true);
+    try {
+      const w = ifr.current && ifr.current.contentWindow;
+      if (w && !w.__dxHooked) { w.__dxHooked = true; w.addEventListener('blur', () => setTimeout(refresh, 700)); }
+    } catch (e) {}
+  };
+  useEffect(() => {
+    if (!full) return;
+    const k = e => { if (e.key === 'Escape') setFull(false); };
+    window.addEventListener('keydown', k);
+    return () => window.removeEventListener('keydown', k);
+  }, [full]);
+  const focusPid = pid => {
+    setFocus(f => ({ pid, tick: f.tick + 1 }));
+    setTimeout(() => { const el = document.getElementById('dx-est-builder'); if (el) el.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); }, 60);
+  };
+  const open = db.projects.filter(p => ['invited', 'estimating'].indexOf(p.status) >= 0);
+  const wp = open.reduce((s, p) => s + DX.revenueOf(p) * (p.probability || 0) / 100, 0);
+  const wr = DX.winRate();
+  const linkedN = db.projects.filter(p => p.estimatio_id).length;
+  return ce("div", { className: 'dx-pad', style: { padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: 16 } },
+    ce("div", { style: { display: 'flex', alignItems: 'flex-end', gap: 14, flexWrap: 'wrap' } },
+      ce("div", { style: { minWidth: 0 } },
+        ce("div", { className: 'syne', style: { fontWeight: 800, fontSize: 24, letterSpacing: -.2 } }, 'Estimates'),
+        ce("div", { style: { fontSize: 12.5, color: C.t2, maxWidth: 640 } }, 'Take off and mark up plans in Estimatio, then link each estimate to its DEMEX project and pull the quantities and totals in.')),
+      ce("div", { style: { marginLeft: 'auto', display: 'grid', gridTemplateColumns: 'repeat(4,minmax(0,1fr))', gap: 8, minWidth: 0, flex: '1 1 460px', maxWidth: 640 }, className: 'dx-kpis' },
+        ce(Stat, { v: open.length, l: 'bids to estimate', onClick: () => nav('pipeline/invited+estimating'), hint: 'Open invited and estimating bids' }),
+        ce(Stat, { v: moneyShort(wp), l: 'weighted pipeline', color: C.gold, onClick: () => nav('pipeline/invited+estimating'), hint: 'Probability-weighted value of open bids' }),
+        ce(Stat, { v: wr == null ? '—' : wr + '%', l: 'win rate', onClick: () => nav('pipeline/decided'), hint: 'Open the won and lost bids' }),
+        ce(Stat, { v: linkedN, l: 'linked to Estimatio', color: C.teal }))),
+    // ---- Estimatio app ----
+    ce("section", { className: 'dx-card' + (full ? ' dx-ifr-full' : ''), style: { background: C.panel, border: '1px solid ' + C.line, borderRadius: 14, overflow: 'hidden', display: 'flex', flexDirection: 'column' } },
+      ce("div", { style: { display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderBottom: '1px solid ' + C.line, flexWrap: 'wrap', background: C.panel2 } },
+        ce("span", { 'aria-hidden': true, style: { width: 8, height: 8, borderRadius: 9, background: loaded ? C.teal : C.t3 }, className: loaded ? '' : 'dx-pulse' }),
+        ce("span", { className: 'syne', style: { fontWeight: 800, fontSize: 13 } }, 'Estimatio — takeoffs & markups'),
+        ce("span", { className: 'mono dx-hide-sm', style: { fontSize: 10.5, color: C.t3 } }, 'saves on its own · linked list below refreshes automatically'),
+        ce("div", { style: { marginLeft: 'auto', display: 'flex', gap: 8 } },
+          ce(Btn, { ghost: true, onClick: () => { try { ifr.current.contentWindow.location.reload(); } catch (e) { ifr.current.src = estUrl; } }, style: { padding: '5px 10px', fontSize: 11 }, title: 'Reload Estimatio' }, '↻'),
+          ce(Btn, { ghost: true, onClick: () => setFull(!full), style: { padding: '5px 10px', fontSize: 11 }, title: full ? 'Exit full screen (Esc)' : 'Full screen' }, full ? 'Exit full screen' : 'Full screen'),
+          ce("a", { href: '/estimatio/', target: '_blank', rel: 'noopener', className: 'syne dx-btn ghost', style: { fontWeight: 700, fontSize: 11, border: '1px solid ' + C.line2, borderRadius: 9, padding: '5px 10px', color: C.t1, textDecoration: 'none' } }, 'Open in new tab ↗'))),
+      http ? ce("div", { className: full ? '' : 'dx-resize', style: { height: full ? 'auto' : '72vh', minHeight: 360, flex: full ? 1 : 'none', position: 'relative', background: C.ink } },
+        !loaded ? ce("div", { style: { position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', color: C.t3, fontSize: 12 } }, 'Loading Estimatio…') : null,
+        ce("iframe", { ref: ifr, src: estUrl, title: 'Estimatio estimating app', onLoad, allow: 'clipboard-read; clipboard-write', style: { width: '100%', height: '100%', border: 'none', display: 'block', position: 'relative' } }))
+        : ce("div", { style: { padding: 24, color: C.t2, fontSize: 13 } }, 'Estimatio runs on the DEMEX server. Start run_demex.bat and open http://localhost:8765/demex/ to use it here.')),
+    // ---- linked estimates ----
+    ce(LinkedEstimatioPanel, { st: est, refresh, onFocusPid: focusPid }),
+    // ---- DEMEX's own estimate setup (rate-card builder) ----
+    ce("section", { className: 'dx-card', style: { background: C.panel, border: '1px solid ' + C.line, borderRadius: 14, padding: '16px 16px 18px' } },
+      ce(EstimatorWorkspace, { embedded: true, focusPid: focus.pid, focusTick: focus.tick })),
+    ce("section", { className: 'dx-card', style: { background: C.panel, border: '1px solid ' + C.line, borderRadius: 14, overflow: 'hidden' } },
+      ce("div", { style: { display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', flexWrap: 'wrap' } },
+        ce("div", null,
+          ce("div", { className: 'syne', style: { fontWeight: 800, fontSize: 13 } }, 'Legacy DEMEX estimator (v24)'),
+          ce("div", { style: { fontSize: 11.5, color: C.t3 } }, 'The previous all-in-one estimator, kept available.')),
+        ce("div", { style: { marginLeft: 'auto', display: 'flex', gap: 8 } },
+          ce(Btn, { ghost: true, onClick: () => setLegacy(!legacy), style: { padding: '5px 11px', fontSize: 11 } }, legacy ? 'Hide' : 'Show here'),
+          ce(Btn, { ghost: true, onClick: () => window.open(legacyUrl, '_blank'), style: { padding: '5px 11px', fontSize: 11 } }, 'Open in new tab ↗'))),
+      legacy ? ce("div", { className: 'dx-resize', style: { height: '75vh', borderTop: '1px solid ' + C.line } },
+        ce("iframe", { src: legacyUrl, title: 'DEMEX legacy estimator', style: { width: '100%', height: '100%', border: 'none', background: '#000', display: 'block' } })) : null));
 }
 
 /* ════════ MODALS ════════ */
@@ -3947,7 +4800,7 @@ function ProjectChat(props) {
     var r = CHAT_ROLE[m.role] || CHAT_ROLE.note;
     return /*#__PURE__*/React.createElement("div", {
       key: m.id || ix,
-      style: { padding: '7px 0', borderTop: ix ? '0.5px solid ' + C.line : 'none', display: 'flex', gap: 10, alignItems: 'flex-start' }
+      style: { padding: '7px 0', borderTop: ix ? '1px solid ' + C.line : 'none', display: 'flex', gap: 10, alignItems: 'flex-start' }
     }, /*#__PURE__*/React.createElement("div", {
       style: { flex: 1, minWidth: 0 }
     }, /*#__PURE__*/React.createElement("div", {
@@ -3981,7 +4834,7 @@ function ProjectChat(props) {
     className: "mono", style: { fontSize: 10, color: C.t3, marginLeft: 'auto' }
   }, "AI answers are advisory — verify before bidding"));
   return /*#__PURE__*/React.createElement("div", {
-    style: { marginTop: 14, padding: '12px 14px', background: C.panel2, border: '0.5px solid ' + C.line, borderLeft: '2px solid ' + C.blue, borderRadius: 10 }
+    style: { marginTop: 14, padding: '12px 14px', background: C.panel2, border: '1px solid ' + C.line, borderLeft: '2px solid ' + C.blue, borderRadius: 10 }
   }, head, list, thinking, box, row);
 }
 function ProjectModal({
@@ -4276,7 +5129,7 @@ function RatesWorkspace() {
       marginLeft: 'auto',
       fontWeight: 800,
       fontSize: 12,
-      border: '0.5px solid ' + C.line2,
+      border: '1px solid ' + C.line2,
       borderRadius: 8,
       padding: '8px 13px',
       background: 'transparent',
@@ -4320,7 +5173,7 @@ function RatesWorkspace() {
       cursor: 'pointer',
       background: rs.tier === t ? C.red : 'transparent',
       color: rs.tier === t ? '#fff' : C.t1,
-      border: '0.5px solid ' + (rs.tier === t ? C.red : C.line2)
+      border: '1px solid ' + (rs.tier === t ? C.red : C.line2)
     }
   }, t, " ×", DX.TIER[t])))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "mono",
@@ -4345,7 +5198,7 @@ function RatesWorkspace() {
     key: cat,
     style: {
       background: C.panel,
-      border: '0.5px solid ' + C.line,
+      border: '1px solid ' + C.line,
       borderRadius: 12,
       overflow: 'hidden',
       marginBottom: 12
@@ -4359,7 +5212,7 @@ function RatesWorkspace() {
       textTransform: 'uppercase',
       padding: '11px 14px',
       color: C.t2,
-      borderBottom: '0.5px solid ' + C.line
+      borderBottom: '1px solid ' + C.line
     }
   }, cat), /*#__PURE__*/React.createElement("table", {
     style: {
@@ -4377,28 +5230,28 @@ function RatesWorkspace() {
       textTransform: 'uppercase',
       color: C.t3,
       padding: '8px 14px',
-      borderBottom: '0.5px solid ' + C.line
+      borderBottom: '1px solid ' + C.line
     }
   }, h)))), /*#__PURE__*/React.createElement("tbody", null, db.rates.filter(r => r.cat === cat).map(r => /*#__PURE__*/React.createElement("tr", {
     key: r.id
   }, /*#__PURE__*/React.createElement("td", {
     style: {
       padding: '9px 14px',
-      borderBottom: '0.5px solid ' + C.line,
+      borderBottom: '1px solid ' + C.line,
       color: C.t1
     }
   }, r.label), /*#__PURE__*/React.createElement("td", {
     className: "mono",
     style: {
       padding: '9px 14px',
-      borderBottom: '0.5px solid ' + C.line,
+      borderBottom: '1px solid ' + C.line,
       textAlign: 'right',
       color: C.t3
     }
   }, r.unit), /*#__PURE__*/React.createElement("td", {
     style: {
       padding: '6px 14px',
-      borderBottom: '0.5px solid ' + C.line,
+      borderBottom: '1px solid ' + C.line,
       textAlign: 'right'
     }
   }, /*#__PURE__*/React.createElement("input", {
@@ -4418,7 +5271,7 @@ function RatesWorkspace() {
   })), /*#__PURE__*/React.createElement("td", {
     style: {
       padding: '6px 14px',
-      borderBottom: '0.5px solid ' + C.line,
+      borderBottom: '1px solid ' + C.line,
       textAlign: 'right'
     }
   }, /*#__PURE__*/React.createElement("input", {
@@ -4439,7 +5292,7 @@ function RatesWorkspace() {
     className: "mono",
     style: {
       padding: '9px 14px',
-      borderBottom: '0.5px solid ' + C.line,
+      borderBottom: '1px solid ' + C.line,
       textAlign: 'right',
       color: C.gold
     }
@@ -4554,7 +5407,7 @@ function CostBreakdown(props) {
           textTransform: 'uppercase',
           color: C.t3,
           padding: '4px 8px',
-          borderBottom: '0.5px solid ' + C.line
+          borderBottom: '1px solid ' + C.line
         }
       }, h)))), /*#__PURE__*/React.createElement("tbody", null, ll.length ? ll.map((x, i) => /*#__PURE__*/React.createElement("tr", {
         key: i
@@ -4640,7 +5493,7 @@ function CostBreakdown(props) {
     style: {
       marginTop: 16,
       background: C.panel,
-      border: '0.5px solid ' + C.line,
+      border: '1px solid ' + C.line,
       borderRadius: 12,
       padding: '14px 16px'
     }
@@ -4674,7 +5527,7 @@ function CostBreakdown(props) {
       alignItems: 'center',
       gap: 10,
       padding: '9px 0',
-      borderTop: '0.5px solid ' + C.line
+      borderTop: '1px solid ' + C.line
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
@@ -4790,7 +5643,7 @@ function CostBreakdown(props) {
   }, "Bid ", m(bid), " − field cost ", m(fieldCost), " − overhead ", m(overhead), " = net profit ", m(netProfit)), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 14,
-      borderTop: '0.5px solid ' + C.line,
+      borderTop: '1px solid ' + C.line,
       paddingTop: 12
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -4825,7 +5678,8 @@ function CostBreakdown(props) {
     })
   }))))));
 }
-function EstimatorWorkspace() {
+function EstimatorWorkspace(props) {
+  props = props || {};
   const db = useStore();
   const [, , routeParam] = useHashRoute();
   const [pid, setPid] = useState(() => {
@@ -4839,6 +5693,10 @@ function EstimatorWorkspace() {
     if (routeParam && DX.proj(routeParam) && routeParam !== pid) setPid(routeParam);
     else if (!DX.proj(pid) && db.projects[0]) setPid(db.projects[0].id);
   }, [routeParam, db.projects.length]);
+  // The Estimates page points the builder at a project (e.g. after pulling an Estimatio estimate).
+  useEffect(() => {
+    if (props.focusPid && DX.proj(props.focusPid)) setPid(props.focusPid);
+  }, [props.focusPid, props.focusTick]);
   const proj = DX.proj(pid);
   const blank = () => ({
     svc: db.rates[0] ? db.rates[0].id : '',
@@ -4857,18 +5715,23 @@ function EstimatorWorkspace() {
     } else {
       setLines([blank()]);
     }
-  }, [pid]);
+  }, [pid, proj && proj.estimate ? proj.estimate.savedAt : null]);
   const rOf = svc => {
     var r = db.rates.filter(x => x.id === svc)[0];
     return r ? DX.effRate(svc) : 0;
   };
   const uOf = svc => {
     var r = db.rates.filter(x => x.id === svc)[0];
-    return r ? r.unit : '';
+    var q = r ? null : eqOf(svc);
+    return r ? r.unit : q && q.unit || '';
   };
+  // Lines pulled from Estimatio can carry services DEMEX's rate card doesn't have (e.g. flooring);
+  // keep their label/unit from the project's saved quantities so they show and save correctly.
+  const eqOf = svc => ((proj && proj.estQty) || []).filter(q => q.svc === svc)[0];
   const lOf = svc => {
     var r = db.rates.filter(x => x.id === svc)[0];
-    return r ? r.label : svc;
+    var q = r ? null : eqOf(svc);
+    return r ? r.label : q && q.label || svc;
   };
   const ext = l => (+l.qty || 0) * (l.rate != null && l.rate !== '' ? +l.rate : rOf(l.svc));
   const direct = lines.reduce((s, l) => s + ext(l), 0);
@@ -4904,8 +5767,10 @@ function EstimatorWorkspace() {
     if (r.ok) DX.toast('Estimate saved to ' + (proj ? proj.name.split(',')[0] : 'project'), 'ok');
   };
   return /*#__PURE__*/React.createElement("div", {
+    className: props.embedded ? undefined : "dx-pad",
+    id: props.embedded ? 'dx-est-builder' : undefined,
     style: {
-      padding: '20px 22px'
+      padding: props.embedded ? 0 : '20px 22px'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -4915,13 +5780,14 @@ function EstimatorWorkspace() {
       gap: 14,
       flexWrap: 'wrap'
     }
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", { style: { minWidth: 0, flex: '1 1 260px' } }, /*#__PURE__*/React.createElement("div", {
     className: "syne",
     style: {
       fontWeight: 800,
-      fontSize: 22
+      fontSize: props.embedded ? 17 : 24,
+      letterSpacing: -.2
     }
-  }, "Estimate"), /*#__PURE__*/React.createElement("div", {
+  }, props.embedded ? "DEMEX estimate setup" : "Estimate"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 12,
       color: C.t2
@@ -4942,12 +5808,14 @@ function EstimatorWorkspace() {
     value: pid,
     onChange: e => setPid(e.target.value),
     style: Object.assign({}, inputStyle, {
-      width: 280
+      width: 320,
+      maxWidth: '100%'
     })
   }, db.projects.map(p => /*#__PURE__*/React.createElement("option", {
     key: p.id,
     value: p.id
   }, p.name))))), /*#__PURE__*/React.createElement("div", {
+    className: "dx-grid",
     style: {
       display: 'grid',
       gridTemplateColumns: 'minmax(0,1fr) 290px',
@@ -4955,17 +5823,19 @@ function EstimatorWorkspace() {
       alignItems: 'start'
     }
   }, /*#__PURE__*/React.createElement("div", {
+    className: "dx-card dx-scroll-x",
     style: {
       background: C.panel,
-      border: '0.5px solid ' + C.line,
-      borderRadius: 12,
-      overflow: 'hidden'
+      border: '1px solid ' + C.line,
+      borderRadius: 14
     }
   }, /*#__PURE__*/React.createElement("table", {
+    className: "dx-table",
     style: {
       width: '100%',
       borderCollapse: 'collapse',
-      fontSize: 12.5
+      fontSize: 12.5,
+      minWidth: 540
     }
   }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, ['Service', 'Qty', 'Unit', 'Rate', 'Extended', ''].map(h => /*#__PURE__*/React.createElement("th", {
     key: h,
@@ -4977,14 +5847,14 @@ function EstimatorWorkspace() {
       textTransform: 'uppercase',
       color: C.t3,
       padding: '8px 12px',
-      borderBottom: '0.5px solid ' + C.line
+      borderBottom: '1px solid ' + C.line
     }
   }, h)))), /*#__PURE__*/React.createElement("tbody", null, lines.map((l, i) => /*#__PURE__*/React.createElement("tr", {
     key: i
   }, /*#__PURE__*/React.createElement("td", {
     style: {
       padding: '6px 12px',
-      borderBottom: '0.5px solid ' + C.line
+      borderBottom: '1px solid ' + C.line
     }
   }, /*#__PURE__*/React.createElement("select", {
     value: l.svc,
@@ -4992,13 +5862,16 @@ function EstimatorWorkspace() {
     style: Object.assign({}, inputStyle, {
       padding: '6px 8px'
     })
-  }, db.rates.map(r => /*#__PURE__*/React.createElement("option", {
+  }, (db.rates.some(r => r.id === l.svc) || !l.svc ? [] : [/*#__PURE__*/React.createElement("option", {
+    key: '_x_' + l.svc,
+    value: l.svc
+  }, lOf(l.svc) + ' (from Estimatio)')]).concat(db.rates.map(r => /*#__PURE__*/React.createElement("option", {
     key: r.id,
     value: r.id
-  }, r.label)))), /*#__PURE__*/React.createElement("td", {
+  }, r.label))))), /*#__PURE__*/React.createElement("td", {
     style: {
       padding: '6px 8px',
-      borderBottom: '0.5px solid ' + C.line,
+      borderBottom: '1px solid ' + C.line,
       textAlign: 'right'
     }
   }, /*#__PURE__*/React.createElement("input", {
@@ -5014,14 +5887,14 @@ function EstimatorWorkspace() {
     className: "mono",
     style: {
       padding: '6px 12px',
-      borderBottom: '0.5px solid ' + C.line,
+      borderBottom: '1px solid ' + C.line,
       textAlign: 'right',
       color: C.t3
     }
   }, uOf(l.svc)), /*#__PURE__*/React.createElement("td", {
     style: {
       padding: '6px 8px',
-      borderBottom: '0.5px solid ' + C.line,
+      borderBottom: '1px solid ' + C.line,
       textAlign: 'right'
     }
   }, /*#__PURE__*/React.createElement("input", {
@@ -5037,14 +5910,14 @@ function EstimatorWorkspace() {
     className: "mono",
     style: {
       padding: '6px 12px',
-      borderBottom: '0.5px solid ' + C.line,
+      borderBottom: '1px solid ' + C.line,
       textAlign: 'right',
       color: C.t1
     }
   }, m(ext(l))), /*#__PURE__*/React.createElement("td", {
     style: {
       padding: '6px 10px',
-      borderBottom: '0.5px solid ' + C.line,
+      borderBottom: '1px solid ' + C.line,
       textAlign: 'right'
     }
   }, /*#__PURE__*/React.createElement("span", {
@@ -5064,7 +5937,7 @@ function EstimatorWorkspace() {
   }, "+ Add line"))), /*#__PURE__*/React.createElement("div", {
     style: {
       background: C.panel,
-      border: '0.5px solid ' + C.line,
+      border: '1px solid ' + C.line,
       borderRadius: 12,
       padding: 16
     }
@@ -5095,7 +5968,7 @@ function EstimatorWorkspace() {
       display: 'flex',
       justifyContent: 'space-between',
       padding: '10px 0 4px',
-      borderTop: '0.5px solid ' + C.line,
+      borderTop: '1px solid ' + C.line,
       marginTop: 6
     }
   }, /*#__PURE__*/React.createElement("span", {
@@ -5308,6 +6181,7 @@ function ProposalsWorkspace() {
     key: p.id,
     value: p.id
   }, p.name))))), /*#__PURE__*/React.createElement("div", {
+    className: "dx-grid",
     style: {
       display: 'grid',
       gridTemplateColumns: '340px minmax(0,1fr)',
@@ -5361,6 +6235,7 @@ function ProposalsWorkspace() {
     value: notes,
     onChange: e => setNotes(e.target.value)
   }))), /*#__PURE__*/React.createElement("div", {
+    className: "dx-paper",
     style: {
       background: '#fff',
       borderRadius: 10,
@@ -6010,7 +6885,7 @@ function TakeoffWorkspace() {
     style: {
       fontSize: 12,
       color: C.t1,
-      border: '0.5px solid ' + C.line2,
+      border: '1px solid ' + C.line2,
       borderRadius: 8,
       padding: '7px 12px',
       cursor: 'pointer'
@@ -6079,7 +6954,7 @@ function TakeoffWorkspace() {
       fontSize: 11,
       background: C.red,
       color: '#fff',
-      border: '0.5px solid ' + C.red,
+      border: '1px solid ' + C.red,
       fontWeight: 800
     }
   }, "\u26A1 Auto-Takeoff"), tools.map(t => /*#__PURE__*/React.createElement("span", {
@@ -6094,7 +6969,7 @@ function TakeoffWorkspace() {
       cursor: 'pointer',
       background: S.tool === t[0] ? C.red : 'transparent',
       color: S.tool === t[0] ? '#fff' : C.t1,
-      border: '0.5px solid ' + (S.tool === t[0] ? C.red : C.line2)
+      border: '1px solid ' + (S.tool === t[0] ? C.red : C.line2)
     }
   }, t[1])), S.tool === 'count' ? /*#__PURE__*/React.createElement(Btn, {
     ghost: true,
@@ -6136,6 +7011,7 @@ function TakeoffWorkspace() {
       fontSize: 11
     }
   }, "Fit"))), /*#__PURE__*/React.createElement("div", {
+    className: "dx-grid",
     style: {
       flex: 1,
       display: 'grid',
@@ -6147,7 +7023,7 @@ function TakeoffWorkspace() {
     style: {
       position: 'relative',
       background: '#0e0e10',
-      border: '0.5px solid ' + C.line,
+      border: '1px solid ' + C.line,
       borderRadius: 10,
       overflow: 'hidden'
     }
@@ -6179,7 +7055,7 @@ function TakeoffWorkspace() {
   }, "Upload a plan set. Set the scale on each sheet, then measure Length, Area, or Count. Markups are saved per sheet.") : null), /*#__PURE__*/React.createElement("div", {
     style: {
       background: C.panel,
-      border: '0.5px solid ' + C.line,
+      border: '1px solid ' + C.line,
       borderRadius: 10,
       padding: 14,
       display: 'flex',
@@ -6202,7 +7078,7 @@ function TakeoffWorkspace() {
   }, items.length ? items.map((it, ix) => /*#__PURE__*/React.createElement("div", {
     key: it.id,
     style: {
-      borderBottom: '0.5px solid ' + C.line,
+      borderBottom: '1px solid ' + C.line,
       padding: '8px 0'
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -6250,7 +7126,7 @@ function TakeoffWorkspace() {
     }
   }, "No measurements on this sheet.")), /*#__PURE__*/React.createElement("div", {
     style: {
-      borderTop: '0.5px solid ' + C.line,
+      borderTop: '1px solid ' + C.line,
       paddingTop: 10,
       marginTop: 8
     }
@@ -6296,7 +7172,7 @@ function TakeoffWorkspace() {
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       background: C.ink,
-      border: '0.5px solid ' + C.line2,
+      border: '1px solid ' + C.line2,
       borderRadius: 14,
       width: 'min(620px,96%)',
       padding: '20px 22px'
@@ -6342,7 +7218,7 @@ function TakeoffWorkspace() {
         justifyContent: 'space-between',
         gap: 12,
         padding: '9px 0',
-        borderBottom: '0.5px solid ' + C.line
+        borderBottom: '1px solid ' + C.line
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
@@ -6376,7 +7252,7 @@ function TakeoffWorkspace() {
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       background: C.ink,
-      border: '0.5px solid ' + C.line2,
+      border: '1px solid ' + C.line2,
       borderRadius: 14,
       width: 'min(560px,94%)',
       padding: '22px 24px'
@@ -6638,437 +7514,118 @@ function dxOpenDraft(f) {
   }
   DX.toast('Opening email draft for ' + name.split(',')[0] + '…', 'ok');
 }
-const NAV = [['dashboard', 'Dashboard'], ['estimating', 'Estimating'], ['takeoff', 'Takeoff'], ['rates', 'Rates'], ['estimator', 'Estimate'], ['proposals', 'Proposals'], ['pipeline', 'Pipeline'], ['clients', 'Clients'], ['performance', 'Performance']];
+const NAV = [['dashboard', 'Dashboard'], ['estimating', 'Estimates'], ['takeoff', 'Takeoff'], ['rates', 'Rates'], ['estimator', 'Estimate'], ['proposals', 'Proposals'], ['pipeline', 'Pipeline'], ['clients', 'Clients'], ['performance', 'Performance']];
+/* Theme: 'system' (no attribute) | 'light' | 'dark', remembered per browser. */
+function useTheme() {
+  const read = () => { try { return localStorage.getItem('demex_theme') || 'system'; } catch (e) { return 'system'; } };
+  const [mode, setMode] = useState(read);
+  const apply = m => {
+    try { if (m === 'system') localStorage.removeItem('demex_theme'); else localStorage.setItem('demex_theme', m); } catch (e) {}
+    if (m === 'system') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', m);
+    setMode(m);
+  };
+  return [mode, apply];
+}
+function ThemeToggle() {
+  const [mode, setMode] = useTheme();
+  const next = { system: 'light', light: 'dark', dark: 'system' }[mode] || 'system';
+  const icon = mode === 'light' ? '☀' : mode === 'dark' ? '☾' : '◐';
+  return /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "dx-btn ghost mono",
+    onClick: () => setMode(next),
+    title: 'Theme: ' + mode + ' — click for ' + next,
+    'aria-label': 'Theme: ' + mode + '. Switch to ' + next,
+    style: { flex: '0 0 auto', width: 34, height: 32, borderRadius: 9, border: '1px solid ' + C.line2, background: 'transparent', color: C.t2, cursor: 'pointer', fontSize: 15, lineHeight: 1 }
+  }, icon);
+}
 function TopBar({
   route,
   nav,
   onPalette
 }) {
+  // on narrow screens the nav scrolls sideways: keep the current section visible
+  useEffect(() => {
+    const el = document.querySelector('.dx-nav [aria-current="page"]');
+    const nv = el && el.parentNode;
+    if (nv && nv.scrollWidth > nv.clientWidth) nv.scrollLeft = Math.max(0, el.offsetLeft - nv.clientWidth / 2 + el.offsetWidth / 2);
+  }, [route]);
   return /*#__PURE__*/React.createElement("div", {
+    className: "dx-topbar",
     style: {
       display: 'flex',
       alignItems: 'center',
-      gap: 20,
-      padding: '12px 22px',
-      borderBottom: '0.5px solid ' + C.line,
+      gap: 16,
+      padding: '10px 22px',
+      borderBottom: '1px solid ' + C.line,
       position: 'sticky',
       top: 0,
-      background: C.ink,
-      zIndex: 50
+      background: 'var(--bar-bg)',
+      backdropFilter: 'saturate(1.4) blur(12px)',
+      WebkitBackdropFilter: 'saturate(1.4) blur(12px)',
+      zIndex: 50,
+      minWidth: 0
     }
   }, /*#__PURE__*/React.createElement("span", {
     className: "syne",
+    onClick: () => nav('dashboard'),
     style: {
       fontWeight: 800,
       fontSize: 18,
       letterSpacing: 3,
-      color: '#fff'
-    }
-  }, "DEMEX"), /*#__PURE__*/React.createElement("div", {
-    style: {
+      color: C.t1,
+      cursor: 'pointer',
+      flex: '0 0 auto',
       display: 'flex',
-      gap: 4
+      alignItems: 'center',
+      gap: 8
     }
-  }, NAV.map(([k, l]) => /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", {
+    'aria-hidden': true,
+    style: { width: 9, height: 18, borderRadius: 2, background: C.red, boxShadow: '5px 0 0 ' + C.teal }
+  }), /*#__PURE__*/React.createElement("span", { style: { marginLeft: 5 } }, "DEMEX")), /*#__PURE__*/React.createElement("nav", {
+    className: "dx-nav",
+    'aria-label': 'Sections'
+  }, NAV.map(([k, l]) => /*#__PURE__*/React.createElement("a", {
     key: k,
-    onClick: () => nav(k),
+    href: '#/' + k,
+    className: "dx-navi",
+    'aria-current': route === k ? 'page' : undefined,
+    onClick: e => { e.preventDefault(); nav(k); },
     style: {
       fontSize: 13,
+      fontWeight: route === k ? 700 : 500,
       padding: '7px 12px',
-      borderRadius: 7,
+      borderRadius: 9,
       cursor: 'pointer',
-      color: route === k ? '#fff' : C.t2,
-      background: route === k ? C.panel : 'transparent',
-      borderBottom: route === k ? '2px solid ' + C.red : '2px solid transparent'
+      textDecoration: 'none',
+      color: route === k ? C.t1 : C.t2,
+      background: route === k ? C.panel2 : 'transparent',
+      boxShadow: route === k ? 'inset 0 -2px 0 ' + C.red : 'none'
     }
   }, l))), /*#__PURE__*/React.createElement("div", {
     onClick: onPalette,
-    className: "mono",
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: e => { if (e.key === 'Enter') onPalette(); },
+    className: "mono dx-hide-sm dx-click",
     style: {
       marginLeft: 'auto',
       fontSize: 11,
       color: C.t3,
-      border: '0.5px solid ' + C.line2,
-      borderRadius: 7,
-      padding: '6px 11px',
-      cursor: 'pointer'
+      border: '1px solid ' + C.line2,
+      borderRadius: 9,
+      padding: '7px 11px',
+      cursor: 'pointer',
+      flex: '0 0 auto',
+      whiteSpace: 'nowrap'
     }
-  }, "⌘K  command"), /*#__PURE__*/React.createElement(IngestInboxBtn, {
+  }, "⌘K  command"), /*#__PURE__*/React.createElement(ThemeToggle, null), /*#__PURE__*/React.createElement("span", {
+    className: "dx-ingest",
+    style: { flex: '0 0 auto' }
+  }, /*#__PURE__*/React.createElement(IngestInboxBtn, {
     key: 'ingest'
-  }));
-}
-function EstimatingHero({
-  onLaunch
-}) {
-  const db = useStore();
-  const open = db.projects.filter(p => ['invited', 'estimating'].indexOf(p.status) >= 0);
-  const wp = open.reduce((s, p) => s + DX.revenueOf(p) * (p.probability || 0) / 100, 0);
-  const wr = DX.winRate();
-  const active = open.filter(p => p.dueAt).slice(0, 3);
-  const fb = open.slice(0, 3);
-  const list = active.length ? active : fb;
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      minHeight: '100vh',
-      background: '#000',
-      color: '#fff',
-      position: 'relative',
-      overflow: 'hidden'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      inset: 0,
-      background: 'radial-gradient(900px 520px at 80% 18%, rgba(232,51,42,.16), transparent 62%)',
-      pointerEvents: 'none'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      inset: 0,
-      backgroundImage: 'linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px)',
-      backgroundSize: '48px 48px',
-      WebkitMaskImage: 'radial-gradient(circle at 55% 42%, #000, transparent 78%)',
-      maskImage: 'radial-gradient(circle at 55% 42%, #000, transparent 78%)',
-      pointerEvents: 'none'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'relative',
-      display: 'flex',
-      alignItems: 'center',
-      padding: '20px 34px'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "mono",
-    style: {
-      fontSize: 11,
-      letterSpacing: 3,
-      color: '#8a8a8e'
-    }
-  }, "DEMOLITION INTELLIGENCE"), /*#__PURE__*/React.createElement("button", {
-    onClick: onLaunch,
-    className: "syne",
-    style: {
-      marginLeft: 'auto',
-      fontWeight: 800,
-      fontSize: 12,
-      background: 'transparent',
-      color: '#fff',
-      border: '1px solid rgba(255,255,255,.3)',
-      borderRadius: 99,
-      padding: '9px 20px',
-      cursor: 'pointer'
-    }
-  }, "LAUNCH APP →")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'relative',
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit,minmax(330px,1fr))',
-      gap: 30,
-      alignItems: 'center',
-      maxWidth: 1200,
-      margin: '0 auto',
-      padding: '24px 34px 60px',
-      boxSizing: 'border-box'
-    }
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: "'Bebas Neue',sans-serif",
-      fontSize: 82,
-      lineHeight: .9,
-      letterSpacing: '.01em',
-      color: '#fff'
-    }
-  }, "PRICE ANY", /*#__PURE__*/React.createElement("br", null), "DEMO SCOPE", /*#__PURE__*/React.createElement("br", null), "IN SECONDS"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 120,
-      height: 3,
-      background: '#e8332a',
-      margin: '18px 0 20px'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 16,
-      color: '#9a9a9d',
-      maxWidth: 440,
-      lineHeight: 1.6,
-      marginBottom: 28
-    }
-  }, "Instant budgeting for selective demolition, concrete cutting, asphalt removal, and tenant buildouts — AI-powered plan takeoff, all 50 states."), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 12,
-      flexWrap: 'wrap'
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: onLaunch,
-    className: "syne",
-    style: {
-      fontWeight: 800,
-      fontSize: 13,
-      background: '#fff',
-      color: '#000',
-      border: 'none',
-      borderRadius: 99,
-      padding: '13px 26px',
-      cursor: 'pointer'
-    }
-  }, "LAUNCH APP →"), /*#__PURE__*/React.createElement("button", {
-    onClick: onLaunch,
-    className: "syne",
-    style: {
-      fontWeight: 800,
-      fontSize: 13,
-      background: 'transparent',
-      color: '#fff',
-      border: '1px solid rgba(255,255,255,.3)',
-      borderRadius: 99,
-      padding: '13px 26px',
-      cursor: 'pointer'
-    }
-  }, "WATCH IT WORK"))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'relative',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: 500
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      left: '6%',
-      top: 66,
-      width: 172,
-      height: 360,
-      borderRadius: 22,
-      background: '#0d0d0f',
-      border: '1px solid rgba(255,255,255,.07)',
-      transform: 'perspective(950px) rotateY(22deg)',
-      boxShadow: '0 22px 60px rgba(0,0,0,.55)'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      right: '6%',
-      top: 66,
-      width: 172,
-      height: 360,
-      borderRadius: 22,
-      background: '#0d0d0f',
-      border: '1px solid rgba(255,255,255,.07)',
-      transform: 'perspective(950px) rotateY(-22deg)',
-      boxShadow: '0 22px 60px rgba(0,0,0,.55)'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      bottom: 26,
-      width: 350,
-      height: 96,
-      borderRadius: '50%',
-      background: 'radial-gradient(ellipse at center, rgba(232,51,42,.5), transparent 70%)',
-      filter: 'blur(12px)'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      bottom: 48,
-      width: 236,
-      height: 14,
-      borderRadius: '50%',
-      background: 'rgba(232,51,42,.55)',
-      filter: 'blur(7px)'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'relative',
-      width: 268,
-      borderRadius: 34,
-      background: 'linear-gradient(180deg,#1c1c1f,#0a0a0b)',
-      border: '1px solid rgba(255,255,255,.14)',
-      padding: 13,
-      boxShadow: '0 44px 92px rgba(0,0,0,.7), 0 0 70px rgba(232,51,42,.18)'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: 5,
-      width: 62,
-      background: '#2a2a2d',
-      borderRadius: 9,
-      margin: '2px auto 9px'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: '#0a0a0b',
-      borderRadius: 24,
-      padding: '14px 13px',
-      border: '1px solid rgba(255,255,255,.06)'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 7,
-      marginBottom: 12
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      width: 7,
-      height: 7,
-      borderRadius: 9,
-      background: '#22c97a'
-    }
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "syne",
-    style: {
-      fontWeight: 800,
-      fontSize: 12,
-      letterSpacing: 2
-    }
-  }, "DEMEX"), /*#__PURE__*/React.createElement("span", {
-    className: "mono",
-    style: {
-      marginLeft: 'auto',
-      fontSize: 8,
-      color: '#6f6f72'
-    }
-  }, db.projects.length, " JOBS")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: '#141416',
-      border: '1px solid rgba(255,255,255,.08)',
-      borderRadius: 12,
-      padding: '12px 13px',
-      marginBottom: 8,
-      position: 'relative',
-      overflow: 'hidden'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      top: -18,
-      right: -18,
-      width: 60,
-      height: 60,
-      borderRadius: 99,
-      background: '#e8332a',
-      opacity: .18,
-      filter: 'blur(8px)'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mono",
-    style: {
-      fontSize: 8,
-      letterSpacing: 1,
-      color: '#6f6f72'
-    }
-  }, "WEIGHTED PIPELINE"), /*#__PURE__*/React.createElement("div", {
-    className: "syne",
-    style: {
-      fontWeight: 800,
-      fontSize: 24,
-      color: '#fff'
-    }
-  }, money(wp))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 8,
-      marginBottom: 10
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      background: '#141416',
-      border: '1px solid rgba(255,255,255,.08)',
-      borderRadius: 10,
-      padding: '9px 10px'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "mono",
-    style: {
-      fontSize: 8,
-      color: '#6f6f72'
-    }
-  }, "WIN RATE"), /*#__PURE__*/React.createElement("div", {
-    className: "syne",
-    style: {
-      fontWeight: 800,
-      fontSize: 16,
-      color: '#22c97a'
-    }
-  }, wr == null ? '—' : wr + '%')), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      background: '#141416',
-      border: '1px solid rgba(255,255,255,.08)',
-      borderRadius: 10,
-      padding: '9px 10px'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "mono",
-    style: {
-      fontSize: 8,
-      color: '#6f6f72'
-    }
-  }, "OPEN BIDS"), /*#__PURE__*/React.createElement("div", {
-    className: "syne",
-    style: {
-      fontWeight: 800,
-      fontSize: 16,
-      color: '#fff'
-    }
-  }, open.length))), /*#__PURE__*/React.createElement("div", {
-    className: "mono",
-    style: {
-      fontSize: 8,
-      letterSpacing: 1,
-      color: '#6f6f72',
-      margin: '4px 0 7px'
-    }
-  }, "ACTIVE BIDS"), list.map(function (p, i) {
-    var pct = [78, 52, 34][i] || 40;
-    return /*#__PURE__*/React.createElement("div", {
-      key: i,
-      style: {
-        marginBottom: 9
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        fontSize: 9.5,
-        color: '#cfcfd2',
-        marginBottom: 4
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        maxWidth: 140
-      }
-    }, p.name.split(',')[0]), /*#__PURE__*/React.createElement("span", {
-      className: "mono",
-      style: {
-        color: '#6f6f72'
-      }
-    }, pct, "%")), /*#__PURE__*/React.createElement("div", {
-      style: {
-        height: 5,
-        borderRadius: 3,
-        background: '#1f1f22',
-        overflow: 'hidden'
-      }
-    }, /*#__PURE__*/React.createElement("i", {
-      style: {
-        display: 'block',
-        height: '100%',
-        width: pct + '%',
-        background: '#e8332a'
-      }
-    })));
-  }))))));
+  })));
 }
 function App() {
   const [booting, setBooting] = useState(true);
