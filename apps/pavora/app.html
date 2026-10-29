@@ -13,118 +13,251 @@
 :root{
   /* PAVORA · Wayne's Carpet Plus. Dark = near-black with gold as accent only. Light = warm paper. */
   --font:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
-  --r:14px; --r2:10px;
+  --r:16px; --r2:10px; --r3:8px; --ease:cubic-bezier(.2,.7,.2,1);
   --brand:#D9B943; --brand2:#B8952A; --gold-deep:#8C6F12; --brand-ink:#15110A;
   --teal:#4FCBA4; --amber:#E8B04A; --red:#F27168; --green:#5FD392; --blue:#6FA8F5;
   color-scheme:dark;
-  --bg:#0B0B0C; --bg2:#121214; --surface:#141416; --glass:rgba(255,255,255,.035); --glass2:rgba(255,255,255,.065);
-  --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.15); --text:#ECEBE6; --dim:#9A9890; --dim2:#67655E;
-  --input:rgba(0,0,0,.35); --side:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.01)); --modal:linear-gradient(180deg,#1A1A1D,#121214); --toast:#1A1A1D; --option:#1A1A1D;
-  --body:radial-gradient(900px 500px at 8% -10%,rgba(217,185,67,.07),transparent 60%),var(--bg);
-  --shadow:0 10px 40px rgba(0,0,0,.55); --kpi:var(--text);
+  --bg:#0B0B0C; --bg2:#121214; --surface:#141416; --surface2:#19191C; --glass:rgba(255,255,255,.035); --glass2:rgba(255,255,255,.065); --hover:rgba(255,255,255,.05);
+  --line:rgba(255,255,255,.075); --line2:rgba(255,255,255,.14); --text:#ECEBE6; --dim:#A09E96; --dim2:#6E6C65;
+  --input:rgba(0,0,0,.35); --side:linear-gradient(180deg,#111113,#0D0D0E); --modal:linear-gradient(180deg,#1A1A1D,#121214); --toast:#1A1A1D; --option:#1A1A1D;
+  --body:radial-gradient(1100px 600px at 12% -12%,rgba(217,185,67,.075),transparent 60%),var(--bg);
+  --shadow:0 18px 50px rgba(0,0,0,.55); --shadow-sm:0 1px 2px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.02); --shadow-hover:0 10px 30px rgba(0,0,0,.45);
+  --kpi:var(--text); --gold-soft:rgba(217,185,67,.14); --gold-line:rgba(217,185,67,.38); --ring:0 0 0 3px rgba(217,185,67,.25);
+  /* chart tokens (validated: dataviz palette check, dark surface) */
+  --c1:#A88A2C; --c1h:#D9B943; --c2:#4F86D6; --c-warn:#E0803A; --c-bad:#D95F55; --c-muted:#6E6A5E; --c-track:rgba(255,255,255,.045);
+  --warn-bg:rgba(232,176,74,.09); --warn-line:rgba(232,176,74,.32); --warn-ink:#F2C979;
+  --info-bg:rgba(111,168,245,.08); --info-line:rgba(111,168,245,.3); --info-ink:#A9CBFA;
+  --err-bg:rgba(242,113,104,.09); --err-line:rgba(242,113,104,.32); --err-ink:#FF9E97;
 }
 :root[data-theme="light"]{
   color-scheme:light;
-  --bg:#F6F4EE; --bg2:#FFFFFF; --surface:#FFFFFF; --glass:rgba(255,255,255,.75); --glass2:rgba(20,16,8,.05);
-  --line:rgba(20,16,8,.10); --line2:rgba(20,16,8,.2); --text:#1A1812; --dim:#5E5A4E; --dim2:#8E897B;
+  --bg:#F6F4EE; --bg2:#FFFFFF; --surface:#FFFFFF; --surface2:#FBFAF6; --glass:rgba(20,16,8,.025); --glass2:rgba(20,16,8,.05); --hover:rgba(20,16,8,.04);
+  --line:rgba(20,16,8,.09); --line2:rgba(20,16,8,.18); --text:#1A1812; --dim:#5E5A4E; --dim2:#8A8576;
   --brand:#A8841A; --brand2:#8C6F12; --gold-deep:#6F5708; --brand-ink:#FFFFFF;
   --teal:#128C68; --amber:#B4770A; --red:#C8342A; --green:#1E8F4E; --blue:#1F62C4;
-  --input:#FFFFFF; --side:linear-gradient(180deg,#FFFFFF,#F9F7F1); --modal:#FFFFFF; --toast:#FFFFFF; --option:#FFFFFF;
-  --body:radial-gradient(900px 500px at 8% -10%,rgba(168,132,26,.08),transparent 60%),var(--bg);
-  --shadow:0 10px 40px rgba(20,16,8,.14); --kpi:var(--text);
+  --input:#FFFFFF; --side:linear-gradient(180deg,#FFFFFF,#FAF8F2); --modal:#FFFFFF; --toast:#FFFFFF; --option:#FFFFFF;
+  --body:radial-gradient(1100px 600px at 12% -12%,rgba(168,132,26,.09),transparent 60%),var(--bg);
+  --shadow:0 18px 50px rgba(20,16,8,.16); --shadow-sm:0 1px 2px rgba(20,16,8,.06),0 0 0 1px rgba(20,16,8,.02); --shadow-hover:0 10px 28px rgba(20,16,8,.10);
+  --kpi:var(--text); --gold-soft:rgba(168,132,26,.12); --gold-line:rgba(168,132,26,.4); --ring:0 0 0 3px rgba(168,132,26,.22);
+  --c1:#A8841A; --c1h:#8C6F12; --c2:#2F6FD0; --c-warn:#C2610F; --c-bad:#C8342A; --c-muted:#A9A391; --c-track:rgba(20,16,8,.05);
+  --warn-bg:#FFF6E3; --warn-line:#EBCB8B; --warn-ink:#7A4E00;
+  --info-bg:#EEF4FD; --info-line:#B9CFF2; --info-ink:#1D4F9C;
+  --err-bg:#FDEDEB; --err-line:#F0B8B2; --err-ink:#A0261D;
 }
 *{box-sizing:border-box} html,body{margin:0;height:100%}
-body{font-family:var(--font);background:var(--body);color:var(--text);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
-a{color:var(--brand);text-decoration:none}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--font);background:var(--body);background-attachment:fixed;color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01"}
+a{color:var(--brand);text-decoration:none} a:hover{text-decoration:underline;text-underline-offset:2px}
+::selection{background:var(--gold-soft)}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 button,input,select,textarea{font:inherit;color:inherit}
-input,select,textarea{background:var(--input);border:1px solid var(--line2);border-radius:var(--r2);padding:8px 10px;width:100%;outline:none;transition:border .15s,box-shadow .15s}
-input:focus,select:focus,textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(217,185,67,.2)}
+input,select,textarea{background:var(--input);border:1px solid var(--line2);border-radius:var(--r2);padding:8px 11px;width:100%;outline:none;transition:border-color .15s,box-shadow .15s;min-height:36px}
+input:hover,select:hover,textarea:hover{border-color:var(--dim2)}
+input:focus,select:focus,textarea:focus{border-color:var(--brand);box-shadow:var(--ring)}
+input[type=checkbox]{min-height:0;accent-color:var(--brand)}
 select option{background:var(--option)}
-textarea{min-height:70px;resize:vertical}
-label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
-.btn{background:var(--glass2);border:1px solid var(--line2);border-radius:var(--r2);padding:8px 14px;cursor:pointer;transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
-.btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25)}
-.btn.primary{background:linear-gradient(135deg,var(--brand2),var(--brand));color:var(--brand-ink);border-color:transparent;font-weight:600}
-.btn.primary:hover{filter:brightness(1.08)}
-.btn.danger{border-color:rgba(255,107,107,.4);color:var(--red)}
-.btn.sm{padding:5px 10px;font-size:12.5px} .btn:disabled{opacity:.45;cursor:not-allowed}
-.btn.ghost{background:transparent;border-color:transparent;color:var(--dim)} .btn.ghost:hover{color:var(--text);background:var(--glass)}
+textarea{min-height:76px;resize:vertical}
+label.f{display:block;font-size:12px;font-weight:500;color:var(--dim);margin:10px 0 5px}
+.btn{background:var(--surface2);border:1px solid var(--line2);border-radius:var(--r2);padding:7px 14px;min-height:36px;cursor:pointer;transition:background .15s,border-color .15s,transform .12s,box-shadow .15s;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:500;color:var(--text);text-decoration:none!important}
+.btn:hover{background:var(--hover);border-color:var(--dim2)} .btn:active{transform:translateY(1px)}
+.btn.primary{background:linear-gradient(135deg,var(--brand2),var(--brand));color:var(--brand-ink);border-color:transparent;font-weight:600;box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 4px 14px rgba(217,185,67,.18)}
+.btn.primary:hover{filter:brightness(1.07);background:linear-gradient(135deg,var(--brand2),var(--brand))}
+.btn.danger{border-color:var(--err-line);color:var(--red)}
+.btn.sm{padding:4px 10px;min-height:30px;font-size:12.5px} .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--dim)} .btn.ghost:hover{color:var(--text);background:var(--hover)}
 
 /* layout */
-.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
-.side{position:sticky;top:0;height:100vh;padding:18px 12px;border-right:1px solid var(--line);background:var(--side);backdrop-filter:blur(18px);display:flex;flex-direction:column;overflow:auto}
-.logo{display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 6px 16px;border-bottom:1px solid var(--line);margin-bottom:8px}
-.logo img{width:140px;height:auto} :root[data-theme="light"] .logo img{filter:none}
+.app{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:100vh}
+.side{position:sticky;top:0;height:100vh;padding:18px 12px 12px;border-right:1px solid var(--line);background:var(--side);display:flex;flex-direction:column;overflow:auto;scrollbar-width:thin}
+.logo{display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 6px 16px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.logo img{width:136px;height:auto}
 .logo .mark{display:none}
-.logo .name{font-weight:800;letter-spacing:.32em;font-size:12px;color:var(--dim);text-transform:uppercase} .logo .co{display:none}
-.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;color:var(--dim);font-weight:500;margin:1px 0;transition:all .12s}
-.nav a:hover{color:var(--text);background:var(--glass)} .nav a.on{color:var(--text);background:var(--glass2);box-shadow:inset 3px 0 0 var(--brand)}
-.nav a .ic{width:18px;text-align:center;opacity:.9} .nav a .badge{margin-left:auto;font-size:10.5px;background:rgba(217,185,67,.16);color:var(--brand);border-radius:999px;padding:1px 7px}
-.nav .sec{font-size:10.5px;letter-spacing:.12em;color:var(--dim2);text-transform:uppercase;padding:14px 10px 4px}
-.side .foot{margin-top:auto;padding:10px;font-size:11.5px;color:var(--dim2)}
-.main{padding:22px 28px 60px;min-width:0}
-.topbar{display:flex;align-items:center;gap:12px;margin-bottom:18px}
-.topbar h1{font-size:22px;font-weight:700;margin:0;letter-spacing:-.01em} .topbar .sub{color:var(--dim);font-size:13px}
+.logo .name{font-weight:800;letter-spacing:.34em;font-size:11px;color:var(--dim2);text-transform:uppercase} .logo .co{display:none}
+.nav a{position:relative;display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:10px;color:var(--dim);font-weight:500;margin:1px 0;transition:color .15s,background .15s;text-decoration:none}
+.nav a:hover{color:var(--text);background:var(--hover)}
+.nav a.on{color:var(--text);background:var(--gold-soft)}
+.nav a.on::before{content:"";position:absolute;left:-12px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--brand)}
+.nav a .ic{width:24px;height:24px;display:grid;place-items:center;border-radius:7px;font-size:13px;background:var(--glass);border:1px solid var(--line);flex:none;transition:all .15s}
+.nav a.on .ic{color:var(--brand);border-color:var(--gold-line);background:transparent}
+.nav a .lbl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav a .badge{margin-left:auto;font-size:10.5px;font-weight:600;background:var(--gold-soft);color:var(--brand);border-radius:999px;padding:1px 7px;min-width:20px;text-align:center}
+.nav a .badge.hot{background:var(--brand);color:var(--brand-ink)}
+.nav .sec{font-size:10.5px;font-weight:600;letter-spacing:.14em;color:var(--dim2);text-transform:uppercase;padding:16px 10px 5px}
+.side .foot{margin-top:auto;padding:12px 10px 4px;font-size:11px;color:var(--dim2);border-top:1px solid var(--line)}
+.main{padding:0 32px 64px;min-width:0}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 -32px 22px;padding:18px 32px 14px;background:linear-gradient(180deg,var(--bg) 55%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.topbar h1{font-size:24px;font-weight:700;margin:0;letter-spacing:-.02em;color:var(--text);line-height:1.2} .topbar .sub{color:var(--dim);font-size:12.5px;margin-top:2px}
 .topbar .sp{flex:1}
-.sync{font-size:11.5px;color:var(--dim2);display:flex;align-items:center;gap:6px} .sync .dot{width:7px;height:7px;border-radius:50%;background:var(--green)} .sync .dot.err{background:var(--red)} .sync .dot.busy{background:var(--amber)}
+.sync{font-size:11.5px;color:var(--dim2);display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface)} .sync .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(95,211,146,.15)} .sync .dot.err{background:var(--red)} .sync .dot.busy{background:var(--amber)}
+.page{animation:page-in .3s var(--ease)}
+@keyframes page-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
 /* cards */
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;backdrop-filter:blur(14px);box-shadow:0 1px 0 rgba(255,255,255,.04) inset}
-.card h3{margin:0 0 10px;font-size:13px;color:var(--dim);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
-.grid{display:grid;gap:14px} .g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)} .g5{grid-template-columns:repeat(5,1fr)}
-.kpi{padding:14px 16px} .kpi .v{font-size:24px;font-weight:700;letter-spacing:-.02em;margin-top:2px} .kpi .l{font-size:12px;color:var(--dim)} .kpi.warn .v{color:var(--amber)} .kpi.good .v{color:var(--teal)} .kpi .h{font-size:11.5px;color:var(--dim2);margin-top:4px}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap} .col{display:flex;flex-direction:column;gap:8px}
-.dim{color:var(--dim)} .dim2{color:var(--dim2)} .mono{font-family:var(--mono)} .small{font-size:12px} .xs{font-size:11px} .b{font-weight:600} .right{text-align:right}
-.money{font-family:var(--mono);font-variant-numeric:tabular-nums}
-.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--glass2);border:1px solid var(--line);color:var(--dim)}
-.pill.lead{color:var(--blue);border-color:rgba(77,163,255,.35)} .pill.estimate{color:var(--amber);border-color:rgba(243,178,62,.35)} .pill.won{color:var(--teal);border-color:rgba(42,209,184,.35)} .pill.closing{color:var(--brand);border-color:rgba(217,185,67,.35)} .pill.closed{color:var(--green);border-color:rgba(61,220,151,.35)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow-sm);min-width:0;transition:border-color .2s,box-shadow .2s}
+.card h3{margin:0 0 12px;font-size:12px;color:var(--dim);font-weight:600;letter-spacing:.07em;text-transform:uppercase}
+.card h3 .small{text-transform:none;letter-spacing:0;font-weight:500}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap} .card-head h3{margin:0}
+.grid{display:grid;gap:16px} .g2{grid-template-columns:repeat(2,minmax(0,1fr))} .g3{grid-template-columns:repeat(3,minmax(0,1fr))} .g4{grid-template-columns:repeat(4,minmax(0,1fr))} .g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.split-l{grid-template-columns:300px minmax(0,1fr)} .split-l.sm{grid-template-columns:220px minmax(0,1fr)} .split-r{grid-template-columns:minmax(0,1fr) 320px}
+.sec-gap{margin-top:16px}
+.kpi{position:relative;padding:16px 18px;overflow:hidden} .kpi .v{font-size:26px;font-weight:700;letter-spacing:-.025em;margin-top:4px;line-height:1.15;color:var(--kpi);font-variant-numeric:tabular-nums} .kpi .l{font-size:11.5px;color:var(--dim);font-weight:500;letter-spacing:.02em} .kpi.warn .v{color:var(--amber)} .kpi.good .v{color:var(--teal)} .kpi .h{font-size:11.5px;color:var(--dim2);margin-top:5px}
+.kpi::after{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,var(--brand),transparent);opacity:0;transition:opacity .2s}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap} .col{display:flex;flex-direction:column;gap:10px}
+.dim{color:var(--dim)} .dim2{color:var(--dim2)} .mono{font-family:var(--mono)} .small{font-size:12.5px} .xs{font-size:11px} .b{font-weight:600} .right{text-align:right}
+.ellip{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.money{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.95em}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:2px 9px;border-radius:999px;background:var(--glass2);border:1px solid var(--line);color:var(--dim);white-space:nowrap;line-height:1.5}
+.pill.lead{color:var(--blue);border-color:rgba(111,168,245,.35)} .pill.estimate{color:var(--amber);border-color:rgba(232,176,74,.35)} .pill.won{color:var(--teal);border-color:rgba(79,203,164,.35)} .pill.closing{color:var(--brand);border-color:var(--gold-line)} .pill.closed{color:var(--green);border-color:rgba(95,211,146,.35)}
 .pill.approved{color:var(--green)} .pill.draft{color:var(--dim)} .pill.proposed{color:var(--amber)} .pill.superseded{color:var(--dim2)} .pill.rejected{color:var(--red)}
 .pill.ok{color:var(--green)} .pill.off{color:var(--red)} .pill.warn{color:var(--amber)}
-.tbl{width:100%;border-collapse:collapse} .tbl th{text-align:left;font-size:11.5px;color:var(--dim2);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);letter-spacing:.04em;text-transform:uppercase} .tbl td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top} .tbl tr:hover td{background:rgba(255,255,255,.025)} .tbl tr.click{cursor:pointer}
+.tag-email{display:inline-flex;align-items:center;margin-left:7px;vertical-align:1px;font-size:10px;font-weight:600;letter-spacing:.02em;padding:0 6px;border-radius:5px;color:var(--blue);background:var(--info-bg);border:1px solid var(--info-line);line-height:16px;white-space:nowrap}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;padding:2px 9px;border-radius:999px;border:1px solid var(--gold-line);color:var(--brand);background:var(--gold-soft);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:none!important} .chip:hover{border-color:var(--brand)}
+
+/* tables */
+.tbl-box{min-width:0}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px;padding:0 4px}
+.tbl-tools{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.tbl{width:100%;border-collapse:separate;border-spacing:0}
+.tbl th{text-align:left;font-size:11px;color:var(--dim2);font-weight:600;padding:9px 12px;border-bottom:1px solid var(--line);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;user-select:none}
+.tbl th.sortable{cursor:pointer;transition:color .15s} .tbl th.sortable:hover{color:var(--text)} .tbl th.sorted{color:var(--brand)}
+.tbl th .sort-ic{display:inline-block;margin-left:5px;font-size:9px;opacity:.45} .tbl th.sorted .sort-ic{opacity:1}
+.tbl td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl tbody tr{transition:background .12s} .tbl tbody tr:hover td{background:var(--hover)} .tbl tr.click{cursor:pointer} .tbl tbody tr:last-child td{border-bottom:none}
+.tbl tr.click:focus-visible{outline:2px solid var(--brand);outline-offset:-2px}
 .tbl td.r,.tbl th.r{text-align:right}
-.empty{padding:28px;text-align:center;color:var(--dim2);border:1px dashed var(--line2);border-radius:var(--r)}
-.list{display:flex;flex-direction:column;gap:8px} .item{padding:10px 12px;border:1px solid var(--line);border-radius:var(--r2);background:var(--glass)} .item:hover{border-color:var(--line2)}
-.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:4px 0 14px} .tabs button{background:none;border:none;padding:8px 12px;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px} .tabs button.on{color:var(--text);border-color:var(--brand)}
-.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13px} .kv div:nth-child(odd){color:var(--dim)}
-.banner{padding:10px 14px;border-radius:var(--r2);font-size:13px;border:1px solid} .banner.warn{background:rgba(243,178,62,.08);border-color:rgba(243,178,62,.3);color:#f6c871} .banner.info{background:rgba(77,163,255,.08);border-color:rgba(77,163,255,.3);color:#9ccaff} .banner.err{background:rgba(255,107,107,.08);border-color:rgba(255,107,107,.3);color:#ff9b9b}
-.search{max-width:320px}
+.empty{padding:28px 20px;text-align:center;color:var(--dim2);border:1px dashed var(--line2);border-radius:var(--r);font-size:13px}
+.empty.big{padding:56px 24px;max-width:640px;margin:20px auto;display:flex;flex-direction:column;align-items:center;gap:10px;line-height:1.6;background:var(--surface)}
+.empty-ic{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:22px;color:var(--brand);background:var(--gold-soft);border:1px solid var(--gold-line)}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{padding:10px 12px;border:1px solid var(--line);border-radius:var(--r2);background:var(--surface2);transition:border-color .15s,background .15s,transform .15s;min-width:0}
+a.item{color:inherit;text-decoration:none!important} .item:hover{border-color:var(--line2)} a.item:hover{background:var(--hover)}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin:4px 0 16px;overflow-x:auto;scrollbar-width:none} .tabs::-webkit-scrollbar{display:none}
+.tabs button{background:none;border:none;padding:9px 13px;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;font-weight:500;transition:color .15s,border-color .15s} .tabs button:hover{color:var(--text)} .tabs button.on{color:var(--text);border-color:var(--brand)}
+.seg{display:inline-flex;padding:3px;gap:2px;border:1px solid var(--line);border-radius:12px;background:var(--surface);max-width:100%;overflow-x:auto;scrollbar-width:none}
+.seg button{background:none;border:none;padding:5px 12px;border-radius:9px;color:var(--dim);cursor:pointer;font-weight:500;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;transition:background .15s,color .15s}
+.seg button:hover{color:var(--text)} .seg button.on{background:var(--gold-soft);color:var(--text);box-shadow:inset 0 0 0 1px var(--gold-line)}
+.seg button .n{font-size:10.5px;color:var(--dim2);font-variant-numeric:tabular-nums} .seg button.on .n{color:var(--brand)}
+.seg.sm button{padding:3px 10px;font-size:12px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:13px} .kv div:nth-child(odd){color:var(--dim)} .kv div{min-width:0;overflow-wrap:anywhere}
+.banner{padding:11px 14px;border-radius:var(--r2);font-size:13px;border:1px solid} .banner.warn{background:var(--warn-bg);border-color:var(--warn-line);color:var(--warn-ink)} .banner.info{background:var(--info-bg);border-color:var(--info-line);color:var(--info-ink)} .banner.err{background:var(--err-bg);border-color:var(--err-line);color:var(--err-ink)}
+.banner .btn{color:var(--text)}
+.search{max-width:320px;padding-left:32px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23908c80' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:11px 50%}
+.search.sm{max-width:260px;min-height:32px;padding-top:5px;padding-bottom:5px;font-size:13px}
 
 /* kanban */
-.kanban{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;align-items:flex-start}
-.kcol{min-width:222px;max-width:222px;background:var(--glass);border:1px solid var(--line);border-radius:var(--r);padding:10px}
-.kcol h4{margin:0 0 8px;font-size:12px;color:var(--dim);display:flex;justify-content:space-between;align-items:center} .kcol h4 span{color:var(--dim2);font-weight:500}
-.kcol.over{border-color:var(--brand);background:rgba(217,185,67,.06)}
-.kcard{background:var(--glass2);border:1px solid var(--line);border-radius:var(--r2);padding:9px 10px;margin-bottom:8px;cursor:grab;transition:transform .1s} .kcard:hover{border-color:var(--line2);transform:translateY(-1px)} .kcard .t{font-weight:600;font-size:13px} .kcard .m{font-size:11.5px;color:var(--dim);margin-top:3px}
-.kcol .tot{font-size:11px;color:var(--dim2);margin-top:4px}
+.kanban{display:flex;gap:12px;overflow-x:auto;padding-bottom:12px;align-items:flex-start;min-height:300px;scroll-snap-type:x proximity}
+.kanban.single .kcol{min-width:min(360px,100%);max-width:420px}
+.kcol{min-width:232px;max-width:232px;background:var(--glass);border:1px solid var(--line);border-radius:var(--r);padding:10px;scroll-snap-align:start;transition:border-color .15s,background .15s}
+.kcol h4{margin:2px 2px 10px;font-size:12px;font-weight:600;color:var(--dim);display:flex;justify-content:space-between;align-items:center;gap:8px} .kcol h4 span{color:var(--dim2);font-weight:600;font-size:11px;background:var(--glass2);border-radius:999px;padding:0 7px}
+.kcol.over{border-color:var(--brand);background:var(--gold-soft)}
+.kcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r2);padding:10px 11px;margin-bottom:8px;cursor:grab;transition:transform .15s var(--ease),border-color .15s,box-shadow .15s;box-shadow:var(--shadow-sm)} .kcard:hover{border-color:var(--line2);transform:translateY(-2px);box-shadow:var(--shadow-hover)} .kcard .t{font-weight:600;font-size:13px} .kcard .m{font-size:11.5px;color:var(--dim);margin-top:3px}
+.kcol .tot{font-size:11px;color:var(--dim2);margin:4px 2px 0}
 
 /* modal */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:grid;place-items:center;z-index:50;padding:20px}
-.modal{width:min(720px,100%);max-height:90vh;overflow:auto;background:var(--modal);border:1px solid var(--line2);border-radius:18px;padding:22px;box-shadow:var(--shadow)}
-.modal h2{margin:0 0 12px;font-size:17px} .modal .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:grid;place-items:center;z-index:50;padding:20px;animation:fade-in .18s ease both}
+.modal{width:min(720px,100%);max-height:90vh;overflow:auto;background:var(--modal);border:1px solid var(--line2);border-radius:20px;padding:24px;box-shadow:var(--shadow);animation:pop-in .22s var(--ease) both}
+.modal h2{margin:0 0 12px;font-size:18px;letter-spacing:-.01em} .modal .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;flex-wrap:wrap}
 .modal.wide{width:min(1000px,100%)}
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+@keyframes pop-in{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
 
 /* toast */
-.toasts{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;z-index:60}
-.toast{background:var(--toast);border:1px solid var(--line2);border-left:3px solid var(--teal);border-radius:10px;padding:10px 14px;font-size:13px;box-shadow:var(--shadow);max-width:380px} .toast.err{border-left-color:var(--red)}
+.toasts{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;z-index:60;max-width:calc(100vw - 36px)}
+.toast{background:var(--toast);border:1px solid var(--line2);border-left:3px solid var(--teal);border-radius:12px;padding:11px 15px;font-size:13px;box-shadow:var(--shadow);max-width:380px;animation:pop-in .22s var(--ease) both} .toast.err{border-left-color:var(--red)}
 
 /* chat */
-.chat{display:flex;flex-direction:column;height:calc(100vh - 180px);min-height:420px} .chat .log{flex:1;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:4px 2px} .msg{max-width:78%;padding:10px 14px;border-radius:14px;white-space:pre-wrap;line-height:1.5} .msg.u{align-self:flex-end;background:rgba(217,185,67,.16);border:1px solid rgba(217,185,67,.35)} .msg.a{align-self:flex-start;background:var(--glass2);border:1px solid var(--line)}
+.chat{display:flex;flex-direction:column;height:calc(100vh - 180px);min-height:420px} .chat .log{flex:1;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:4px 2px} .msg{max-width:78%;padding:10px 14px;border-radius:14px;white-space:pre-wrap;line-height:1.5} .msg.u{align-self:flex-end;background:var(--gold-soft);border:1px solid var(--gold-line)} .msg.a{align-self:flex-start;background:var(--glass2);border:1px solid var(--line)}
 .chat .in{display:flex;gap:8px;margin-top:10px}
 
 /* misc */
-.ph{padding:40px;border:1px dashed var(--line2);border-radius:var(--r);color:var(--dim)} .ph h2{margin:0 0 8px;color:var(--text)} .ph ul{margin:8px 0 0 18px;padding:0}
-.lines td input,.lines td select{padding:5px 7px;font-size:13px} .lines td{padding:4px 6px}
+.ph{padding:36px;border:1px dashed var(--line2);border-radius:var(--r);color:var(--dim)} .ph h2{margin:0 0 8px;color:var(--text);font-size:17px} .ph ul{margin:8px 0 0 18px;padding:0}
+.lines td input,.lines td select{padding:5px 7px;font-size:13px;min-height:32px} .lines td{padding:4px 6px}
 .menu{position:relative}
-@media (max-width:980px){.app{grid-template-columns:1fr}.side{position:relative;height:auto;flex-direction:row;flex-wrap:wrap;gap:4px;padding:10px}.side .foot,.nav .sec{display:none}.nav{display:flex;flex-wrap:wrap;gap:2px}.nav a{padding:6px 9px;font-size:12.5px}.main{padding:16px}.g4,.g5{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr}.g2{grid-template-columns:1fr}.logo{padding:4px 8px}}
 .lines{min-width:980px} .lines td input{min-width:72px} .lines td select{min-width:150px} .card:has(> .lines){overflow-x:auto}
-.kanban{min-height:300px}
-
-.topbar h1{color:var(--text)} .kpi .v{color:var(--kpi)} .kpi.good .v{color:var(--teal)}
 
 /* theme toggle */
-.theme{display:inline-flex;border:1px solid var(--line2);border-radius:999px;overflow:hidden} .theme button{background:none;border:none;padding:5px 10px;font-size:12px;color:var(--dim);cursor:pointer} .theme button.on{background:var(--glass2);color:var(--text)}
-:root[data-theme="light"] .kcard,:root[data-theme="light"] .item{background:#FBFAF6}
-:root[data-theme="light"] .pill{background:#F1EEE5}
+.theme{display:inline-flex;padding:3px;gap:2px;border:1px solid var(--line);border-radius:999px;background:var(--surface)} .theme button{background:none;border:none;padding:4px 10px;font-size:12px;color:var(--dim);cursor:pointer;border-radius:999px;transition:background .15s,color .15s} .theme button:hover{color:var(--text)} .theme button.on{background:var(--gold-soft);color:var(--text)}
+
+/* clickable KPI tiles */
+.kpi.click{cursor:pointer;transition:border-color .2s,transform .2s var(--ease),box-shadow .2s} .kpi.click:hover{border-color:var(--line2);transform:translateY(-2px);box-shadow:var(--shadow-hover)} .kpi.click:hover::after{opacity:1} .kpi.click:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* activity feed */
+.feed{display:flex;flex-direction:column} .feed-i{display:flex;gap:12px;padding:7px 0;position:relative} .feed-i:not(:last-child)::before{content:"";position:absolute;left:4px;top:20px;bottom:-6px;width:1px;background:var(--line)}
+.feed-dot{width:9px;height:9px;border-radius:50%;background:var(--dim2);margin-top:6px;flex:none;box-shadow:0 0 0 3px var(--surface)} .feed-i.email .feed-dot{background:var(--blue)} .feed-i.stage .feed-dot,.feed-i.estimate .feed-dot{background:var(--brand)} .feed-i.payment .feed-dot,.feed-i.invoice .feed-dot{background:var(--teal)}
+
+/* inbox */
+.mail-list{display:flex;flex-direction:column;gap:10px}
+.mail{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:14px;align-items:start;padding:14px 16px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow-sm);transition:border-color .15s,box-shadow .15s}
+.mail:hover{border-color:var(--line2);box-shadow:var(--shadow-hover)}
+.mail.hot{border-left:3px solid var(--brand)} .mail.done{opacity:.66} .mail.done:hover{opacity:1}
+.mail-ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:15px;background:var(--glass2);border:1px solid var(--line);color:var(--dim)}
+.mail-ic.inquiry{color:var(--brand);background:var(--gold-soft);border-color:var(--gold-line)} .mail-ic.customer{color:var(--teal)}
+.mail-main{min-width:0}
+.mail-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap} .mail-addr{overflow-wrap:anywhere} .mail-when{margin-left:auto;white-space:nowrap}
+.mail-subj{font-weight:600;margin-top:2px;overflow-wrap:anywhere}
+.mail-sum{color:var(--dim);font-size:13px;margin-top:3px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.mail-meta{margin-top:8px;gap:6px}
+.mail-act{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.mail-mini{display:block} .mail-mini.done{opacity:.7}
+
+/* charts */
+.chart-card{display:flex;flex-direction:column}
+.chart{position:relative;width:100%;min-width:0}
+.chart svg{display:block;overflow:visible;font-family:var(--font)}
+.ch-empty{display:grid;place-items:center;min-height:140px;padding:20px;text-align:center;color:var(--dim2);border:1px dashed var(--line2);border-radius:var(--r2);font-size:13px}
+.ch-hit{fill:transparent} .ch-row,.ch-col{outline:none}
+.ch-row:focus-visible .ch-hit,.ch-col:focus-visible .ch-hit{fill:var(--hover);stroke:var(--brand);stroke-width:1.5}
+.ch-lab{fill:var(--text);font-size:12.5px} .ch-val{fill:var(--dim);font-size:12px;font-variant-numeric:tabular-nums;font-weight:500}
+.ch-tick{fill:var(--dim2);font-size:10.5px;font-variant-numeric:tabular-nums} .ch-tick.sel{fill:var(--brand);font-weight:600}
+.ch-grid{stroke:var(--line);stroke-width:1;stroke-dasharray:2 4} .ch-axis,.ch-zero{stroke:var(--line2);stroke-width:1}
+.ch-track{fill:var(--c-track)}
+.ch-bar{fill:var(--c1);transition:fill .15s,opacity .2s;transform-box:fill-box;transform-origin:left center;animation:bar-x .55s var(--ease) both}
+.ch-bar.v{transform-origin:center bottom;animation-name:bar-y}
+.ch-bar.neg{transform-origin:right center}
+.ch-bar.s2{fill:var(--c2)} .ch-bar.warn{fill:var(--c-warn)} .ch-bar.bad{fill:var(--c-bad)} .ch-bar.muted{fill:var(--c-muted)}
+.chart.hovering .ch-row:not(.on) .ch-bar,.chart.hovering .ch-col:not(.on) .ch-bar{opacity:.4}
+.ch-row.on .ch-bar,.ch-col.on .ch-bar,.ch-row.sel .ch-bar,.ch-col.sel .ch-bar{filter:brightness(1.18)}
+.ch-row.on .ch-hit,.ch-col.on .ch-hit{fill:var(--hover)}
+.ch-row.faded .ch-bar,.ch-col.faded .ch-bar{opacity:.35} .ch-row.sel .ch-lab{font-weight:600;fill:var(--brand)}
+@keyframes bar-x{from{transform:scaleX(0)}to{transform:none}}
+@keyframes bar-y{from{transform:scaleY(0)}to{transform:none}}
+.ch-tip{position:absolute;z-index:5;transform:translate(-50%,calc(-100% - 8px));pointer-events:none;min-width:150px;max-width:260px;padding:9px 11px;border-radius:10px;background:var(--toast);border:1px solid var(--line2);box-shadow:var(--shadow);font-size:12px;animation:fade-in .12s ease both}
+.ch-tip-t{font-weight:600;margin-bottom:4px;color:var(--text)}
+.ch-tip-r{display:flex;align-items:center;gap:7px;color:var(--dim);line-height:1.6} .ch-tip-r b{margin-left:auto;padding-left:12px;color:var(--text);font-weight:600;font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:11.5px}
+.ch-tip-r i{width:8px;height:8px;border-radius:2px;flex:none}
+.ch-tip-h{margin-top:5px;padding-top:5px;border-top:1px solid var(--line);color:var(--dim2);font-size:11px}
+.ch-legend,.ch-key{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--dim);margin-bottom:10px} .ch-key{margin:10px 0 0}
+.ch-legend span,.ch-key span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--c1)} .sw.s2{background:var(--c2)} .sw.warn{background:var(--c-warn)} .sw.bad{background:var(--c-bad)}
+.drill{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line2);animation:page-in .25s var(--ease) both}
+
+/* responsive */
+@media (max-width:1180px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))} .g5{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:980px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .side{position:sticky;top:0;z-index:30;height:auto;flex-direction:row;align-items:center;gap:8px;padding:8px 10px;border-right:none;border-bottom:1px solid var(--line);overflow:visible;backdrop-filter:blur(14px)}
+  .side .foot,.nav .sec,.logo .name{display:none}
+  .logo{padding:0 4px 0 0;border:none;margin:0;flex:none} .logo img{width:84px}
+  .nav{display:flex;flex-wrap:nowrap;gap:2px;overflow-x:auto;scrollbar-width:none;min-width:0;flex:1;mask-image:linear-gradient(90deg,#000 92%,transparent);-webkit-mask-image:linear-gradient(90deg,#000 92%,transparent)} .nav::-webkit-scrollbar{display:none}
+  .nav a{padding:6px 10px;font-size:12.5px;flex:none} .nav a .ic{width:20px;height:20px;font-size:11px} .nav a.on::before{display:none}
+  .main{padding:0 16px 48px}
+  .topbar{position:static;margin:0 -16px 16px;padding:16px 16px 4px;background:none;backdrop-filter:none}
+  .g3,.g2,.split-l,.split-l.sm,.split-r{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:600px){
+  body{font-size:14px}
+  .topbar h1{font-size:20px} .topbar .sp{display:none} .theme button{padding:4px 8px}
+  .card{padding:15px 14px;border-radius:14px}
+  .kpi{padding:13px 14px} .kpi .v{font-size:21px}
+  .grid{gap:12px}
+  .search,.search.sm{max-width:none;flex:1 1 200px}
+  .mail{grid-template-columns:32px minmax(0,1fr);padding:12px} .mail-ic{width:32px;height:32px;border-radius:10px}
+  .mail-act{grid-column:1 / -1;flex-direction:row;flex-wrap:wrap} .mail-act .btn{flex:1 1 auto}
+  .modal{padding:18px;border-radius:16px} .modal-bg{padding:10px}
+  .ph{padding:22px}
+  .tbl td:first-child{min-width:150px} .tbl td,.tbl th{padding-left:10px;padding-right:10px}
+  .msg{max-width:92%}
+}
 
 /* loading screen (static in index.html so it paints before React loads; removed by PV.bootDone) */
 .boot{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--body);transition:opacity .4s ease,visibility .4s}
@@ -137,10 +270,13 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
 .boot.stuck .boot-bar i,.boot.stuck .boot-mark{animation:none}
 @keyframes boot-slide{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
 @keyframes boot-shine{0%,100%{background-position:100% 0}50%{background-position:0 0}}
-@media (prefers-reduced-motion:reduce){.boot-mark,.boot-bar i{animation:none}.boot-bar i{width:100%;opacity:.5}}
 
-/* clickable KPI tiles */
-.kpi.click{cursor:pointer;transition:border-color .15s,transform .15s} .kpi.click:hover{border-color:var(--line2);transform:translateY(-1px)} .kpi.click:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+/* reduced motion: no entrance animations, no lifts, no bar growth */
+@media (prefers-reduced-motion:reduce){
+  .boot-mark,.boot-bar i{animation:none}.boot-bar i{width:100%;opacity:.5}
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+  .kcard:hover,.kpi.click:hover,.btn:active{transform:none}
+}
 
 </style>
 </head>
@@ -257,6 +393,7 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
       timeEntries: [],
       learning: [],      // close-out records pending/sent to DEMEX
       activity: [],      // {ts, kind, text, ref}
+      inbox: [],         // written by the server's mail job, newest first: {id, messageId, ts, account, from, fromEmail, subject, summary, kind:'inquiry'|'customer'|'other', customerId, projectId, handled?}
       meta: { createdAt: PV.now(), updatedAt: PV.now(), sample: false }
     };
   };
@@ -599,6 +736,88 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
     });
   };
 
+  // ---------- Inbox (entries are written by the server's mail job; the app only marks / converts them) ----------
+  L.inboxOpenInquiries = function (state) { return (state.inbox || []).filter(function (e) { return e.kind === 'inquiry' && !e.handled; }).length; };
+  L.setInboxHandled = function (state, entryId, handled) {
+    var e = find(state.inbox || [], entryId); if (!e) return null;
+    e.handled = handled !== false; if (e.handled) e.handledAt = PV.now(); else delete e.handledAt;
+    return e;
+  };
+  L.customerByEmail = function (state, email) {
+    email = String(email || '').trim().toLowerCase(); if (!email) return null;
+    for (var i = 0; i < state.customers.length; i++) if (String(state.customers[i].email || '').trim().toLowerCase() === email) return state.customers[i];
+    return null;
+  };
+  // Turn an inbox entry (usually kind 'other' from an unknown sender) into a customer + new-lead project.
+  L.leadFromEmail = function (state, entryId) {
+    var e = find(state.inbox || [], entryId); if (!e) return { ok: false, error: 'email not found' };
+    if (e.projectId && find(state.projects, e.projectId)) return { ok: false, error: 'this email already has a project' };
+    var c = (e.customerId && find(state.customers, e.customerId)) || L.customerByEmail(state, e.fromEmail);
+    if (!c) c = L.addCustomer(state, { name: e.from || e.fromEmail || 'Email inquiry', email: e.fromEmail || '', source: 'email' });
+    var stageId = find(state.stages, 'new_lead') ? 'new_lead' : state.stages[0].id;
+    var pj = L.addProject(state, { customerId: c.id, propertyId: c.properties[0].id, name: (e.subject || 'Email inquiry').slice(0, 80), repId: c.repId || null, stageId: stageId, source: 'email',
+      notes: 'Created from email - please review.' + (e.summary ? '\n\n' + e.summary : '') });
+    L.addComm(state, c.id, 'email', (e.subject ? e.subject + ' — ' : '') + (e.summary || ''));
+    e.customerId = c.id; e.projectId = pj.id; e.handled = true; e.handledAt = PV.now();
+    L.log(state, 'email', 'New lead from email: ' + c.name, pj.id);
+    return { ok: true, customer: c, project: pj };
+  };
+  // Customers/projects that came in by email (server job sets source:'email'; inquiry entries link them too).
+  L.emailSourced = function (state) {
+    var cu = {}, pj = {};
+    state.projects.forEach(function (p) { if (p.source === 'email') { pj[p.id] = true; if (p.customerId) cu[p.customerId] = true; } });
+    state.customers.forEach(function (c) { if (c.source === 'email') cu[c.id] = true; });
+    (state.inbox || []).forEach(function (e) { if (e.kind === 'inquiry') { if (e.customerId) cu[e.customerId] = true; if (e.projectId) pj[e.projectId] = true; } });
+    return { customers: cu, projects: pj };
+  };
+
+  // ---------- Chart series (computed from state only) ----------
+  function monthKey(iso) { return iso ? String(iso).slice(0, 7) : null; }
+  L.lastMonths = function (n, now) {
+    var d = now ? new Date(now) : new Date(); var out = [];
+    for (var i = n - 1; i >= 0; i--) { var x = new Date(d.getFullYear(), d.getMonth() - i, 1); out.push(x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0')); }
+    return out;
+  };
+  // Approved estimate sell value per month (by approvedAt), with the projects behind each month.
+  L.salesByMonth = function (state, n, now) {
+    var months = L.lastMonths(n || 12, now); var idx = {}; var rows = months.map(function (m, i) { idx[m] = i; return { id: m, value: 0, items: [] }; });
+    state.estimates.forEach(function (e) {
+      var v = L.approvedVersion(e); if (!v || !v.approvedAt) return; var k = monthKey(v.approvedAt); if (!(k in idx)) return;
+      var r = rows[idx[k]]; r.value = round2(r.value + (+v.totals.sell || 0)); r.items.push({ projectId: e.projectId, value: +v.totals.sell || 0 });
+    });
+    return rows;
+  };
+  // PAVORA ledger: invoiced (by issuedAt) vs recorded costs (expenses by `at`) per month.
+  L.revenueCostByMonth = function (state, n, now) {
+    var months = L.lastMonths(n || 12, now); var idx = {}; var rows = months.map(function (m, i) { idx[m] = i; return { id: m, revenue: 0, cost: 0, items: [] }; });
+    state.projects.forEach(function (p) {
+      p.ledger.invoices.forEach(function (i) { var k = monthKey(i.issuedAt); if (k in idx) { rows[idx[k]].revenue = round2(rows[idx[k]].revenue + (+i.amount || 0)); rows[idx[k]].items.push({ kind: 'invoice', projectId: p.id, label: i.number, amount: +i.amount || 0 }); } });
+      p.ledger.expenses.forEach(function (x) { var k = monthKey(x.at); if (k in idx) { rows[idx[k]].cost = round2(rows[idx[k]].cost + (+x.amount || 0)); rows[idx[k]].items.push({ kind: 'expense', projectId: p.id, label: x.kind + (x.memo ? ' · ' + x.memo : ''), amount: +x.amount || 0 }); } });
+    });
+    return rows;
+  };
+  // Open invoice balances bucketed by days past due.
+  L.AGING_BUCKETS = [{ id: 'current', label: 'Not yet due' }, { id: 'd30', label: '1–30 days' }, { id: 'd60', label: '31–60 days' }, { id: 'd90', label: '61–90 days' }, { id: 'd90p', label: '90+ days' }];
+  L.agingBucket = function (dueAt, today) {
+    if (!dueAt) return 'current'; var days = Math.floor((new Date(today || new Date().toISOString().slice(0, 10)) - new Date(String(dueAt).slice(0, 10))) / 864e5);
+    return days <= 0 ? 'current' : days <= 30 ? 'd30' : days <= 60 ? 'd60' : days <= 90 ? 'd90' : 'd90p';
+  };
+  L.receivablesAging = function (state, today) {
+    var rows = L.AGING_BUCKETS.map(function (b) { return { id: b.id, label: b.label, value: 0, count: 0 }; }); var by = {}; rows.forEach(function (r) { by[r.id] = r; });
+    state.projects.forEach(function (p) { p.ledger.invoices.forEach(function (i) {
+      if (i.status === 'paid') return; var paid = sum(p.ledger.payments.filter(function (x) { return x.invoiceId === i.id; }), function (x) { return +x.amount; });
+      var bal = round2(i.amount - paid); if (bal <= 0) return; var r = by[L.agingBucket(i.dueAt, today)]; r.value = round2(r.value + bal); r.count++;
+    }); });
+    return rows;
+  };
+  // Inventory on hand valued at wholesale cost, grouped by product category.
+  L.inventoryValueByCategory = function (state) {
+    var by = {};
+    state.inventory.forEach(function (inv) { var p = find(state.products, inv.productId); var cat = (p && p.category) || 'Uncategorized'; var v = (+inv.qty || 0) * (p ? +p.wholesaleCost || 0 : 0);
+      by[cat] = by[cat] || { id: cat, value: 0, count: 0 }; by[cat].value = round2(by[cat].value + v); by[cat].count++; });
+    return Object.keys(by).map(function (k) { return by[k]; }).sort(function (a, b) { return b.value - a.value; });
+  };
+
   // ---------- Dashboard ----------
   L.metrics = function (state) {
     var byKind = {}; state.stages.forEach(function (s) { byKind[s.id] = s.kind; });
@@ -836,6 +1055,18 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
 
     reload: function () { return PV.core.stateGet(APP).then(function (d) { if (d && d.ok && d.payload) { S.version = d.version; S.state = PV.migrate(d.payload); S.emit(); } return S.state; }); },
 
+    // Pick up changes written by others (another device, or the server's mail job filling `inbox`).
+    // Only when nothing local is pending, so it can never discard an edit.
+    refresh: function () {
+      if (!S.state || S.saving || S.dirty || S.pending) return Promise.resolve(false);
+      return PV.core.stateGet(APP).then(function (d) {
+        if (!d || d.ok === false || !d.payload || (d.version || 0) <= S.version) return false;
+        if (S.saving || S.dirty) return false;
+        if (d.payload.companyId && d.payload.companyId !== S.org) return false;
+        S.version = d.version; S.state = PV.migrate(d.payload); S.state.companyId = S.org; S.emit(); return true;
+      }).catch(function () { return false; });
+    },
+
     exportJSON: function () { return JSON.stringify(S.state, null, 1); }
   };
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -1005,12 +1236,42 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
 
   U.Tabs = function (p) { return h('div', { className: 'tabs' }, p.tabs.map(function (t) { return h('button', { key: t.id, className: p.value === t.id ? 'on' : '', onClick: function () { p.onChange(t.id); } }, t.label); })); };
 
+  // Table. Columns: {label, key?, render?, r?, sort?}. `sort` (a function row -> value, or true to use `key`) makes the header
+  // clickable (asc → desc → original order). `quick: 'placeholder'` adds a quick filter over `text(row)` (default: sort/key values).
+  function colVal(c, r) { return typeof c.sort === 'function' ? c.sort(r) : c.key ? r[c.key] : null; }
   U.Table = function (p) {
-    return h('table', { className: 'tbl' }, h('thead', null, h('tr', null, p.cols.map(function (c, i) { return h('th', { key: i, className: c.r ? 'r' : '' }, c.label); }))),
-      h('tbody', null, p.rows.length ? p.rows.map(function (r, i) {
-        return h('tr', { key: r.id || i, className: p.onRow ? 'click' : '', onClick: p.onRow ? function () { p.onRow(r); } : null }, p.cols.map(function (c, j) { return h('td', { key: j, className: c.r ? 'r' : '' }, c.render ? c.render(r) : r[c.key]); }));
-      }) : h('tr', null, h('td', { colSpan: p.cols.length }, h('div', { className: 'empty' }, p.empty || 'Nothing here yet.')))));
+    var so = R.useState(null); var q = R.useState(p.initialQuery || ''); var sort = so[0];
+    var rows = p.rows; var term = q[0].trim().toLowerCase();
+    if (p.quick && term) {
+      var text = p.text || function (r) { return p.cols.map(function (c) { var v = colVal(c, r); return v == null ? '' : String(v); }).join(' '); };
+      rows = rows.filter(function (r) { return text(r).toLowerCase().indexOf(term) >= 0; });
+    }
+    if (sort && p.cols[sort.i]) {
+      var c = p.cols[sort.i];
+      rows = rows.map(function (r, i) { return { r: r, i: i, v: colVal(c, r) }; }).sort(function (a, b) {
+        var x = a.v, y = b.v; var ex = x == null || x === '', ey = y == null || y === '';
+        if (ex || ey) return ex && ey ? a.i - b.i : ex ? 1 : -1;   // blanks always last
+        var d = typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y), undefined, { numeric: true, sensitivity: 'base' });
+        return (d || a.i - b.i) * (d ? sort.dir : 1);
+      }).map(function (x) { return x.r; });
+    }
+    var click = function (i) { var c = p.cols[i]; if (!c.sort) return; so[1](!sort || sort.i !== i ? { i: i, dir: 1 } : sort.dir === 1 ? { i: i, dir: -1 } : null); };
+    var table = h('table', { className: 'tbl' }, h('thead', null, h('tr', null, p.cols.map(function (c, i) {
+        var can = !!c.sort; var on = sort && sort.i === i;
+        return h('th', { key: i, className: U.cls(c.r && 'r', can && 'sortable', on && 'sorted'), onClick: can ? function () { click(i); } : null, tabIndex: can ? 0 : null, 'aria-sort': on ? (sort.dir === 1 ? 'ascending' : 'descending') : can ? 'none' : null, onKeyDown: can ? function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); click(i); } } : null },
+          c.label, can ? h('span', { className: 'sort-ic', 'aria-hidden': true }, on ? (sort.dir === 1 ? '▲' : '▼') : '↕') : null);
+      }))),
+      h('tbody', null, rows.length ? rows.map(function (r, i) {
+        return h('tr', { key: r.id || i, className: p.onRow ? 'click' : '', onClick: p.onRow ? function () { p.onRow(r); } : null, tabIndex: p.onRow ? 0 : null, onKeyDown: p.onRow ? function (e) { if (e.key === 'Enter' && e.target === e.currentTarget) p.onRow(r); } : null }, p.cols.map(function (c, j) { return h('td', { key: j, className: c.r ? 'r' : '', 'data-label': typeof c.label === 'string' ? c.label : null }, c.render ? c.render(r) : r[c.key]); }));
+      }) : h('tr', null, h('td', { colSpan: p.cols.length }, h('div', { className: 'empty' }, term && p.rows.length ? 'Nothing matches "' + q[0] + '".' : (p.empty || 'Nothing here yet.'))))));
+    return h('div', { className: 'tbl-box' },
+      p.quick ? h('div', { className: 'tbl-tools' }, h('input', { className: 'search sm', type: 'search', placeholder: p.quick, value: q[0], onChange: function (e) { q[1](e.target.value); }, 'aria-label': p.quick }),
+        h('span', { className: 'xs dim2' }, term ? rows.length + ' of ' + p.rows.length : p.rows.length + (p.rows.length === 1 ? ' row' : ' rows'))) : null,
+      h('div', { className: 'tbl-wrap' }, table));
   };
+  // Small "email" tag for customers/projects that came in through the Inbox.
+  U.EmailTag = function () { return h('span', { className: 'tag-email', title: 'Came in by email' }, '✉ email'); };
+  U.emailSourced = function () { return U.derived('emailSourced', PV.logic.emailSourced); };
 
   // Confirm dialog as a hook: const ask = U.useConfirm(); ask('Delete?', fn)
   U.useConfirm = function () {
@@ -1027,6 +1288,208 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
   U.custName = function (state, id) { var c = PV.logic.find(state.customers, id); return c ? c.name : '—'; };
   U.repName = function (state, id) { var u = PV.logic.find(state.users, id); return u ? u.name : '—'; };
   U.go = function (route) { location.hash = '#/' + route; };
+})(window);
+
+</script>
+<script>/* js/ui/charts.js */
+/* Small inline-SVG charts (no dependencies). Every chart: hover/focus tooltip with exact values, hover highlight,
+   click-through via onSelect, and an empty state. Charts only ever draw what callers compute from real state. */
+(function (root) {
+  var PV = root.PV, U = PV.ui, h = U.h, R = root.React;
+
+  // Width of the chart's box in CSS px, kept current with ResizeObserver so text never stretches.
+  function useWidth() {
+    var ref = R.useRef(null); var st = R.useState(0); var w = st[0], set = st[1];
+    R.useLayoutEffect(function () {
+      var el = ref.current; if (!el) return;
+      var measure = function () { var x = Math.floor(el.getBoundingClientRect().width); set(function (o) { return Math.abs(o - x) > 1 ? x : o; }); };
+      measure();
+      if (root.ResizeObserver) { var ro = new root.ResizeObserver(measure); ro.observe(el); return function () { ro.disconnect(); }; }
+      root.addEventListener('resize', measure); return function () { root.removeEventListener('resize', measure); };
+    }, []);
+    return [ref, w];
+  }
+
+  U.shortMoney = function (n) {
+    if (n == null || isNaN(n)) return '—'; var a = Math.abs(n), s = n < 0 ? '-$' : '$';
+    return a >= 1e6 ? s + (a / 1e6).toFixed(a >= 1e7 ? 0 : 1) + 'M' : a >= 1e3 ? s + (a / 1e3).toFixed(a >= 1e4 ? 0 : 1) + 'k' : s + Math.round(a);
+  };
+  U.monthLabel = function (ym, long) { var p = String(ym).split('-'); var d = new Date(+p[0], +p[1] - 1, 1); return d.toLocaleDateString(undefined, long ? { month: 'long', year: 'numeric' } : { month: 'short' }); };
+
+  function niceMax(v) { if (v <= 0) return 1; var e = Math.pow(10, Math.floor(Math.log10(v))); var m = v / e; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * e; }
+  function trunc(s, max) { s = String(s == null ? '' : s); return s.length > max ? s.slice(0, Math.max(1, max - 1)) + '…' : s; }
+
+  // Tooltip box positioned over the chart at (x, y) in the chart's px space.
+  function Tip(p) {
+    if (!p.tip) return null; var w = p.width || 0; var x = Math.max(70, Math.min(w - 70, p.tip.x));
+    return h('div', { className: 'ch-tip' + (p.tip.below ? ' below' : ''), style: { left: x, top: p.tip.y }, role: 'status' },
+      h('div', { className: 'ch-tip-t' }, p.tip.title),
+      p.tip.rows.map(function (r, i) { return h('div', { key: i, className: 'ch-tip-r' }, r.color ? h('i', { style: { background: r.color } }) : null, h('span', null, r.label), h('b', null, r.value)); }),
+      p.tip.hint ? h('div', { className: 'ch-tip-h' }, p.tip.hint) : null);
+  }
+
+  function markProps(onSelect, d, show, hide) {
+    return {
+      tabIndex: 0, role: onSelect ? 'button' : 'img', style: { cursor: onSelect ? 'pointer' : 'default' },
+      onMouseEnter: show, onMouseLeave: hide, onFocus: show, onBlur: hide,
+      onClick: onSelect ? function () { onSelect(d); } : null,
+      onKeyDown: onSelect ? function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(d); } } : null
+    };
+  }
+
+  /* Horizontal bars, one row per item.
+     data: [{id, label, value, sub?, tone?: 'warn'|'bad'|'good'|'muted', tipRows?}]
+     fmt(value) -> label text; onSelect(d); selected: id; hint: tooltip footer ("Click to open"). Negative values draw left of a zero line. */
+  U.BarList = function (p) {
+    var wr = useWidth(); var ref = wr[0], W = wr[1]; var hov = R.useState(null); var tip = R.useState(null);
+    var data = p.data || []; var fmt = p.fmt || function (v) { return String(v); };
+    if (!data.length || data.every(function (d) { return !d.value; })) return h('div', { ref: ref }, h('div', { className: 'ch-empty' }, p.empty || 'No data yet.'));
+    var rowH = 30, gap = 6, labW = Math.min(Math.max(90, W * 0.36), 190), valW = W < 420 ? 64 : 84;
+    var plotW = Math.max(40, W - labW - valW - 8);
+    var maxV = Math.max.apply(null, data.map(function (d) { return d.value; }).concat([0])), minV = Math.min.apply(null, data.map(function (d) { return d.value; }).concat([0]));
+    var span = (maxV - minV) || 1; var x0 = labW + (-minV / span) * plotW;
+    var H = data.length * (rowH + gap);
+    var maxChars = Math.max(6, Math.floor(labW / 7));
+    return h('div', { ref: ref, className: 'chart' + (hov[0] ? ' hovering' : '') },
+      W ? h('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, role: 'group', 'aria-label': p.label || 'Bar chart' },
+        minV < 0 ? h('line', { x1: x0, x2: x0, y1: 0, y2: H - gap, className: 'ch-zero' }) : null,
+        data.map(function (d, i) {
+          var y = i * (rowH + gap); var bw = Math.max(d.value ? 3 : 0, Math.abs(d.value) / span * plotW); var bx = d.value < 0 ? x0 - bw : x0;
+          var on = hov[0] === d.id, sel = p.selected === d.id;
+          var show = function () { hov[1](d.id); tip[1]({ x: labW + plotW / 2, y: y, title: d.label, rows: d.tipRows || [{ label: p.valueLabel || 'Value', value: fmt(d.value) }], hint: p.onSelect ? (p.hint || 'Click to open') : null }); };
+          var hide = function () { hov[1](null); tip[1](null); };
+          return h('g', Object.assign({ key: d.id, className: U.cls('ch-row', on && 'on', sel && 'sel', p.selected && !sel && 'faded'), 'aria-label': d.label + ': ' + fmt(d.value) }, markProps(p.onSelect, d, show, hide)),
+            h('rect', { x: 0, y: y - gap / 2, width: W, height: rowH + gap, className: 'ch-hit' }),
+            h('text', { x: 0, y: y + rowH / 2 + 4, className: 'ch-lab' }, trunc(d.label, maxChars)),
+            h('rect', { x: labW, y: y + 4, width: plotW, height: rowH - 8, rx: 4, className: 'ch-track' }),
+            h('rect', { x: bx, y: y + 4, width: bw, height: rowH - 8, rx: 4, className: 'ch-bar ' + (d.tone || '') + (d.value < 0 ? ' neg' : '') }),
+            h('text', { x: W, y: y + rowH / 2 + 4, textAnchor: 'end', className: 'ch-val' }, fmt(d.value)));
+        })) : null,
+      h(Tip, { tip: tip[0], width: W }));
+  };
+
+  /* Vertical columns over an ordered axis (months). Several series draw as grouped columns with a legend.
+     data: [{id, label, values: [n, ...], longLabel?}], series: [{label, cls}], fmt, onSelect(d), selected */
+  U.ColumnChart = function (p) {
+    var wr = useWidth(); var ref = wr[0], W = wr[1]; var hov = R.useState(null); var tip = R.useState(null);
+    var data = p.data || [], series = p.series || [{ label: 'Value', cls: 's1' }]; var fmt = p.fmt || U.money; var axisFmt = p.axisFmt || U.shortMoney;
+    var any = data.some(function (d) { return d.values.some(function (v) { return v; }); });
+    var legend = series.length > 1 ? h('div', { className: 'ch-legend' }, series.map(function (s) { return h('span', { key: s.label }, h('i', { className: 'sw ' + s.cls }), s.label); })) : null;
+    if (!data.length || !any) return h('div', null, legend, h('div', { ref: ref }, h('div', { className: 'ch-empty' }, p.empty || 'No data yet.')));
+    var H = p.height || 200, padL = 46, padB = 24, padT = 10; var plotW = Math.max(40, W - padL), plotH = H - padB - padT;
+    var maxV = niceMax(Math.max.apply(null, data.map(function (d) { return Math.max.apply(null, d.values); })));
+    var gw = plotW / data.length; var inner = Math.min(gw * 0.72, 22 * series.length + 2 * (series.length - 1)); var bw = Math.max(3, (inner - 2 * (series.length - 1)) / series.length);
+    var ticks = [0, 0.25, 0.5, 0.75, 1]; var every = gw < 34 ? Math.ceil(34 / gw) : 1;
+    var yOf = function (v) { return padT + plotH - (v / maxV) * plotH; };
+    return h('div', null, legend,
+      h('div', { ref: ref, className: 'chart' + (hov[0] ? ' hovering' : '') },
+        W ? h('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, role: 'group', 'aria-label': p.label || 'Column chart' },
+          ticks.map(function (t) { var y = yOf(maxV * t); return h('g', { key: t }, h('line', { x1: padL, x2: W, y1: y, y2: y, className: t ? 'ch-grid' : 'ch-axis' }), h('text', { x: padL - 8, y: y + 4, textAnchor: 'end', className: 'ch-tick' }, axisFmt(maxV * t))); }),
+          data.map(function (d, i) {
+            var gx = padL + i * gw; var on = hov[0] === d.id, sel = p.selected === d.id;
+            var top = yOf(Math.max.apply(null, d.values));
+            var show = function () { hov[1](d.id); tip[1]({ x: gx + gw / 2, y: Math.max(0, top - 6), title: d.longLabel || d.label, rows: series.map(function (s, k) { return { label: s.label, value: fmt(d.values[k]), color: series.length > 1 ? 'var(--' + (s.cls === 's2' ? 'c2' : 'c1') + ')' : null }; }).concat(d.extraRows || []), hint: p.onSelect ? (p.hint || 'Click for details') : null }); };
+            var hide = function () { hov[1](null); tip[1](null); };
+            return h('g', Object.assign({ key: d.id, className: U.cls('ch-col', on && 'on', sel && 'sel', p.selected && !sel && 'faded'), 'aria-label': (d.longLabel || d.label) + ': ' + series.map(function (s, k) { return s.label + ' ' + fmt(d.values[k]); }).join(', ') }, markProps(p.onSelect, d, show, hide)),
+              h('rect', { x: gx, y: padT, width: gw, height: plotH, className: 'ch-hit col' }),
+              d.values.map(function (v, k) { var x = gx + (gw - inner) / 2 + k * (bw + 2); var y = yOf(v); return h('rect', { key: k, x: x, y: y, width: bw, height: Math.max(0, padT + plotH - y), rx: Math.min(4, bw / 2), className: 'ch-bar v ' + (series[k] ? series[k].cls : '') }); }),
+              (data.length - 1 - i) % every === 0 ? h('text', { x: gx + gw / 2, y: H - 6, textAnchor: 'middle', className: 'ch-tick' + (sel ? ' sel' : '') }, d.label) : null);
+          })) : null,
+        h(Tip, { tip: tip[0], width: W })));
+  };
+
+  // Card wrapper used by chart cards: title, optional right-side action, body.
+  U.ChartCard = function (p) {
+    return h('div', { className: U.cls('card chart-card', p.className) },
+      h('div', { className: 'card-head' }, h('h3', null, p.title, p.note ? h('span', { className: 'dim2 small' }, ' · ' + p.note) : null), p.action || null),
+      p.sub ? h('div', { className: 'dim small', style: { margin: '-4px 0 10px' } }, p.sub) : null,
+      p.children);
+  };
+})(window);
+
+</script>
+<script>/* js/ui/inbox.js */
+/* Inbox — email read from Wayne's connected Yahoo inbox by the server's mail job (state.inbox, newest first).
+   The app never invents entries; it only marks them handled or turns one into a lead. */
+(function (root) {
+  var PV = root.PV, U = PV.ui, h = U.h, L = PV.logic, R = root.React;
+
+  var KIND = { inquiry: { label: 'Inquiry', pill: 'lead', ic: '★' }, customer: { label: 'Customer', pill: 'won', ic: '◉' }, other: { label: 'Other', pill: '', ic: '✉' } };
+  U.INBOX_KIND = KIND;
+
+  function canCreateLead(s, e) { return e.kind === 'other' && !e.customerId && !e.projectId && !L.customerByEmail(s, e.fromEmail); }
+
+  U.inboxMarkHandled = function (id, handled) { U.commit(function (st) { L.setInboxHandled(st, id, handled); }); U.toast(handled === false ? 'Marked as not handled' : 'Marked handled'); };
+
+  function EmailRow(p) {
+    var s = p.s, e = p.e; var k = KIND[e.kind] || KIND.other;
+    var cu = e.customerId && L.find(s.customers, e.customerId); var pj = e.projectId && L.find(s.projects, e.projectId);
+    return h('div', { className: U.cls('mail', e.handled && 'done', e.kind === 'inquiry' && !e.handled && 'hot') },
+      h('div', { className: 'mail-ic ' + e.kind, 'aria-hidden': true }, k.ic),
+      h('div', { className: 'mail-main' },
+        h('div', { className: 'mail-top' },
+          h('span', { className: 'b' }, e.from || e.fromEmail || 'Unknown sender'),
+          e.fromEmail && e.from ? h('span', { className: 'xs dim2 mail-addr' }, e.fromEmail) : null,
+          h('span', { className: 'xs dim2 mail-when', title: e.ts ? new Date(e.ts).toLocaleString() : '' }, U.ago(e.ts))),
+        h('div', { className: 'mail-subj' }, e.subject || '(no subject)'),
+        e.summary ? h('div', { className: 'mail-sum' }, e.summary) : null,
+        h('div', { className: 'row mail-meta' },
+          h(U.Pill, { kind: k.pill }, k.label),
+          e.handled ? h(U.Pill, { kind: 'ok' }, '✓ handled') : null,
+          cu ? h('a', { className: 'chip', href: '#/customers/' + cu.id }, '◉ ' + cu.name) : null,
+          pj ? h('a', { className: 'chip', href: '#/projects/' + pj.id }, '▣ ' + pj.name + ' · ' + U.stageLabel(s, pj.stageId)) : null,
+          e.account ? h('span', { className: 'xs dim2' }, e.account) : null)),
+      h('div', { className: 'mail-act' },
+        canCreateLead(s, e) ? h('button', { className: 'btn sm primary', onClick: function () {
+          var r = U.commit(function (st) { return L.leadFromEmail(st, e.id); });
+          if (!r.ok) return U.toast(r.error, 'err');
+          U.toast('Lead created from email'); U.go('projects/' + r.project.id);
+        } }, '+ Create lead from this') : null,
+        e.handled ? h('button', { className: 'btn sm ghost', onClick: function () { U.inboxMarkHandled(e.id, false); } }, 'Reopen')
+          : h('button', { className: 'btn sm', onClick: function () { U.inboxMarkHandled(e.id, true); } }, 'Mark handled')));
+  }
+  U.EmailRow = EmailRow;
+
+  U.Inbox = function () {
+    var s = U.useStore(); var f = R.useState('all'); var q = R.useState(''); var hideDone = R.useState(false);
+    var inbox = s.inbox || [];
+    if (!inbox.length) return h('div', { className: 'col' },
+      h('div', { className: 'empty big' }, h('div', { className: 'empty-ic' }, '✉'), h('div', { className: 'b', style: { color: 'var(--text)', fontSize: 15 } }, 'No email yet'),
+        h('div', null, 'Emails from the connected Yahoo inbox appear here automatically every 15 minutes. Flooring inquiries become new leads in the pipeline, mail from known customers is added to their communication log, and everything else is listed here so nothing gets lost.')));
+    var counts = { all: inbox.length, inquiry: 0, customer: 0, other: 0 }; inbox.forEach(function (e) { counts[e.kind in counts ? e.kind : 'other']++; });
+    var open = L.inboxOpenInquiries(s); var term = q[0].trim().toLowerCase();
+    var rows = inbox.filter(function (e) {
+      var kind = e.kind in KIND ? e.kind : 'other';
+      if (f[0] !== 'all' && kind !== f[0]) return false; if (hideDone[0] && e.handled) return false;
+      return !term || [e.from, e.fromEmail, e.subject, e.summary].join(' ').toLowerCase().indexOf(term) >= 0;
+    });
+    var tabs = [{ id: 'all', label: 'All' }, { id: 'inquiry', label: 'Inquiries' }, { id: 'customer', label: 'Customers' }, { id: 'other', label: 'Other' }];
+    return h('div', { className: 'col', style: { gap: 14 } },
+      h('div', { className: 'row' },
+        h('div', { className: 'seg', role: 'tablist' }, tabs.map(function (t) { return h('button', { key: t.id, role: 'tab', 'aria-selected': f[0] === t.id, className: f[0] === t.id ? 'on' : '', onClick: function () { f[1](t.id); } }, t.label, h('span', { className: 'n' }, counts[t.id])); })),
+        h('input', { className: 'search', type: 'search', placeholder: 'Search sender, subject, summary…', value: q[0], onChange: function (e) { q[1](e.target.value); } }),
+        h('label', { className: 'row small dim', style: { gap: 6 } }, h('input', { type: 'checkbox', style: { width: 'auto' }, checked: hideDone[0], onChange: function (e) { hideDone[1](e.target.checked); } }), 'Hide handled'),
+        h('div', { style: { flex: 1 } }),
+        open ? h(U.Pill, { kind: 'lead' }, open + ' inquir' + (open === 1 ? 'y' : 'ies') + ' to handle') : h(U.Pill, { kind: 'ok' }, 'All inquiries handled')),
+      h('div', { className: 'dim2 xs' }, 'Read from the connected Yahoo inbox every 15 minutes · latest ' + U.ago(inbox[0].ts)),
+      rows.length ? h('div', { className: 'mail-list' }, rows.map(function (e) { return h(EmailRow, { key: e.id, s: s, e: e }); }))
+        : h(U.Empty, null, 'No emails match this filter.'));
+  };
+
+  // Dashboard card: the newest few emails + open-inquiry count.
+  U.LatestEmailCard = function () {
+    var s = U.useStore(); var inbox = s.inbox || []; var open = L.inboxOpenInquiries(s);
+    return h('div', { className: 'card' },
+      h('div', { className: 'card-head' }, h('h3', null, 'Latest email', open ? h('span', { className: 'dim2 small' }, ' · ' + open + ' open inquir' + (open === 1 ? 'y' : 'ies')) : null),
+        h('a', { href: '#/inbox', className: 'small' }, 'Open inbox →')),
+      inbox.length ? h('div', { className: 'list' }, inbox.slice(0, 3).map(function (e) {
+        var k = KIND[e.kind] || KIND.other;
+        return h('a', { key: e.id, href: e.projectId ? '#/projects/' + e.projectId : e.customerId ? '#/customers/' + e.customerId : '#/inbox', className: U.cls('item mail-mini', e.handled && 'done') },
+          h('div', { className: 'row', style: { justifyContent: 'space-between', flexWrap: 'nowrap' } }, h('span', { className: 'b small ellip' }, e.from || e.fromEmail), h('span', { className: 'xs dim2', style: { whiteSpace: 'nowrap' } }, U.ago(e.ts))),
+          h('div', { className: 'small ellip', style: { color: 'var(--text)' } }, e.subject || '(no subject)'),
+          h('div', { className: 'row', style: { marginTop: 4 } }, h(U.Pill, { kind: k.pill }, k.label), e.handled ? h('span', { className: 'xs dim2' }, '✓ handled') : null));
+      })) : h(U.Empty, null, 'No email yet. Messages from the connected Yahoo inbox show up here automatically every 15 minutes.'));
+  };
 })(window);
 
 </script>
@@ -1047,12 +1510,20 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
     });
     // Thinnest margins first: those are the jobs that need attention.
     profitRows.sort(function (a, b) { return a.pr.marginPct - b.pr.marginPct; });
-    return { m: m, recs: L.recommendations(s, m), perStage: perStage, openValue: openValue, profitRows: profitRows.slice(0, 6), profitTotal: profitRows.length };
+    var stageVal = {}; s.projects.forEach(function (p) { stageVal[p.stageId] = (stageVal[p.stageId] || 0) + (p.contract.approvedValue || 0); });
+    var stageRows = s.stages.filter(function (st) { return perStage[st.id]; }).map(function (st) {
+      return { id: st.id, label: st.label, value: perStage[st.id], tone: st.kind === 'lead' ? 'muted' : '', tipRows: [{ label: 'Projects', value: String(perStage[st.id]) }, { label: 'Contract value', value: U.money(stageVal[st.id] || 0) }] };
+    });
+    var salesRows = L.salesByMonth(s, 12).map(function (r) { return { id: r.id, label: U.monthLabel(r.id), longLabel: U.monthLabel(r.id, true), values: [r.value], value: r.value, items: r.items, extraRows: [{ label: 'Approvals', value: String(r.items.length) }] }; });
+    var marginRows = profitRows.slice(0, 8).map(function (x) { return { id: x.p.id, label: x.p.name, value: x.pr.marginPct, tone: x.pr.marginPct < 0 ? 'bad' : x.pr.marginPct < 20 ? 'warn' : '',
+      tipRows: [{ label: 'Margin', value: x.pr.marginPct + '%' }, { label: 'Contract', value: U.money(x.pr.revisedValue) }, { label: 'Forecast cost', value: U.money(x.pr.forecastCost) }, { label: 'Gross profit', value: U.money(x.pr.forecastGP) }] }; });
+    return { m: m, recs: L.recommendations(s, m), perStage: perStage, openValue: openValue, profitRows: profitRows.slice(0, 6), profitTotal: profitRows.length, stageRows: stageRows, salesRows: salesRows, marginRows: marginRows };
   }
 
   U.Dashboard = function () {
     var s = U.useStore(); var d = U.derived('dashboard', dashData); var m = d.m, recs = d.recs;
-    var est = PV.store.estimatioStatus;
+    var est = PV.store.estimatioStatus; var month = R.useState(null); var view = R.useState('chart');
+    var selMonth = month[0] ? d.salesRows.filter(function (r) { return r.id === month[0]; })[0] : null;
 
     return h('div', null,
       h('div', { className: 'grid g4' },
@@ -1065,26 +1536,34 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
         h(U.KPI, { label: 'Sales this month', value: U.money(m.monthlySales), tone: 'good', hint: 'approved estimates', to: 'financials' }),
         h(U.KPI, { label: 'Outstanding receivables', value: U.money(m.receivables), hint: 'PAVORA ledger · NUMORA not connected', to: 'financials' })),
 
-      h('div', { className: 'grid g2', style: { marginTop: 14 } },
+      h('div', { className: 'grid g2 sec-gap' },
+        h(U.ChartCard, { title: 'Pipeline by stage', note: s.projects.length ? s.projects.length + ' projects' : null, action: h('a', { href: '#/pipeline', className: 'small' }, 'Open pipeline →') },
+          h(U.BarList, { label: 'Projects per pipeline stage', data: d.stageRows, fmt: function (v) { return v + (v === 1 ? ' project' : ' projects'); }, onSelect: function (x) { U.go('pipeline/' + x.id); }, hint: 'Click to open this stage', empty: 'No projects yet. Add a lead in Sales Pipeline.' })),
+        h(U.ChartCard, { title: 'Sales by month', note: 'approved estimates · last 12 months', action: month[0] ? h('button', { className: 'btn sm ghost', onClick: function () { month[1](null); } }, 'Clear') : null },
+          h(U.ColumnChart, { label: 'Approved estimate value by month', data: d.salesRows, series: [{ label: 'Approved', cls: 's1' }], selected: month[0], onSelect: function (x) { month[1](month[0] === x.id ? null : x.id); }, hint: 'Click to list the projects', empty: 'No estimates approved in the last 12 months yet.' }),
+          selMonth ? h('div', { className: 'drill' }, h('div', { className: 'xs dim2', style: { marginBottom: 6 } }, U.monthLabel(selMonth.id, true) + ' · ' + U.money(selMonth.value)),
+            selMonth.items.length ? h('div', { className: 'list' }, selMonth.items.map(function (it, i) { var pj = L.find(s.projects, it.projectId); return h('a', { key: i, className: 'item row', href: '#/projects/' + it.projectId, style: { justifyContent: 'space-between' } }, h('span', null, pj ? pj.name : 'Project'), h('span', { className: 'money' }, U.money(it.value))); })) : h('div', { className: 'dim2 small' }, 'Nothing approved this month.')) : null)),
+
+      h('div', { className: 'grid g2 sec-gap' },
+        h(U.ChartCard, { title: 'Project margins', note: d.profitTotal ? 'lowest first' + (d.profitTotal > d.marginRows.length ? ', ' + d.marginRows.length + ' of ' + d.profitTotal : '') : null,
+          action: d.profitTotal ? h('div', { className: 'seg sm' }, ['chart', 'table'].map(function (v) { return h('button', { key: v, className: view[0] === v ? 'on' : '', onClick: function () { view[1](v); } }, v === 'chart' ? 'Chart' : 'Table'); })) : null },
+          view[0] === 'chart' || !d.profitTotal ? h(U.BarList, { label: 'Forecast margin by project', data: d.marginRows, fmt: function (v) { return v + '%'; }, onSelect: function (x) { U.go('projects/' + x.id); }, hint: 'Click to open the project', empty: 'Approve an estimate to see live margin here.' })
+            : h('div', { className: 'tbl-wrap' }, h('table', { className: 'tbl' }, h('thead', null, h('tr', null, h('th', null, 'Project'), h('th', { className: 'r' }, 'Contract'), h('th', { className: 'r' }, 'Forecast cost'), h('th', { className: 'r' }, 'Margin'))),
+              h('tbody', null, d.profitRows.map(function (x) { return h('tr', { key: x.p.id, className: 'click', onClick: function () { U.go('projects/' + x.p.id); } }, h('td', null, x.p.name), h('td', { className: 'r money' }, U.money(x.pr.revisedValue)), h('td', { className: 'r money' }, U.money(x.pr.forecastCost)), h('td', { className: 'r money', style: { color: x.pr.marginPct < 20 ? 'var(--amber)' : 'var(--teal)' } }, x.pr.marginPct + '%')); })))),
+          d.profitTotal ? h('div', { className: 'ch-key xs dim2' }, h('span', null, h('i', { className: 'sw s1' }), '20% or more'), h('span', null, h('i', { className: 'sw warn' }), 'under 20%'), h('span', null, h('i', { className: 'sw bad' }), 'losing money')) : null),
         h('div', { className: 'card' }, h('h3', null, 'Recommendations', recs.length ? h('span', { className: 'dim2 small' }, ' · ' + recs.length) : null),
           recs.length ? h('div', { className: 'list' }, recs.map(function (r, i) {
-            return h('div', { key: r.kind + ':' + r.ref + ':' + i, className: 'item row', style: { cursor: 'pointer' }, onClick: function () { U.go(r.kind === 'followup' ? 'customers/' + r.ref : r.kind === 'stock' ? 'inventory' : 'projects/' + r.ref); } },
-              h(U.Pill, { kind: r.kind === 'overdue' || r.kind === 'invoice' ? 'closing' : r.kind === 'stock' ? 'estimate' : 'lead' }, r.kind), h('span', null, r.text));
-          })) : h(U.Empty, null, 'Nothing needs attention. Recommendations are computed from your live data — no guesses.')),
-        h('div', { className: 'card' }, h('h3', null, 'Project profitability', d.profitTotal > d.profitRows.length ? h('span', { className: 'dim2 small' }, ' · lowest margin first, ' + d.profitRows.length + ' of ' + d.profitTotal) : null),
-          d.profitRows.length ? h('table', { className: 'tbl' }, h('thead', null, h('tr', null, h('th', null, 'Project'), h('th', { className: 'r' }, 'Contract'), h('th', { className: 'r' }, 'Forecast cost'), h('th', { className: 'r' }, 'Margin'))),
-            h('tbody', null, d.profitRows.map(function (x) { return h('tr', { key: x.p.id, className: 'click', onClick: function () { U.go('projects/' + x.p.id); } }, h('td', null, x.p.name), h('td', { className: 'r money' }, U.money(x.pr.revisedValue)), h('td', { className: 'r money' }, U.money(x.pr.forecastCost)), h('td', { className: 'r money', style: { color: x.pr.marginPct < 20 ? 'var(--amber)' : 'var(--teal)' } }, x.pr.marginPct + '%')); })))
-            : h(U.Empty, null, 'Approve an estimate to see live margin here.'))),
+            var to = r.kind === 'followup' ? 'customers/' + r.ref : r.kind === 'stock' ? 'inventory' : 'projects/' + r.ref;
+            return h('a', { key: r.kind + ':' + r.ref + ':' + i, className: 'item row', href: '#/' + to },
+              h(U.Pill, { kind: r.kind === 'overdue' || r.kind === 'invoice' ? 'closing' : r.kind === 'stock' ? 'estimate' : 'lead' }, r.kind), h('span', { style: { color: 'var(--text)', flex: 1, minWidth: 0 } }, r.text));
+          })) : h(U.Empty, null, 'Nothing needs attention. Recommendations are computed from your live data — no guesses.'))),
 
-      h('div', { className: 'grid g2', style: { marginTop: 14 } },
-        h('div', { className: 'card' }, h('h3', null, 'Pipeline'),
-          h('div', { className: 'row' }, s.stages.map(function (st) { var n = d.perStage[st.id]; return n ? h(U.Pill, { key: st.id, kind: st.kind }, st.label + ' · ' + n) : null; })),
-          !s.projects.length ? h('div', { className: 'dim2 small', style: { marginTop: 8 } }, 'No projects yet. Add a lead in Sales Pipeline.') : null,
-          h('div', { style: { marginTop: 12 } }, h('button', { className: 'btn', onClick: function () { U.go('pipeline'); } }, 'Open pipeline →'))),
+      h('div', { className: 'grid g2 sec-gap' },
+        h(U.LatestEmailCard),
         h('div', { className: 'card' }, h('h3', null, 'Recent activity'),
-          s.activity.length ? h('div', { className: 'list' }, s.activity.slice(0, 8).map(function (a, i) { return h('div', { key: i, className: 'small' }, h('span', { className: 'dim2 xs' }, U.ago(a.ts) + ' · '), a.text); })) : h(U.Empty, null, 'Activity shows up here as you work.'))),
+          s.activity.length ? h('div', { className: 'feed' }, s.activity.slice(0, 8).map(function (a, i) { return h('div', { key: i, className: 'feed-i ' + (a.kind || '') }, h('span', { className: 'feed-dot' }), h('div', null, h('div', { className: 'small' }, a.text), h('div', { className: 'xs dim2' }, U.ago(a.ts)))); })) : h(U.Empty, null, 'Activity shows up here as you work.'))),
 
-      h('div', { className: 'card', style: { marginTop: 14 } }, h('h3', null, 'Connections'),
+      h('div', { className: 'card sec-gap' }, h('h3', null, 'Connections'),
         h('div', { className: 'row' },
           h(U.Pill, { kind: 'ok' }, 'DEMEX Core · ' + (PV.store.server ? 'server' : 'local dev') + ' · ' + PV.store.orgName),
           h(U.Pill, { kind: est && est.status === 'connected' ? 'ok' : 'warn' }, 'Estimatio · ' + (est ? est.status + (est.projects != null ? ' (' + est.projects + ' projects)' : '') : 'checking…')),
@@ -1114,20 +1593,20 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
   }
 
   U.Customers = function (p) {
-    var s = U.useStore(); var q = R.useState(''); var modal = R.useState(false);
+    var s = U.useStore(); var q = R.useState(''); var modal = R.useState(false); var es = U.emailSourced();
     if (p.id) return h(CustomerDetail, { id: p.id });
     var term = q[0].toLowerCase();
     var rows = s.customers.filter(function (c) { return !term || (c.name + ' ' + c.phone + ' ' + c.email + ' ' + c.billing.address).toLowerCase().indexOf(term) >= 0; });
     return h('div', null,
-      h('div', { className: 'row', style: { marginBottom: 12 } }, h('input', { className: 'search', placeholder: 'Search customers…', value: q[0], onChange: function (e) { q[1](e.target.value); } }), h('div', { style: { flex: 1 } }),
+      h('div', { className: 'row', style: { marginBottom: 12 } }, h('input', { className: 'search', type: 'search', placeholder: 'Search customers…', value: q[0], onChange: function (e) { q[1](e.target.value); } }), h('div', { style: { flex: 1 } }),
         h('button', { className: 'btn primary', onClick: function () { modal[1](true); } }, '+ New customer')),
       h('div', { className: 'card' }, h(U.Table, { cols: [
-        { label: 'Customer', render: function (c) { return h('div', null, h('div', { className: 'b' }, c.name), h('div', { className: 'xs dim' }, c.billing.address)); } },
-        { label: 'Type', render: function (c) { return h(U.Pill, null, c.type); } },
+        { label: 'Customer', sort: function (c) { return c.name; }, render: function (c) { return h('div', null, h('div', { className: 'b' }, c.name, es.customers[c.id] ? h(U.EmailTag) : null), h('div', { className: 'xs dim' }, c.billing.address)); } },
+        { label: 'Type', sort: function (c) { return c.type; }, render: function (c) { return h(U.Pill, null, c.type); } },
         { label: 'Contact', render: function (c) { return h('div', { className: 'small' }, c.phone, h('br'), c.email); } },
-        { label: 'Rep', render: function (c) { return U.repName(s, c.repId); } },
-        { label: 'Projects', r: true, render: function (c) { return L.customerProjects(s, c.id).length; } },
-        { label: 'Follow-ups', r: true, render: function (c) { var od = c.followUps.filter(function (f) { return !f.done && f.dueAt < U.today(); }).length; return od ? h('span', { style: { color: 'var(--amber)' } }, od + ' overdue') : c.followUps.filter(function (f) { return !f.done; }).length || '—'; } }
+        { label: 'Rep', sort: function (c) { return c.repId ? U.repName(s, c.repId) : null; }, render: function (c) { return U.repName(s, c.repId); } },
+        { label: 'Projects', r: true, sort: function (c) { return L.customerProjects(s, c.id).length; }, render: function (c) { return L.customerProjects(s, c.id).length; } },
+        { label: 'Follow-ups', r: true, sort: function (c) { return c.followUps.filter(function (f) { return !f.done; }).length; }, render: function (c) { var od = c.followUps.filter(function (f) { return !f.done && f.dueAt < U.today(); }).length; return od ? h('span', { style: { color: 'var(--amber)' } }, od + ' overdue') : c.followUps.filter(function (f) { return !f.done; }).length || '—'; } }
       ], rows: rows, onRow: function (c) { U.go('customers/' + c.id); }, empty: 'No customers yet. Add one, or load the sample data from Settings to try the workflows.' })),
       modal[0] ? h(CustomerForm, { users: s.users, onClose: function () { modal[1](false); }, onSave: function (c) { var cu = U.commit(function (st) { return L.addCustomer(st, c); }); modal[1](false); U.toast('Customer added'); U.go('customers/' + cu.id); } }) : null);
   };
@@ -1146,9 +1625,9 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
       h('div', { className: 'row', style: { marginBottom: 12 } }, h('a', { href: '#/customers' }, '← Customers'), h('div', { style: { flex: 1 } }),
         h('button', { className: 'btn', onClick: function () { edit[1](true); } }, 'Edit'),
         h('button', { className: 'btn primary', onClick: function () { var pj = U.commit(function (st) { return L.addProject(st, { customerId: c.id, propertyId: c.properties[0].id, name: c.name + ' — new project', repId: c.repId }); }); U.go('projects/' + pj.id); } }, '+ New project')),
-      h('div', { className: 'grid', style: { gridTemplateColumns: '300px 1fr' } },
+      h('div', { className: 'grid split-l' },
         h('div', { className: 'col' },
-          h('div', { className: 'card' }, h('div', { className: 'b', style: { fontSize: 17 } }, c.name), h('div', { className: 'row', style: { margin: '6px 0' } }, h(U.Pill, null, c.type), h(U.Pill, null, 'Rep: ' + U.repName(s, c.repId))),
+          h('div', { className: 'card' }, h('div', { className: 'b', style: { fontSize: 17 } }, c.name, U.emailSourced().customers[c.id] ? h(U.EmailTag) : null), h('div', { className: 'row', style: { margin: '6px 0' } }, h(U.Pill, null, c.type), h(U.Pill, null, 'Rep: ' + U.repName(s, c.repId))),
             h('div', { className: 'kv' }, h('div', null, 'Phone'), h('div', null, c.phone || '—'), h('div', null, 'Email'), h('div', null, c.email || '—'), h('div', null, 'Billing'), h('div', null, c.billing.address || '—'), h('div', null, 'Since'), h('div', null, U.date(c.createdAt)))),
           h('div', { className: 'card' }, h('h3', null, 'Properties'),
             h('div', { className: 'list' }, c.properties.map(function (pr) { return h('div', { key: pr.id, className: 'item' }, h('div', { className: 'b small' }, pr.label), h('div', { className: 'xs dim' }, pr.address || 'no address')); })),
@@ -1206,9 +1685,10 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
       h(U.Field, { label: 'What they want' }, h(U.Textarea, { value: f.notes, onChange: function (v) { up('notes', v); }, placeholder: 'Rooms, product interest, timing…' })));
   };
 
-  U.Pipeline = function () {
+  U.Pipeline = function (p) {
     var s = U.useStore(); var modal = R.useState(false); var over = R.useState(null); var drag = R.useRef(null); var showClosed = R.useState(false);
-    var cols = s.stages.filter(function (st) { return showClosed[0] || st.kind !== 'closed'; });
+    var focus = p && p.stage ? L.stage(s, p.stage) : null; var es = U.emailSourced();
+    var cols = focus ? [focus] : s.stages.filter(function (st) { return showClosed[0] || st.kind !== 'closed'; });
     function drop(stageId) {
       var pid = drag.current; drag.current = null; over[1](null); if (!pid) return;
       var r = U.commit(function (state) { return L.moveStage(state, pid, stageId); });
@@ -1221,7 +1701,8 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
       h('div', { className: 'row', style: { marginBottom: 12 } }, h('span', { className: 'dim small' }, 'Drag a card to move it. Stages with automatic effects: Approved (locks estimate, builds material list), Completed (releases reserved stock).'), h('div', { style: { flex: 1 } }),
         h('label', { className: 'row small dim', style: { gap: 6 } }, h('input', { type: 'checkbox', style: { width: 'auto' }, checked: showClosed[0], onChange: function (e) { showClosed[1](e.target.checked); } }), 'Show paid'),
         h('button', { className: 'btn', onClick: function () { U.go('settings/stages'); } }, 'Customize stages'), h('button', { className: 'btn primary', onClick: function () { modal[1](true); } }, '+ New lead')),
-      h('div', { className: 'kanban' }, cols.map(function (st) {
+      focus ? h('div', { className: 'banner info row', style: { marginBottom: 12 } }, h('span', null, 'Showing one stage: ', h('b', null, focus.label)), h('div', { style: { flex: 1 } }), h('a', { href: '#/pipeline', className: 'btn sm' }, 'Show all stages')) : null,
+      h('div', { className: U.cls('kanban', focus && 'single') }, cols.map(function (st) {
         var cards = s.projects.filter(function (p) { return p.stageId === st.id; });
         var tot = L.sum(cards, function (p) { var e = p.estimateId && L.find(s.estimates, p.estimateId); var v = e && (L.approvedVersion(e) || L.currentVersion(e)); return v ? v.totals.sell : 0; });
         return h('div', { key: st.id, className: U.cls('kcol', over[0] === st.id && 'over'), onDragOver: function (e) { e.preventDefault(); if (over[0] !== st.id) over[1](st.id); }, onDragLeave: function () { if (over[0] === st.id) over[1](null); }, onDrop: function (e) { e.preventDefault(); drop(st.id); } },
@@ -1229,7 +1710,7 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
           cards.map(function (p) {
             var age = Math.round((Date.now() - new Date(p.timeline[p.timeline.length - 1].ts).getTime()) / 864e5);
             return h('div', { key: p.id, className: 'kcard', draggable: true, onDragStart: function () { drag.current = p.id; }, onClick: function () { U.go('projects/' + p.id); } },
-              h('div', { className: 't' }, p.name), h('div', { className: 'm' }, U.custName(s, p.customerId)),
+              h('div', { className: 't' }, p.name, es.projects[p.id] ? h(U.EmailTag) : null), h('div', { className: 'm' }, U.custName(s, p.customerId)),
               h('div', { className: 'm row', style: { justifyContent: 'space-between' } }, h('span', null, p.installDate ? 'Install ' + U.date(p.installDate) : age + 'd in stage'), p.contract.approvedValue ? h('span', { className: 'money' }, U.money(p.contract.approvedValue)) : null));
           }),
           tot ? h('div', { className: 'tot' }, U.money(tot) + ' in stage') : null);
@@ -1251,12 +1732,12 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
     var rows = s.estimates.map(function (e) { var pj = L.find(s.projects, e.projectId); return { id: e.id, e: e, pj: pj }; });
     return h('div', null,
       h('div', { className: 'row', style: { marginBottom: 12 } }, h('span', { className: 'dim small' }, 'Estimates are versioned. Approved versions are locked; changes create a new version. Flooring takeoffs come from Estimatio.'), h('div', { style: { flex: 1 } }), h('button', { className: 'btn primary', onClick: function () { U.go('pipeline'); } }, 'Start from a lead →')),
-      h('div', { className: 'card' }, h(U.Table, { cols: [
-        { label: 'Project', render: function (r) { return r.pj ? r.pj.name : '—'; } }, { label: 'Customer', render: function (r) { return r.pj ? U.custName(s, r.pj.customerId) : '—'; } },
-        { label: 'Stage', render: function (r) { return r.pj ? h(U.Pill, { kind: U.stageKind(s, r.pj.stageId) }, U.stageLabel(s, r.pj.stageId)) : null; } },
+      h('div', { className: 'card' }, h(U.Table, { quick: 'Filter estimates…', cols: [
+        { label: 'Project', sort: function (r) { return r.pj ? r.pj.name : null; }, render: function (r) { return r.pj ? r.pj.name : '—'; } }, { label: 'Customer', sort: function (r) { return r.pj ? U.custName(s, r.pj.customerId) : null; }, render: function (r) { return r.pj ? U.custName(s, r.pj.customerId) : '—'; } },
+        { label: 'Stage', sort: function (r) { return r.pj ? L.stageIndex(s, r.pj.stageId) : null; }, render: function (r) { return r.pj ? h(U.Pill, { kind: U.stageKind(s, r.pj.stageId) }, U.stageLabel(s, r.pj.stageId)) : null; } },
         { label: 'Versions', r: true, render: function (r) { return r.e.versions.length; } },
         { label: 'Current', render: function (r) { var v = L.currentVersion(r.e); return v ? h(U.Pill, { kind: v.status }, 'v' + v.v + ' · ' + v.status + (v.source.kind === 'estimatio' ? ' · Estimatio' : '')) : '—'; } },
-        { label: 'Sell', r: true, render: function (r) { var v = L.approvedVersion(r.e) || L.currentVersion(r.e); return h('span', { className: 'money' }, v ? U.money(v.totals.sell) : '—'); } }
+        { label: 'Sell', r: true, sort: function (r) { var v = L.approvedVersion(r.e) || L.currentVersion(r.e); return v ? v.totals.sell : null; }, render: function (r) { var v = L.approvedVersion(r.e) || L.currentVersion(r.e); return h('span', { className: 'money' }, v ? U.money(v.totals.sell) : '—'); } }
       ], rows: rows, onRow: function (r) { U.go('estimates/' + r.id); }, empty: 'No estimates yet. Open a project and click "Create estimate".' })));
   };
 
@@ -1283,7 +1764,7 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
       h('div', { className: 'row', style: { marginBottom: 12 } }, h('a', { href: '#/estimates' }, '← Estimates'), pj ? h('a', { href: '#/projects/' + pj.id }, '· ' + pj.name) : null, h('div', { style: { flex: 1 } }),
         h('button', { className: 'btn', disabled: busy[0], onClick: doPull }, '⇣ Pull from Estimatio'), h('button', { className: 'btn', disabled: busy[0] || !pj, onClick: doPush }, '⇡ Send to Estimatio'),
         h('button', { className: 'btn', onClick: newVersion }, '+ New version' + (cur ? ' from v' + cur.v : ''))),
-      h('div', { className: 'grid', style: { gridTemplateColumns: '220px 1fr' } },
+      h('div', { className: 'grid split-l sm' },
         h('div', { className: 'card' }, h('h3', null, 'Versions'), h('div', { className: 'list' }, est.versions.slice().reverse().map(function (v) { return h('div', { key: v.v, className: 'item', style: { cursor: 'pointer', borderColor: cur && cur.v === v.v ? 'var(--brand)' : '' }, onClick: function () { draft[1](null); vsel[1](v.v); } }, h('div', { className: 'row', style: { justifyContent: 'space-between' } }, h('span', { className: 'b' }, 'v' + v.v), h(U.Pill, { kind: v.status }, v.status)), h('div', { className: 'xs dim' }, U.money(v.totals.sell) + ' · ' + (v.source.kind === 'estimatio' ? 'Estimatio' : 'manual') + ' · ' + U.date(v.createdAt))); })),
           !est.versions.length ? h('div', { className: 'dim2 small' }, 'No versions yet.') : null),
         !cur ? h(U.Empty, null, 'Create a version, or pull a takeoff from Estimatio.') : h('div', { className: 'col' },
@@ -1332,19 +1813,19 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
   var PV = root.PV, U = PV.ui, h = U.h, L = PV.logic, R = root.React;
 
   U.Projects = function (p) {
-    var s = U.useStore(); var q = R.useState(''); var modal = R.useState(false);
+    var s = U.useStore(); var q = R.useState(''); var modal = R.useState(false); var es = U.emailSourced();
     if (p.id) return h(ProjectDetail, { id: p.id });
     var term = q[0].toLowerCase();
     var rows = s.projects.filter(function (pj) { return !term || (pj.name + ' ' + U.custName(s, pj.customerId)).toLowerCase().indexOf(term) >= 0; }).sort(function (a, b) { return a.createdAt < b.createdAt ? 1 : -1; });
     return h('div', null,
-      h('div', { className: 'row', style: { marginBottom: 12 } }, h('input', { className: 'search', placeholder: 'Search projects…', value: q[0], onChange: function (e) { q[1](e.target.value); } }), h('div', { style: { flex: 1 } }), h('button', { className: 'btn primary', onClick: function () { modal[1](true); } }, '+ New project')),
+      h('div', { className: 'row', style: { marginBottom: 12 } }, h('input', { className: 'search', type: 'search', placeholder: 'Search projects…', value: q[0], onChange: function (e) { q[1](e.target.value); } }), h('div', { style: { flex: 1 } }), h('button', { className: 'btn primary', onClick: function () { modal[1](true); } }, '+ New project')),
       h('div', { className: 'card' }, h(U.Table, { cols: [
-        { label: 'Project', render: function (pj) { return h('div', null, h('div', { className: 'b' }, pj.name), h('div', { className: 'xs dim' }, U.custName(s, pj.customerId))); } },
-        { label: 'Stage', render: function (pj) { return h(U.Pill, { kind: U.stageKind(s, pj.stageId) }, U.stageLabel(s, pj.stageId)); } },
-        { label: 'Rep', render: function (pj) { return U.repName(s, pj.repId); } },
-        { label: 'Install', render: function (pj) { return U.date(pj.installDate); } },
-        { label: 'Contract', r: true, render: function (pj) { return h('span', { className: 'money' }, U.money(pj.contract.approvedValue)); } },
-        { label: 'Margin', r: true, render: function (pj) { if (!pj.contract.approvedValue) return '—'; var pr = L.profitability(s, pj.id, null); return h('span', { className: 'money', style: { color: pr.marginPct < 20 ? 'var(--amber)' : 'var(--teal)' } }, pr.marginPct + '%'); } }
+        { label: 'Project', sort: function (pj) { return pj.name; }, render: function (pj) { return h('div', null, h('div', { className: 'b' }, pj.name, es.projects[pj.id] ? h(U.EmailTag) : null), h('div', { className: 'xs dim' }, U.custName(s, pj.customerId))); } },
+        { label: 'Stage', sort: function (pj) { return L.stageIndex(s, pj.stageId); }, render: function (pj) { return h(U.Pill, { kind: U.stageKind(s, pj.stageId) }, U.stageLabel(s, pj.stageId)); } },
+        { label: 'Rep', sort: function (pj) { return pj.repId ? U.repName(s, pj.repId) : null; }, render: function (pj) { return U.repName(s, pj.repId); } },
+        { label: 'Install', sort: function (pj) { return pj.installDate; }, render: function (pj) { return U.date(pj.installDate); } },
+        { label: 'Contract', r: true, sort: function (pj) { return pj.contract.approvedValue || null; }, render: function (pj) { return h('span', { className: 'money' }, U.money(pj.contract.approvedValue)); } },
+        { label: 'Margin', r: true, sort: function (pj) { return pj.contract.approvedValue ? L.profitability(s, pj.id, null).marginPct : null; }, render: function (pj) { if (!pj.contract.approvedValue) return '—'; var pr = L.profitability(s, pj.id, null); return h('span', { className: 'money', style: { color: pr.marginPct < 20 ? 'var(--amber)' : 'var(--teal)' } }, pr.marginPct + '%'); } }
       ], rows: rows, onRow: function (pj) { U.go('projects/' + pj.id); }, empty: 'No projects yet.' })),
       modal[0] ? h(U.NewLeadModal, { open: true, onClose: function () { modal[1](false); } }) : null);
   };
@@ -1481,14 +1962,14 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
     var s = U.useStore(); var q = R.useState(''); var modal = R.useState(null); var term = q[0].toLowerCase();
     var rows = s.products.filter(function (p) { return !term || (p.name + ' ' + p.sku + ' ' + p.brand + ' ' + p.category + ' ' + p.color).toLowerCase().indexOf(term) >= 0; });
     return h('div', null,
-      h('div', { className: 'row', style: { marginBottom: 12 } }, h('input', { className: 'search', placeholder: 'Search products…', value: q[0], onChange: function (e) { q[1](e.target.value); } }), h('div', { style: { flex: 1 } }), h('button', { className: 'btn primary', onClick: function () { modal[1]({}); } }, '+ New product')),
+      h('div', { className: 'row', style: { marginBottom: 12 } }, h('input', { className: 'search', type: 'search', placeholder: 'Search products…', value: q[0], onChange: function (e) { q[1](e.target.value); } }), h('div', { style: { flex: 1 } }), h('button', { className: 'btn primary', onClick: function () { modal[1]({}); } }, '+ New product')),
       h('div', { className: 'card' }, h(U.Table, { cols: [
-        { label: 'Product', render: function (p) { return h('div', null, h('div', { className: 'b' }, p.name), h('div', { className: 'xs dim' }, [p.manufacturer, p.brand, p.collection, p.color].filter(Boolean).join(' · '))); } },
-        { label: 'SKU', key: 'sku' }, { label: 'Category', render: function (p) { return h(U.Pill, null, p.category); } },
-        { label: 'Supplier', render: function (p) { var sp = L.find(s.suppliers, p.supplierId); return sp ? sp.name : '—'; } },
-        { label: 'Cost', r: true, render: function (p) { return h('span', { className: 'money' }, U.money2(p.wholesaleCost) + '/' + p.unit); } },
-        { label: 'Retail', r: true, render: function (p) { return h('span', { className: 'money' }, U.money2(p.retailPrice) + '/' + p.unit); } },
-        { label: 'Margin', r: true, render: function (p) { return p.retailPrice && p.wholesaleCost ? Math.round((p.retailPrice - p.wholesaleCost) / p.retailPrice * 100) + '%' : '—'; } },
+        { label: 'Product', sort: function (p) { return p.name; }, render: function (p) { return h('div', null, h('div', { className: 'b' }, p.name), h('div', { className: 'xs dim' }, [p.manufacturer, p.brand, p.collection, p.color].filter(Boolean).join(' · '))); } },
+        { label: 'SKU', key: 'sku', sort: true }, { label: 'Category', sort: function (p) { return p.category; }, render: function (p) { return h(U.Pill, null, p.category); } },
+        { label: 'Supplier', sort: function (p) { var sp = L.find(s.suppliers, p.supplierId); return sp ? sp.name : null; }, render: function (p) { var sp = L.find(s.suppliers, p.supplierId); return sp ? sp.name : '—'; } },
+        { label: 'Cost', r: true, sort: function (p) { return p.wholesaleCost; }, render: function (p) { return h('span', { className: 'money' }, U.money2(p.wholesaleCost) + '/' + p.unit); } },
+        { label: 'Retail', r: true, sort: function (p) { return p.retailPrice; }, render: function (p) { return h('span', { className: 'money' }, U.money2(p.retailPrice) + '/' + p.unit); } },
+        { label: 'Margin', r: true, sort: function (p) { return p.retailPrice && p.wholesaleCost ? (p.retailPrice - p.wholesaleCost) / p.retailPrice : null; }, render: function (p) { return p.retailPrice && p.wholesaleCost ? Math.round((p.retailPrice - p.wholesaleCost) / p.retailPrice * 100) + '%' : '—'; } },
         { label: 'Avail.', render: function (p) { return h(U.Pill, { kind: p.availability === 'in_stock' ? 'ok' : p.availability === 'discontinued' ? 'off' : 'warn' }, (p.availability || '').replace('_', ' ') + (p.leadTimeDays ? ' · ' + p.leadTimeDays + 'd' : '')); } }
       ], rows: rows, onRow: function (p) { modal[1](p); }, empty: 'No products yet. Add Wayne\'s catalog here, or import from a supplier later.' })),
       modal[0] ? h(ProductForm, { value: modal[0].id ? modal[0] : null, onClose: function () { modal[1](null); }, onSave: function (f) { U.commit(function (st) { if (f.id) Object.assign(L.find(st.products, f.id), f); else st.products.push(Object.assign({ id: PV.uid('pd'), companyId: st.companyId, createdAt: PV.now() }, f)); }); modal[1](null); U.toast('Product saved'); } }) : null);
@@ -1503,18 +1984,19 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
         h('button', { className: 'btn primary', style: { marginTop: 10 }, disabled: !f[0].name, onClick: function () { U.commit(function (st) { st.suppliers.push(Object.assign({ id: PV.uid('sp'), companyId: st.companyId }, f[0])); }); f[1]({ name: '', contact: '', phone: '', email: '', terms: '', notes: '' }); U.toast('Supplier added'); } }, 'Add')));
   };
 
-  U.Inventory = function () {
+  U.Inventory = function (props) {
     var s = U.useStore(); var f = R.useState({ productId: '', locationId: s.locations[0] ? s.locations[0].id : '', qty: null, reorderPoint: null }); var adj = R.useState({});
     var alerts = L.reorderAlerts(s);
     return h('div', null,
       alerts.length ? h('div', { className: 'banner warn', style: { marginBottom: 12 } }, alerts.length + ' product(s) at or below reorder point.') : null,
-      h('div', { className: 'grid', style: { gridTemplateColumns: '1fr 320px' } },
-        h('div', { className: 'card' }, h('h3', null, 'On hand'), h(U.Table, { cols: [
-          { label: 'Product', render: function (i) { var p = L.find(s.products, i.productId); return p ? h('div', null, h('div', { className: 'b' }, p.name), h('div', { className: 'xs dim' }, p.sku)) : i.productId; } },
-          { label: 'Location', render: function (i) { var l = L.find(s.locations, i.locationId); return l ? l.name : i.locationId; } },
-          { label: 'On hand', r: true, render: function (i) { return PV.units.fmt(i.qty, i.unit); } },
+      h('div', { className: 'grid split-r' },
+        h('div', { className: 'card' }, h('h3', null, 'On hand'), h(U.Table, { quick: 'Filter by product, SKU, category…', initialQuery: props && props.filter || '', text: function (i) { var p = L.find(s.products, i.productId); var l = L.find(s.locations, i.locationId); return p ? [p.name, p.sku, p.category, l ? l.name : ''].join(' ') : i.productId; }, cols: [
+          { label: 'Product', sort: function (i) { var p = L.find(s.products, i.productId); return p ? p.name : i.productId; }, render: function (i) { var p = L.find(s.products, i.productId); return p ? h('div', null, h('div', { className: 'b' }, p.name), h('div', { className: 'xs dim' }, p.sku)) : i.productId; } },
+          { label: 'Category', sort: function (i) { var p = L.find(s.products, i.productId); return p ? p.category : null; }, render: function (i) { var p = L.find(s.products, i.productId); return p && p.category ? h(U.Pill, null, p.category) : '—'; } },
+          { label: 'Location', sort: function (i) { var l = L.find(s.locations, i.locationId); return l ? l.name : i.locationId; }, render: function (i) { var l = L.find(s.locations, i.locationId); return l ? l.name : i.locationId; } },
+          { label: 'On hand', r: true, sort: function (i) { return +i.qty; }, render: function (i) { return PV.units.fmt(i.qty, i.unit); } },
           { label: 'Reserved', r: true, render: function (i) { var r = L.sum(i.reserved || [], function (x) { return +x.qty; }); return r ? h('span', { title: (i.reserved || []).map(function (x) { var pj = L.find(s.projects, x.projectId); return (pj ? pj.name : x.projectId) + ': ' + x.qty; }).join('\n') }, PV.units.fmt(r, i.unit)) : '—'; } },
-          { label: 'Available', r: true, render: function (i) { var a = L.available(i); return h('span', { className: 'b', style: { color: i.reorderPoint != null && a <= i.reorderPoint ? 'var(--amber)' : '' } }, PV.units.fmt(a, i.unit)); } },
+          { label: 'Available', r: true, sort: function (i) { return L.available(i); }, render: function (i) { var a = L.available(i); return h('span', { className: 'b', style: { color: i.reorderPoint != null && a <= i.reorderPoint ? 'var(--amber)' : '' } }, PV.units.fmt(a, i.unit)); } },
           { label: 'Reorder at', r: true, render: function (i) { return i.reorderPoint != null ? i.reorderPoint : '—'; } },
           { label: 'Adjust', render: function (i) { return h('div', { className: 'row', style: { flexWrap: 'nowrap' } }, h('div', { style: { width: 90 } }, h(U.Num, { placeholder: '±qty', value: adj[0][i.id], onChange: function (v) { var o = Object.assign({}, adj[0]); o[i.id] = v; adj[1](o); } })), h('button', { className: 'btn sm', disabled: !adj[0][i.id], onClick: function () { U.commit(function (st) { var x = L.find(st.inventory, i.id); x.qty = L.round2(x.qty + adj[0][i.id]); x.log = x.log || []; x.log.push({ ts: PV.now(), delta: adj[0][i.id], kind: 'adjust' }); }); var o = Object.assign({}, adj[0]); delete o[i.id]; adj[1](o); } }, 'Apply')); } }
         ], rows: s.inventory, empty: 'No inventory records. Add one on the right (received stock, returns, damaged write-offs all go through Adjust).' })),
@@ -1656,7 +2138,7 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
     var needs = []; s.projects.forEach(function (pj) { if (U.stageKind(s, pj.stageId) !== 'won') return; pj.materials.forEach(function (m) { if (m.reserved || m.poId) return; var inv = L.inventoryFor(s, m.productId)[0]; var avail = inv ? L.available(inv) : 0; if (avail < m.qty) needs.push({ id: pj.id + m.id, pj: pj, m: m, short: L.round2(m.qty - avail), avail: avail }); }); });
     return h('div', { className: 'col' },
       h('div', { className: 'card' }, h('h3', null, 'Materials to order (open project needs not covered by stock)'),
-        h(U.Table, { cols: [{ label: 'Project', render: function (r) { return r.pj.name; } }, { label: 'Product', render: function (r) { var pd = L.find(s.products, r.m.productId); return pd ? pd.name : r.m.label; } }, { label: 'Supplier', render: function (r) { var pd = L.find(s.products, r.m.productId); var sp = pd && L.find(s.suppliers, pd.supplierId); return sp ? sp.name : '—'; } }, { label: 'Needed', r: true, render: function (r) { return PV.units.fmt(r.m.qty, r.m.unit); } }, { label: 'Available', r: true, render: function (r) { return PV.units.fmt(r.avail, r.m.unit); } }, { label: 'Short', r: true, render: function (r) { var pd = L.find(s.products, r.m.productId); var pk = pd && PV.units.packsFor(r.short, r.m.unit, pd); return h('span', { style: { color: 'var(--amber)' } }, PV.units.fmt(r.short, r.m.unit) + (pk ? ' (' + pk.count + ' ' + pk.unit + ')' : '')); } }], rows: needs, onRow: function (r) { U.go('projects/' + r.pj.id); }, empty: 'Every open project\'s materials are covered by stock or already on order.' })),
+        h(U.Table, { quick: 'Filter materials…', text: function (r) { var pd = L.find(s.products, r.m.productId); var sp = pd && L.find(s.suppliers, pd.supplierId); return [r.pj.name, pd ? pd.name : r.m.label, sp ? sp.name : ''].join(' '); }, cols: [{ label: 'Project', sort: function (r) { return r.pj.name; }, render: function (r) { return r.pj.name; } }, { label: 'Product', sort: function (r) { var pd = L.find(s.products, r.m.productId); return pd ? pd.name : r.m.label; }, render: function (r) { var pd = L.find(s.products, r.m.productId); return pd ? pd.name : r.m.label; } }, { label: 'Supplier', render: function (r) { var pd = L.find(s.products, r.m.productId); var sp = pd && L.find(s.suppliers, pd.supplierId); return sp ? sp.name : '—'; } }, { label: 'Needed', r: true, render: function (r) { return PV.units.fmt(r.m.qty, r.m.unit); } }, { label: 'Available', r: true, render: function (r) { return PV.units.fmt(r.avail, r.m.unit); } }, { label: 'Short', r: true, render: function (r) { var pd = L.find(s.products, r.m.productId); var pk = pd && PV.units.packsFor(r.short, r.m.unit, pd); return h('span', { style: { color: 'var(--amber)' } }, PV.units.fmt(r.short, r.m.unit) + (pk ? ' (' + pk.count + ' ' + pk.unit + ')' : '')); } }], rows: needs, onRow: function (r) { U.go('projects/' + r.pj.id); }, empty: 'Every open project\'s materials are covered by stock or already on order.' })),
       h(Phase, { title: 'Purchase orders — Phase 2', text: 'Next build: create a PO from the rows above, track status / expected delivery, receive into inventory (which auto-reserves for the project), backorders, supplier invoices → NUMORA, cost discrepancies.', items: ['Data model is ready: purchaseOrders[] in state, material.poId links', 'Supplier invoices will post to NUMORA via NumoraAdapter.postVendorBill (stub today)'] }));
   };
 
@@ -1665,7 +2147,7 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
     var rows = s.projects.filter(function (p) { return p.installDate || ['install_sched', 'installing'].indexOf(p.stageId) >= 0; }).sort(function (a, b) { return (a.installDate || '9') < (b.installDate || '9') ? -1 : 1; });
     return h('div', { className: 'col' },
       h('div', { className: 'card' }, h('h3', null, 'Scheduled installations'),
-        h(U.Table, { cols: [{ label: 'Date', render: function (p) { return U.date(p.installDate); } }, { label: 'Project', render: function (p) { return h('div', null, h('div', { className: 'b' }, p.name), h('div', { className: 'xs dim' }, U.custName(s, p.customerId))); } }, { label: 'Location', render: function (p) { var c = L.find(s.customers, p.customerId); var pr = c && L.find(c.properties, p.propertyId); return pr ? pr.address : '—'; } }, { label: 'Crew', render: function (p) { var cr = L.find(s.crews, p.crewId); return cr ? cr.name : h('span', { className: 'dim2' }, 'unassigned'); } }, { label: 'Stage', render: function (p) { return h(U.Pill, { kind: U.stageKind(s, p.stageId) }, U.stageLabel(s, p.stageId)); } }, { label: 'Materials', render: function (p) { var n = p.materials.length, r = p.materials.filter(function (m) { return m.reserved; }).length; return n ? h(U.Pill, { kind: r === n ? 'ok' : 'warn' }, r + '/' + n + ' reserved') : '—'; } }], rows: rows, onRow: function (p) { U.go('projects/' + p.id); }, empty: 'No installations scheduled. Set a date on a project\'s Installation tab.' })),
+        h(U.Table, { quick: 'Filter installations…', text: function (p) { var cr = L.find(s.crews, p.crewId); return [p.name, U.custName(s, p.customerId), cr ? cr.name : '', U.stageLabel(s, p.stageId)].join(' '); }, cols: [{ label: 'Date', sort: function (p) { return p.installDate; }, render: function (p) { return U.date(p.installDate); } }, { label: 'Project', sort: function (p) { return p.name; }, render: function (p) { return h('div', null, h('div', { className: 'b' }, p.name), h('div', { className: 'xs dim' }, U.custName(s, p.customerId))); } }, { label: 'Location', render: function (p) { var c = L.find(s.customers, p.customerId); var pr = c && L.find(c.properties, p.propertyId); return pr ? pr.address : '—'; } }, { label: 'Crew', sort: function (p) { var cr = L.find(s.crews, p.crewId); return cr ? cr.name : null; }, render: function (p) { var cr = L.find(s.crews, p.crewId); return cr ? cr.name : h('span', { className: 'dim2' }, 'unassigned'); } }, { label: 'Stage', render: function (p) { return h(U.Pill, { kind: U.stageKind(s, p.stageId) }, U.stageLabel(s, p.stageId)); } }, { label: 'Materials', render: function (p) { var n = p.materials.length, r = p.materials.filter(function (m) { return m.reserved; }).length; return n ? h(U.Pill, { kind: r === n ? 'ok' : 'warn' }, r + '/' + n + ' reserved') : '—'; } }], rows: rows, onRow: function (p) { U.go('projects/' + p.id); }, empty: 'No installations scheduled. Set a date on a project\'s Installation tab.' })),
       h(Phase, { title: 'Calendar, timeline, time entries, photos — Phase 2', text: 'The list above is live. Still to build: month/week calendar, crew capacity view, time entries that feed actual labor, site photos (needs a file store on the DEMEX server), completion sign-off.' }));
   };
 
@@ -1679,26 +2161,56 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
   };
 
   U.Financials = function () {
-    var s = U.useStore(); var m = U.metrics();
-    var inv = []; s.projects.forEach(function (p) { p.ledger.invoices.forEach(function (i) { var paid = L.sum(p.ledger.payments.filter(function (x) { return x.invoiceId === i.id; }), function (x) { return +x.amount; }); inv.push({ id: i.id, p: p, i: i, paid: paid, bal: L.round2(i.amount - paid) }); }); });
+    var s = U.useStore(); var m = U.metrics(); var bucket = R.useState(null); var month = R.useState(null);
+    var inv = []; s.projects.forEach(function (p) { p.ledger.invoices.forEach(function (i) { var paid = L.sum(p.ledger.payments.filter(function (x) { return x.invoiceId === i.id; }), function (x) { return +x.amount; }); inv.push({ id: i.id, p: p, i: i, paid: paid, bal: L.round2(i.amount - paid), bucket: L.agingBucket(i.dueAt) }); }); });
     var open = inv.filter(function (x) { return x.i.status !== 'paid'; });
-    return h('div', { className: 'col' },
+    var aging = U.derived('aging', function (st) { return L.receivablesAging(st); });
+    var agingTone = { current: '', d30: 'warn', d60: 'warn', d90: 'bad', d90p: 'bad' };
+    var agingRows = aging.map(function (r) { return { id: r.id, label: r.label, value: r.value, tone: agingTone[r.id], tipRows: [{ label: 'Open balance', value: U.money2(r.value) }, { label: 'Invoices', value: String(r.count) }] }; });
+    var rc = U.derived('revcost', function (st) { return L.revenueCostByMonth(st, 12); });
+    var rcRows = rc.map(function (r) { return { id: r.id, label: U.monthLabel(r.id), longLabel: U.monthLabel(r.id, true), values: [r.revenue, r.cost], items: r.items, extraRows: [{ label: 'Difference', value: U.money(L.round2(r.revenue - r.cost)) }] }; });
+    var selM = month[0] ? rcRows.filter(function (r) { return r.id === month[0]; })[0] : null;
+    var shown = bucket[0] ? open.filter(function (x) { return x.bucket === bucket[0] && x.bal > 0; }) : open;
+    var bLabel = bucket[0] ? L.AGING_BUCKETS.filter(function (b) { return b.id === bucket[0]; })[0].label : '';
+    return h('div', { className: 'col', style: { gap: 14 } },
       h('div', { className: 'banner warn' }, 'NUMORA — the DEMEX financial engine — has not been built yet. Everything here is PAVORA\'s own ledger. When NUMORA exists, PAVORA will read invoices, payments, costs and profitability from it and stop keeping separate totals.'),
       h('div', { className: 'grid g4' }, h(U.KPI, { label: 'Outstanding receivables', value: U.money(m.receivables) }), h(U.KPI, { label: 'Open invoices', value: open.length }), h(U.KPI, { label: 'Overdue', value: open.filter(function (x) { return x.i.dueAt && x.i.dueAt < U.today(); }).length, tone: 'warn' }), h(U.KPI, { label: 'Sales this month', value: U.money(m.monthlySales), tone: 'good' })),
-      h('div', { className: 'card' }, h('h3', null, 'Open invoices'), h(U.Table, { cols: [{ label: '#', render: function (x) { return x.i.number; } }, { label: 'Customer', render: function (x) { return U.custName(s, x.p.customerId); } }, { label: 'Project', render: function (x) { return x.p.name; } }, { label: 'Due', render: function (x) { return h('span', { style: { color: x.i.dueAt && x.i.dueAt < U.today() ? 'var(--red)' : '' } }, U.date(x.i.dueAt)); } }, { label: 'Amount', r: true, render: function (x) { return h('span', { className: 'money' }, U.money2(x.i.amount)); } }, { label: 'Paid', r: true, render: function (x) { return h('span', { className: 'money' }, U.money2(x.paid)); } }, { label: 'Balance', r: true, render: function (x) { return h('span', { className: 'money b' }, U.money2(x.bal)); } }], rows: open, onRow: function (x) { U.go('projects/' + x.p.id); }, empty: 'No open invoices.' })));
+      h('div', { className: 'grid g2' },
+        h(U.ChartCard, { title: 'Invoiced vs recorded costs', note: 'PAVORA ledger · last 12 months', action: month[0] ? h('button', { className: 'btn sm ghost', onClick: function () { month[1](null); } }, 'Clear') : null },
+          h(U.ColumnChart, { label: 'Invoiced and recorded costs by month', data: rcRows, series: [{ label: 'Invoiced', cls: 's1' }, { label: 'Costs recorded', cls: 's2' }], selected: month[0], onSelect: function (x) { month[1](month[0] === x.id ? null : x.id); }, hint: 'Click to list the entries', empty: 'No invoices or project expenses recorded in the last 12 months.' }),
+          selM ? h('div', { className: 'drill' }, h('div', { className: 'xs dim2', style: { marginBottom: 6 } }, U.monthLabel(selM.id, true)),
+            selM.items.length ? h('div', { className: 'list' }, selM.items.map(function (it, i) { var pj = L.find(s.projects, it.projectId); return h('a', { key: i, href: '#/projects/' + it.projectId, className: 'item row', style: { justifyContent: 'space-between' } }, h('span', null, h(U.Pill, { kind: it.kind === 'invoice' ? 'ok' : 'warn' }, it.kind), ' ', (pj ? pj.name : '') + ' · ' + it.label), h('span', { className: 'money' }, U.money2(it.amount))); })) : h('div', { className: 'dim2 small' }, 'Nothing recorded this month.')) : null,
+          h('div', { className: 'xs dim2', style: { marginTop: 8 } }, 'Costs are the expenses entered on each project\'s Money tab; material consumed from stock is not dated, so it is not included.')),
+        h(U.ChartCard, { title: 'Receivables aging', note: 'open balances by days past due', action: bucket[0] ? h('button', { className: 'btn sm ghost', onClick: function () { bucket[1](null); } }, 'Show all') : null },
+          h(U.BarList, { label: 'Open receivables by age', data: agingRows, fmt: U.money, selected: bucket[0], onSelect: function (x) { bucket[1](bucket[0] === x.id ? null : x.id); }, hint: 'Click to filter the invoices below', empty: 'No open invoice balances.' }))),
+      h('div', { className: 'card' }, h('div', { className: 'card-head' }, h('h3', null, bucket[0] ? 'Open invoices · ' + bLabel : 'Open invoices'), bucket[0] ? h('button', { className: 'btn sm ghost', onClick: function () { bucket[1](null); } }, 'Clear filter') : null),
+        h(U.Table, { quick: 'Filter invoices…', text: function (x) { return [x.i.number, U.custName(s, x.p.customerId), x.p.name].join(' '); }, cols: [{ label: '#', sort: function (x) { return x.i.number; }, render: function (x) { return x.i.number; } }, { label: 'Customer', sort: function (x) { return U.custName(s, x.p.customerId); }, render: function (x) { return U.custName(s, x.p.customerId); } }, { label: 'Project', sort: function (x) { return x.p.name; }, render: function (x) { return x.p.name; } }, { label: 'Due', sort: function (x) { return x.i.dueAt; }, render: function (x) { return h('span', { style: { color: x.i.dueAt && x.i.dueAt < U.today() ? 'var(--red)' : '' } }, U.date(x.i.dueAt)); } }, { label: 'Amount', r: true, sort: function (x) { return +x.i.amount; }, render: function (x) { return h('span', { className: 'money' }, U.money2(x.i.amount)); } }, { label: 'Paid', r: true, sort: function (x) { return x.paid; }, render: function (x) { return h('span', { className: 'money' }, U.money2(x.paid)); } }, { label: 'Balance', r: true, sort: function (x) { return x.bal; }, render: function (x) { return h('span', { className: 'money b' }, U.money2(x.bal)); } }], rows: shown, onRow: function (x) { U.go('projects/' + x.p.id); }, empty: bucket[0] ? 'No open invoices in this bucket.' : 'No open invoices.' })));
   };
 
   U.Reports = function () {
-    var s = U.useStore();
+    var s = U.useStore(); var selRep = R.useState(null);
     var byStage = s.stages.map(function (st) { var ps = s.projects.filter(function (p) { return p.stageId === st.id; }); return { id: st.id, st: st, n: ps.length, v: L.sum(ps, function (p) { return p.contract.approvedValue || 0; }) }; }).filter(function (r) { return r.n; });
     var byRep = s.users.map(function (u) { var ps = s.projects.filter(function (p) { return p.repId === u.id; }); var won = ps.filter(function (p) { return ['won', 'closing', 'closed'].indexOf(U.stageKind(s, p.stageId)) >= 0; }); return { id: u.id, u: u, n: ps.length, won: won.length, v: L.sum(won, function (p) { return p.contract.approvedValue || 0; }) }; });
     var byCat = {}; s.estimates.forEach(function (e) { var v = L.approvedVersion(e); if (!v) return; v.lines.forEach(function (l) { var r = L.find(PV.FLOORING_RATES, l.rateId); var k = r ? r.cat : 'Other'; byCat[k] = byCat[k] || { id: k, n: 0, sf: 0 }; byCat[k].n++; byCat[k].sf += PV.units.isArea(l.unit) ? (PV.units.convertBase(+l.qty, l.unit, 'SF') || 0) : 0; }); });
     var closed = s.projects.filter(function (p) { return U.stageKind(s, p.stageId) === 'closed'; }).map(function (p) { return Object.assign({ pr: L.profitability(s, p.id, null) }, p); });
-    return h('div', { className: 'grid g2' },
+    var rep = selRep[0] ? byRep.filter(function (r) { return r.id === selRep[0]; })[0] : null;
+    var invVal = U.derived('invValue', L.inventoryValueByCategory);
+    return h('div', { className: 'col', style: { gap: 14 } },
+      h('div', { className: 'grid g2' },
+        h(U.ChartCard, { title: 'Contract value by stage', note: 'approved value of projects in each stage' },
+          h(U.BarList, { label: 'Contract value by pipeline stage', data: byStage.map(function (r) { return { id: r.id, label: r.st.label, value: r.v, tipRows: [{ label: 'Contract value', value: U.money(r.v) }, { label: 'Projects', value: String(r.n) }] }; }), fmt: U.shortMoney, onSelect: function (x) { U.go('pipeline/' + x.id); }, hint: 'Click to open this stage', empty: 'No approved contract value yet — values appear once estimates are approved.' })),
+        h(U.ChartCard, { title: 'Won value by rep', action: selRep[0] ? h('button', { className: 'btn sm ghost', onClick: function () { selRep[1](null); } }, 'Clear') : null },
+          h(U.BarList, { label: 'Won contract value by sales rep', data: byRep.map(function (r) { return { id: r.id, label: r.u.name, value: r.v, tipRows: [{ label: 'Won value', value: U.money(r.v) }, { label: 'Won projects', value: String(r.won) }, { label: 'All projects', value: String(r.n) }] }; }), fmt: U.shortMoney, selected: selRep[0], onSelect: function (x) { selRep[1](selRep[0] === x.id ? null : x.id); }, hint: 'Click to list this rep\'s projects', empty: 'No won projects yet.' }),
+          rep ? h('div', { className: 'drill' }, h('div', { className: 'xs dim2', style: { marginBottom: 6 } }, rep.u.name + ' · ' + rep.n + ' projects'),
+            h('div', { className: 'list' }, s.projects.filter(function (p) { return p.repId === rep.id; }).map(function (p) { return h('a', { key: p.id, href: '#/projects/' + p.id, className: 'item row', style: { justifyContent: 'space-between' } }, h('span', null, p.name), h(U.Pill, { kind: U.stageKind(s, p.stageId) }, U.stageLabel(s, p.stageId))); }))) : null),
+        h(U.ChartCard, { title: 'Inventory value by category', note: 'on hand × wholesale cost' },
+          h(U.BarList, { label: 'Inventory value by product category', data: invVal.map(function (r) { return { id: r.id, label: r.id, value: r.value, tipRows: [{ label: 'Value at cost', value: U.money2(r.value) }, { label: 'Stock records', value: String(r.count) }] }; }), fmt: U.shortMoney, onSelect: function (x) { U.go('inventory/' + encodeURIComponent(x.id)); }, hint: 'Click to see this stock', empty: 'No stock with a wholesale cost recorded yet.' })),
+        h(U.ChartCard, { title: 'Approved work by flooring type', note: 'area in SF' },
+          h(U.BarList, { label: 'Approved area by flooring category', data: Object.keys(byCat).map(function (k) { return { id: k, label: k, value: Math.round(byCat[k].sf), tipRows: [{ label: 'Area', value: Math.round(byCat[k].sf).toLocaleString() + ' SF' }, { label: 'Estimate lines', value: String(byCat[k].n) }] }; }).sort(function (a, b) { return b.value - a.value; }), fmt: function (v) { return v.toLocaleString() + ' SF'; }, onSelect: function () { U.go('estimates'); }, hint: 'Click to open estimates', empty: 'No approved estimates with area lines yet.' }))),
+      h('div', { className: 'grid g2' },
       h('div', { className: 'card' }, h('h3', null, 'Pipeline by stage'), h(U.Table, { cols: [{ label: 'Stage', render: function (r) { return h(U.Pill, { kind: r.st.kind }, r.st.label); } }, { label: 'Projects', r: true, key: 'n' }, { label: 'Contract value', r: true, render: function (r) { return h('span', { className: 'money' }, U.money(r.v)); } }], rows: byStage, empty: 'No projects.' })),
       h('div', { className: 'card' }, h('h3', null, 'Sales by rep'), h(U.Table, { cols: [{ label: 'Rep', render: function (r) { return r.u.name; } }, { label: 'Projects', r: true, key: 'n' }, { label: 'Won', r: true, key: 'won' }, { label: 'Won value', r: true, render: function (r) { return h('span', { className: 'money' }, U.money(r.v)); } }], rows: byRep, empty: 'No users.' })),
-      h('div', { className: 'card' }, h('h3', null, 'Approved work by flooring type'), h(U.Table, { cols: [{ label: 'Category', key: 'id' }, { label: 'Lines', r: true, key: 'n' }, { label: 'Area (SF)', r: true, render: function (r) { return Math.round(r.sf).toLocaleString(); } }], rows: Object.keys(byCat).map(function (k) { return byCat[k]; }), empty: 'No approved estimates yet.' })),
-      h('div', { className: 'card' }, h('h3', null, 'Closed project margins'), h(U.Table, { cols: [{ label: 'Project', key: 'name' }, { label: 'Revenue', r: true, render: function (p) { return h('span', { className: 'money' }, U.money(p.pr.revisedValue)); } }, { label: 'Cost', r: true, render: function (p) { return h('span', { className: 'money' }, U.money(p.pr.forecastCost)); } }, { label: 'Margin', r: true, render: function (p) { return p.pr.marginPct + '%'; } }], rows: closed, onRow: function (p) { U.go('projects/' + p.id); }, empty: 'No paid projects yet.' })));
+      h('div', { className: 'card' }, h('h3', null, 'Closed project margins'), h(U.Table, { cols: [{ label: 'Project', key: 'name', sort: true }, { label: 'Revenue', r: true, sort: function (p) { return p.pr.revisedValue; }, render: function (p) { return h('span', { className: 'money' }, U.money(p.pr.revisedValue)); } }, { label: 'Cost', r: true, sort: function (p) { return p.pr.forecastCost; }, render: function (p) { return h('span', { className: 'money' }, U.money(p.pr.forecastCost)); } }, { label: 'Margin', r: true, sort: function (p) { return p.pr.marginPct; }, render: function (p) { return p.pr.marginPct + '%'; } }], rows: closed, onRow: function (p) { U.go('projects/' + p.id); }, empty: 'No paid projects yet.' }))));
   };
 })(window);
 
@@ -1709,7 +2221,7 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
 
   var NAV = [
     { sec: 'Operate' },
-    { id: 'dashboard', label: 'Dashboard', ic: '◫' }, { id: 'customers', label: 'Customers', ic: '◉' }, { id: 'pipeline', label: 'Sales Pipeline', ic: '⇶' }, { id: 'projects', label: 'Projects', ic: '▣' }, { id: 'estimates', label: 'Estimates', ic: '≡' },
+    { id: 'dashboard', label: 'Dashboard', ic: '◫' }, { id: 'inbox', label: 'Inbox', ic: '✉' }, { id: 'customers', label: 'Customers', ic: '◉' }, { id: 'pipeline', label: 'Sales Pipeline', ic: '⇶' }, { id: 'projects', label: 'Projects', ic: '▣' }, { id: 'estimates', label: 'Estimates', ic: '≡' },
     { sec: 'Supply' },
     { id: 'products', label: 'Products', ic: '▤' }, { id: 'inventory', label: 'Inventory', ic: '▦' }, { id: 'purchasing', label: 'Purchasing', ic: '⇣' }, { id: 'suppliers', label: 'Suppliers', ic: '⌂' },
     { sec: 'Deliver' },
@@ -1717,7 +2229,7 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
     { sec: 'Measure' },
     { id: 'financials', label: 'Financials', ic: '$' }, { id: 'reports', label: 'Reports', ic: '▥' }, { id: 'assistant', label: 'AI Assistant', ic: '✦' }, { id: 'settings', label: 'Settings', ic: '⚙' }
   ];
-  var TITLES = { dashboard: 'Dashboard', customers: 'Customers', pipeline: 'Sales Pipeline', projects: 'Projects', estimates: 'Estimates', products: 'Product Catalog', inventory: 'Inventory', purchasing: 'Purchasing', suppliers: 'Suppliers', installations: 'Installations', employees: 'Employees & Crews', financials: 'Financials', reports: 'Reports', assistant: 'AI Assistant', settings: 'Settings' };
+  var TITLES = { dashboard: 'Dashboard', inbox: 'Inbox', customers: 'Customers', pipeline: 'Sales Pipeline', projects: 'Projects', estimates: 'Estimates', products: 'Product Catalog', inventory: 'Inventory', purchasing: 'Purchasing', suppliers: 'Suppliers', installations: 'Installations', employees: 'Employees & Crews', financials: 'Financials', reports: 'Reports', assistant: 'AI Assistant', settings: 'Settings' };
 
   function useRoute() {
     var st = R.useState(location.hash); R.useEffect(function () { var f = function () { st[1](location.hash); }; window.addEventListener('hashchange', f); return function () { window.removeEventListener('hashchange', f); }; }, []);
@@ -1728,8 +2240,8 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
   function Page(p) {
     var r = p.route;
     switch (r.page) {
-      case 'dashboard': return h(U.Dashboard); case 'customers': return h(U.Customers, { id: r.id }); case 'pipeline': return h(U.Pipeline); case 'projects': return h(U.Projects, { id: r.id }); case 'estimates': return h(U.Estimates, { id: r.id });
-      case 'products': return h(U.Products); case 'inventory': return h(U.Inventory); case 'purchasing': return h(U.Purchasing); case 'suppliers': return h(U.Suppliers); case 'installations': return h(U.Installations); case 'employees': return h(U.Employees);
+      case 'dashboard': return h(U.Dashboard); case 'inbox': return h(U.Inbox); case 'customers': return h(U.Customers, { id: r.id }); case 'pipeline': return h(U.Pipeline, { stage: r.id }); case 'projects': return h(U.Projects, { id: r.id }); case 'estimates': return h(U.Estimates, { id: r.id });
+      case 'products': return h(U.Products); case 'inventory': return h(U.Inventory, { filter: r.id ? decodeURIComponent(r.id) : '' }); case 'purchasing': return h(U.Purchasing); case 'suppliers': return h(U.Suppliers); case 'installations': return h(U.Installations); case 'employees': return h(U.Employees);
       case 'financials': return h(U.Financials); case 'reports': return h(U.Reports); case 'assistant': return h(U.Assistant); case 'settings': return h(U.Settings, { tab: r.id });
       default: return h(U.Empty, null, 'Page not found.');
     }
@@ -1744,12 +2256,12 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
     return h('div', { className: 'app' },
       h('aside', { className: 'side' },
         h('div', { className: 'logo' }, h('img', { src: PV.BRAND_LOGO, alt: s.company.name || PV.store.orgName }), h('div', { className: 'name' }, 'PAVORA')),
-        h('nav', { className: 'nav' }, NAV.map(function (n, i) { if (n.sec) return h('div', { key: 'sec' + i, className: 'sec' }, n.sec); var badge = n.id === 'pipeline' ? m.activeLeads : n.id === 'inventory' ? m.inventoryAlerts : n.id === 'estimates' ? m.pendingEstimates : 0; return h('a', { key: n.id, href: '#/' + n.id, className: route.page === n.id ? 'on' : '' }, h('span', { className: 'ic' }, n.ic), n.label, badge ? h('span', { className: 'badge' }, badge) : null); })),
+        h('nav', { className: 'nav' }, NAV.map(function (n, i) { if (n.sec) return h('div', { key: 'sec' + i, className: 'sec' }, n.sec); var badge = n.id === 'inbox' ? PV.logic.inboxOpenInquiries(s) : n.id === 'pipeline' ? m.activeLeads : n.id === 'inventory' ? m.inventoryAlerts : n.id === 'estimates' ? m.pendingEstimates : 0; return h('a', { key: n.id, href: '#/' + n.id, className: route.page === n.id ? 'on' : '', 'aria-current': route.page === n.id ? 'page' : null }, h('span', { className: 'ic' }, n.ic), h('span', { className: 'lbl' }, n.label), badge ? h('span', { className: 'badge' + (n.id === 'inbox' ? ' hot' : ''), title: n.id === 'inbox' ? badge + ' unhandled inquiries' : null }, badge) : null); })),
         h('div', { className: 'foot' }, 'DEMEX ecosystem · ' + (PV.store.server ? 'server' : 'local') + ' · ' + s.companyId, s.meta.sample ? h('div', { style: { color: 'var(--amber)' } }, 'SAMPLE DATA LOADED') : null)),
       h('main', { className: 'main' },
         h('div', { className: 'topbar' }, h('div', null, h('h1', null, TITLES[route.page] || 'PAVORA'), h('div', { className: 'sub' }, s.company.name || PV.store.orgName)), h('div', { className: 'sp' }),
           h(U.ThemeToggle), h('div', { className: 'sync' }, h('span', { className: 'dot ' + (err[0] ? 'err' : PV.store.saving || PV.store.dirty ? 'busy' : '') }), err[0] ? 'Save failed: ' + err[0] : PV.store.saving ? 'Saving…' : PV.store.dirty ? 'Unsaved' : 'Saved' + (PV.store.lastSavedAt ? ' ' + U.ago(PV.store.lastSavedAt) : ''))),
-        h(Page, { route: route })),
+        h('div', { key: route.page + '/' + (route.id || ''), className: 'page' }, h(Page, { route: route }))),
       h(U.Toasts));
   }
 
@@ -1770,6 +2282,9 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
       PV.bootStatus('Opening ' + (PV.store.orgName || 'workspace') + '…');
       requestAnimationFrame(PV.bootDone);
       PV.estimatio.status().then(function (st) { PV.store.estimatioStatus = st; PV.store.emit(); });
+      // New email (and other devices' edits) arrive in the shared state; pick them up while the app is open.
+      setInterval(function () { if (!document.hidden) PV.store.refresh(); }, 120000);
+      document.addEventListener('visibilitychange', function () { if (!document.hidden) PV.store.refresh(); });
     }).catch(function (e) { PV.bootError = e.message || String(e); PV.bootDone(); PV.store.emit(); });
   };
   document.addEventListener('DOMContentLoaded', PV.boot);
