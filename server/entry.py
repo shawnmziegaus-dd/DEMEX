@@ -47,4 +47,7 @@ if seed.is_file():
             conn.commit(); print("Seeded demex app state from server/seed_state.json")
     finally:
         conn.close()
+# Inbox sweep (DEMEX_MAIL_ACCOUNTS secret): bid emails -> DEMEX, Wayne's Yahoo -> PAVORA. Off when unset.
+import mail_sweep                       # server/ is sys.path[0] when run as server/entry.py
+mail_sweep.start(demex_bridge.DB, Path(os.environ["DEMEX_IMPORTS_DIR"]))
 sys.exit(demex_bridge.main())
