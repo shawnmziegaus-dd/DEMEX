@@ -7,7 +7,8 @@
 <meta name="theme-color" content="#0B0B0C">
 <script>try{var t=localStorage.getItem("pavora_theme")||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 <meta name="description" content="PAVORA — flooring business operations. A DEMEX ecosystem application.">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>
 :root{
   /* PAVORA · Wayne's Carpet Plus. Dark = near-black with gold as accent only. Light = warm paper. */
@@ -125,12 +126,34 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
 :root[data-theme="light"] .kcard,:root[data-theme="light"] .item{background:#FBFAF6}
 :root[data-theme="light"] .pill{background:#F1EEE5}
 
+/* loading screen (static in index.html so it paints before React loads; removed by PV.bootDone) */
+.boot{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--body);transition:opacity .4s ease,visibility .4s}
+.boot.out{opacity:0;visibility:hidden;pointer-events:none}
+.boot-mark{font-family:var(--font);font-size:clamp(34px,7vw,52px);font-weight:800;letter-spacing:.32em;padding-left:.32em;background:linear-gradient(100deg,var(--gold-deep) 0%,var(--brand) 35%,#F4E3A1 50%,var(--brand) 65%,var(--gold-deep) 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:boot-shine 2.4s ease-in-out infinite}
+.boot-tag{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim2)}
+.boot-bar{width:min(220px,60vw);height:3px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:14px}
+.boot-bar i{display:block;width:40%;height:100%;border-radius:3px;background:var(--brand);animation:boot-slide 1.2s ease-in-out infinite}
+.boot-msg{font-size:12.5px;color:var(--dim);min-height:1.4em;text-align:center;padding:0 16px} .boot-msg.err{color:var(--red)}
+.boot.stuck .boot-bar i,.boot.stuck .boot-mark{animation:none}
+@keyframes boot-slide{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
+@keyframes boot-shine{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+@media (prefers-reduced-motion:reduce){.boot-mark,.boot-bar i{animation:none}.boot-bar i{width:100%;opacity:.5}}
+
+/* clickable KPI tiles */
+.kpi.click{cursor:pointer;transition:border-color .15s,transform .15s} .kpi.click:hover{border-color:var(--line2);transform:translateY(-1px)} .kpi.click:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js" crossorigin></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js" crossorigin></script>
 </head>
 <body>
+<div id="boot" class="boot" role="status" aria-live="polite">
+  <div class="boot-mark">PAVORA</div>
+  <div class="boot-tag">Flooring operations</div>
+  <div class="boot-bar"><i></i></div>
+  <div class="boot-msg" id="boot-msg">Loading…</div>
+</div>
 <div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js" crossorigin></script>
 <script>/* js/data/schema.js */
 /* PAVORA data schema — one company's state blob (stored at DEMEX Core app_state "pavora:<org>").
    Plain script: works in the browser (window.PV) and in node tests (globalThis.PV). */
@@ -587,7 +610,8 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
       .sort(function (a, b) { return a.installDate < b.installDate ? -1 : 1; });
     var openPOs = state.purchaseOrders.filter(function (po) { return po.status !== 'received' && po.status !== 'closed'; }).length;
     var alerts = L.reorderAlerts(state).length;
-    var monthlySales = sum(state.projects.map(function (p) { var ap = p.estimateId && find(state.estimates, p.estimateId); var v = ap && L.approvedVersion(ap); return v && v.approvedAt >= m0 ? v.totals.sell : 0; }));
+    var estById = {}; state.estimates.forEach(function (e) { estById[e.id] = e; });
+    var monthlySales = sum(state.projects.map(function (p) { var ap = p.estimateId && estById[p.estimateId]; var v = ap && L.approvedVersion(ap); return v && v.approvedAt >= m0 ? v.totals.sell : 0; }));
     var receivables = sum(state.projects, function (p) { return sum(p.ledger.invoices, function (i) { return +i.amount; }) - sum(p.ledger.payments, function (i) { return +i.amount; }); });
     var overdueFollow = []; state.customers.forEach(function (c) { c.followUps.forEach(function (f) { if (!f.done && f.dueAt && f.dueAt < now.toISOString().slice(0, 10)) overdueFollow.push({ customer: c, f: f }); }); });
     return { activeLeads: activeLeads, pendingEstimates: pendingEst, openProjects: openProjects, upcomingInstalls: upcoming, openPOs: openPOs, inventoryAlerts: alerts,
@@ -595,8 +619,8 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
   };
 
   // Rule-based recommendations: honest, computed from state only.
-  L.recommendations = function (state) {
-    var out = []; var m = L.metrics(state); var today = new Date().toISOString().slice(0, 10);
+  L.recommendations = function (state, m) {
+    var out = []; m = m || L.metrics(state); var today = new Date().toISOString().slice(0, 10);
     m.overdueFollowUps.slice(0, 3).forEach(function (o) { out.push({ kind: 'followup', text: 'Follow-up overdue for ' + o.customer.name + ': ' + o.f.text, ref: o.customer.id }); });
     state.projects.forEach(function (p) {
       var s = L.stage(state, p.stageId); if (!s) return;
@@ -756,10 +780,10 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
   var APP = 'pavora';
 
   var S = PV.store = {
-    state: null, version: 0, org: null, orgName: '', server: false, listeners: [], saving: false, dirty: false, lastError: null, lastSavedAt: null,
+    state: null, rev: 0, version: 0, org: null, orgName: '', server: false, listeners: [], saving: false, dirty: false, lastError: null, lastSavedAt: null,
 
     subscribe: function (fn) { S.listeners.push(fn); return function () { S.listeners = S.listeners.filter(function (x) { return x !== fn; }); }; },
-    emit: function () { S.listeners.forEach(function (fn) { try { fn(S.state); } catch (e) { console.error(e); } }); },
+    emit: function () { S.rev++; S.listeners.forEach(function (fn) { try { fn(S.state); } catch (e) { console.error(e); } }); },
 
     // Sign-in context comes from the bridge (/api/me). The dev server returns the org it was started with.
     init: function () {
@@ -940,6 +964,14 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
     return PV.store.state;
   };
   U.commit = function (fn) { return PV.store.commit(fn); };
+  // Derived values (metrics, recommendations…) computed once per store change, shared by every component that asks.
+  var memo = { rev: -1, v: {} };
+  U.derived = function (key, fn) {
+    if (memo.rev !== PV.store.rev) memo = { rev: PV.store.rev, v: {} };
+    if (!(key in memo.v)) memo.v[key] = fn(PV.store.state);
+    return memo.v[key];
+  };
+  U.metrics = function () { return U.derived('metrics', PV.logic.metrics); };
 
   // ---- toasts
   var toastListeners = [];
@@ -958,7 +990,11 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
   U.Textarea = function (p) { return h('textarea', Object.assign({}, p, { onChange: function (e) { p.onChange(e.target.value); } })); };
   U.Pill = function (p) { return h('span', { className: 'pill ' + (p.kind || '') }, p.children); };
   U.Empty = function (p) { return h('div', { className: 'empty' }, p.children); };
-  U.KPI = function (p) { return h('div', { className: U.cls('card kpi', p.tone) }, h('div', { className: 'l' }, p.label), h('div', { className: 'v' }, p.value), p.hint ? h('div', { className: 'h' }, p.hint) : null); };
+  U.KPI = function (p) {
+    var go = p.to ? function () { U.go(p.to); } : null;
+    return h('div', { className: U.cls('card kpi', p.tone, go && 'click'), onClick: go, role: go ? 'link' : null, tabIndex: go ? 0 : null, onKeyDown: go ? function (e) { if (e.key === 'Enter') go(); } : null },
+      h('div', { className: 'l' }, p.label), h('div', { className: 'v' }, p.value), p.hint ? h('div', { className: 'h' }, p.hint) : null);
+  };
 
   U.Modal = function (p) {
     R.useEffect(function () { var k = function (e) { if (e.key === 'Escape') p.onClose(); }; window.addEventListener('keydown', k); return function () { window.removeEventListener('keydown', k); }; }, []);
@@ -998,38 +1034,51 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
 (function (root) {
   var PV = root.PV, U = PV.ui, h = U.h, L = PV.logic, R = root.React;
 
+  // Everything the dashboard shows, derived in one pass per store change (see U.derived).
+  function dashData(s) {
+    var m = U.metrics();
+    var kindOf = {}; s.stages.forEach(function (st) { kindOf[st.id] = st.kind; });
+    var perStage = {}; var openValue = 0; var profitRows = [];
+    s.projects.forEach(function (p) {
+      perStage[p.stageId] = (perStage[p.stageId] || 0) + 1;
+      var k = kindOf[p.stageId];
+      if (k === 'won') openValue += p.contract.approvedValue || 0;
+      if ((k === 'won' || k === 'closing') && p.contract.approvedValue) profitRows.push({ p: p, pr: L.profitability(s, p.id, null) });
+    });
+    // Thinnest margins first: those are the jobs that need attention.
+    profitRows.sort(function (a, b) { return a.pr.marginPct - b.pr.marginPct; });
+    return { m: m, recs: L.recommendations(s, m), perStage: perStage, openValue: openValue, profitRows: profitRows.slice(0, 6), profitTotal: profitRows.length };
+  }
+
   U.Dashboard = function () {
-    var s = U.useStore(); var m = L.metrics(s); var recs = L.recommendations(s);
+    var s = U.useStore(); var d = U.derived('dashboard', dashData); var m = d.m, recs = d.recs;
     var est = PV.store.estimatioStatus;
-    var pipelineByKind = {}; s.stages.forEach(function (st) { pipelineByKind[st.kind] = (pipelineByKind[st.kind] || 0) + s.projects.filter(function (p) { return p.stageId === st.id; }).length; });
-    var openValue = L.sum(s.projects.filter(function (p) { return U.stageKind(s, p.stageId) === 'won'; }), function (p) { return p.contract.approvedValue || 0; });
-    var profitRows = s.projects.filter(function (p) { return ['won', 'closing'].indexOf(U.stageKind(s, p.stageId)) >= 0 && p.contract.approvedValue; }).map(function (p) { return { p: p, pr: L.profitability(s, p.id, null) }; }).slice(0, 6);
 
     return h('div', null,
       h('div', { className: 'grid g4' },
-        h(U.KPI, { label: 'Active leads', value: m.activeLeads }),
-        h(U.KPI, { label: 'Pending estimates', value: m.pendingEstimates, tone: m.pendingEstimates ? 'warn' : '' }),
-        h(U.KPI, { label: 'Open projects', value: m.openProjects, hint: U.money(openValue) + ' under contract' }),
-        h(U.KPI, { label: 'Upcoming installs', value: m.upcomingInstalls.length, hint: m.upcomingInstalls[0] ? 'Next: ' + U.date(m.upcomingInstalls[0].installDate) : '' }),
-        h(U.KPI, { label: 'Outstanding orders', value: m.openPOs }),
-        h(U.KPI, { label: 'Inventory alerts', value: m.inventoryAlerts, tone: m.inventoryAlerts ? 'warn' : '' }),
-        h(U.KPI, { label: 'Sales this month', value: U.money(m.monthlySales), tone: 'good', hint: 'approved estimates' }),
-        h(U.KPI, { label: 'Outstanding receivables', value: U.money(m.receivables), hint: 'PAVORA ledger · NUMORA not connected' })),
+        h(U.KPI, { label: 'Active leads', value: m.activeLeads, to: 'pipeline' }),
+        h(U.KPI, { label: 'Pending estimates', value: m.pendingEstimates, tone: m.pendingEstimates ? 'warn' : '', to: 'estimates' }),
+        h(U.KPI, { label: 'Open projects', value: m.openProjects, hint: U.money(d.openValue) + ' under contract', to: 'projects' }),
+        h(U.KPI, { label: 'Upcoming installs', value: m.upcomingInstalls.length, hint: m.upcomingInstalls[0] ? 'Next: ' + U.date(m.upcomingInstalls[0].installDate) : '', to: 'installations' }),
+        h(U.KPI, { label: 'Outstanding orders', value: m.openPOs, to: 'purchasing' }),
+        h(U.KPI, { label: 'Inventory alerts', value: m.inventoryAlerts, tone: m.inventoryAlerts ? 'warn' : '', to: 'inventory' }),
+        h(U.KPI, { label: 'Sales this month', value: U.money(m.monthlySales), tone: 'good', hint: 'approved estimates', to: 'financials' }),
+        h(U.KPI, { label: 'Outstanding receivables', value: U.money(m.receivables), hint: 'PAVORA ledger · NUMORA not connected', to: 'financials' })),
 
       h('div', { className: 'grid g2', style: { marginTop: 14 } },
-        h('div', { className: 'card' }, h('h3', null, 'Recommendations'),
+        h('div', { className: 'card' }, h('h3', null, 'Recommendations', recs.length ? h('span', { className: 'dim2 small' }, ' · ' + recs.length) : null),
           recs.length ? h('div', { className: 'list' }, recs.map(function (r, i) {
-            return h('div', { key: i, className: 'item row', style: { cursor: 'pointer' }, onClick: function () { U.go(r.kind === 'followup' ? 'customers/' + r.ref : r.kind === 'stock' ? 'inventory' : 'projects/' + r.ref); } },
+            return h('div', { key: r.kind + ':' + r.ref + ':' + i, className: 'item row', style: { cursor: 'pointer' }, onClick: function () { U.go(r.kind === 'followup' ? 'customers/' + r.ref : r.kind === 'stock' ? 'inventory' : 'projects/' + r.ref); } },
               h(U.Pill, { kind: r.kind === 'overdue' || r.kind === 'invoice' ? 'closing' : r.kind === 'stock' ? 'estimate' : 'lead' }, r.kind), h('span', null, r.text));
           })) : h(U.Empty, null, 'Nothing needs attention. Recommendations are computed from your live data — no guesses.')),
-        h('div', { className: 'card' }, h('h3', null, 'Project profitability'),
-          profitRows.length ? h('table', { className: 'tbl' }, h('thead', null, h('tr', null, h('th', null, 'Project'), h('th', { className: 'r' }, 'Contract'), h('th', { className: 'r' }, 'Forecast cost'), h('th', { className: 'r' }, 'Margin'))),
-            h('tbody', null, profitRows.map(function (x) { return h('tr', { key: x.p.id, className: 'click', onClick: function () { U.go('projects/' + x.p.id); } }, h('td', null, x.p.name), h('td', { className: 'r money' }, U.money(x.pr.revisedValue)), h('td', { className: 'r money' }, U.money(x.pr.forecastCost)), h('td', { className: 'r money', style: { color: x.pr.marginPct < 20 ? 'var(--amber)' : 'var(--teal)' } }, x.pr.marginPct + '%')); })))
+        h('div', { className: 'card' }, h('h3', null, 'Project profitability', d.profitTotal > d.profitRows.length ? h('span', { className: 'dim2 small' }, ' · lowest margin first, ' + d.profitRows.length + ' of ' + d.profitTotal) : null),
+          d.profitRows.length ? h('table', { className: 'tbl' }, h('thead', null, h('tr', null, h('th', null, 'Project'), h('th', { className: 'r' }, 'Contract'), h('th', { className: 'r' }, 'Forecast cost'), h('th', { className: 'r' }, 'Margin'))),
+            h('tbody', null, d.profitRows.map(function (x) { return h('tr', { key: x.p.id, className: 'click', onClick: function () { U.go('projects/' + x.p.id); } }, h('td', null, x.p.name), h('td', { className: 'r money' }, U.money(x.pr.revisedValue)), h('td', { className: 'r money' }, U.money(x.pr.forecastCost)), h('td', { className: 'r money', style: { color: x.pr.marginPct < 20 ? 'var(--amber)' : 'var(--teal)' } }, x.pr.marginPct + '%')); })))
             : h(U.Empty, null, 'Approve an estimate to see live margin here.'))),
 
       h('div', { className: 'grid g2', style: { marginTop: 14 } },
         h('div', { className: 'card' }, h('h3', null, 'Pipeline'),
-          h('div', { className: 'row' }, s.stages.map(function (st) { var n = s.projects.filter(function (p) { return p.stageId === st.id; }).length; return n ? h(U.Pill, { key: st.id, kind: st.kind }, st.label + ' · ' + n) : null; })),
+          h('div', { className: 'row' }, s.stages.map(function (st) { var n = d.perStage[st.id]; return n ? h(U.Pill, { key: st.id, kind: st.kind }, st.label + ' · ' + n) : null; })),
           !s.projects.length ? h('div', { className: 'dim2 small', style: { marginTop: 8 } }, 'No projects yet. Add a lead in Sales Pipeline.') : null,
           h('div', { style: { marginTop: 12 } }, h('button', { className: 'btn', onClick: function () { U.go('pipeline'); } }, 'Open pipeline →'))),
         h('div', { className: 'card' }, h('h3', null, 'Recent activity'),
@@ -1630,7 +1679,7 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
   };
 
   U.Financials = function () {
-    var s = U.useStore(); var m = L.metrics(s);
+    var s = U.useStore(); var m = U.metrics();
     var inv = []; s.projects.forEach(function (p) { p.ledger.invoices.forEach(function (i) { var paid = L.sum(p.ledger.payments.filter(function (x) { return x.invoiceId === i.id; }), function (x) { return +x.amount; }); inv.push({ id: i.id, p: p, i: i, paid: paid, bal: L.round2(i.amount - paid) }); }); });
     var open = inv.filter(function (x) { return x.i.status !== 'paid'; });
     return h('div', { className: 'col' },
@@ -1687,10 +1736,11 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
   }
 
   function App() {
-    var s = U.useStore(); var route = useRoute(); var err = R.useState(PV.store.lastError); var tick = R.useState(0);
-    R.useEffect(function () { return PV.store.subscribe(function () { err[1](PV.store.lastError); tick[1](function (x) { return x + 1; }); }); }, []);
-    if (!s) return h('div', { style: { display: 'grid', placeItems: 'center', height: '100vh' } }, h('div', { className: 'card' }, PV.bootError ? h('div', null, h('h2', null, 'PAVORA could not start'), h('div', { className: 'banner err' }, PV.bootError), h('p', { className: 'dim small' }, 'Run dev/pavora_dev.py (or open PAVORA through the DEMEX server) and reload.')) : 'Loading PAVORA…'));
-    var m = PV.logic.metrics(s);
+    var s = U.useStore(); var route = useRoute(); var err = R.useState(PV.store.lastError);
+    R.useEffect(function () { return PV.store.subscribe(function () { err[1](PV.store.lastError); }); }, []);
+    // While loading, the #boot splash in index.html covers the page; render nothing underneath it.
+    if (!s) return PV.bootError ? h('div', { style: { display: 'grid', placeItems: 'center', height: '100vh' } }, h('div', { className: 'card' }, h('h2', null, 'PAVORA could not start'), h('div', { className: 'banner err' }, PV.bootError), h('p', { className: 'dim small' }, 'Run dev/pavora_dev.py (or open PAVORA through the DEMEX server) and reload.'))) : null;
+    var m = U.metrics();
     return h('div', { className: 'app' },
       h('aside', { className: 'side' },
         h('div', { className: 'logo' }, h('img', { src: PV.BRAND_LOGO, alt: s.company.name || PV.store.orgName }), h('div', { className: 'name' }, 'PAVORA')),
@@ -1706,15 +1756,26 @@ label.f{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
   PV.applyTheme = function (t) { try { if (t === 'system') { localStorage.removeItem('pavora_theme'); t = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; } else localStorage.setItem('pavora_theme', t); } catch (e) {} document.documentElement.setAttribute('data-theme', t); };
   PV.themePref = function () { try { return localStorage.getItem('pavora_theme') || 'system'; } catch (e) { return 'system'; } };
   PV.applyTheme(PV.themePref());
+  // Loading screen (#boot in index.html): shown from first paint until the company's data is in.
+  PV.bootStatus = function (text) { var el = document.getElementById('boot-msg'); if (el) el.textContent = text; };
+  PV.bootDone = function () {
+    var el = document.getElementById('boot'); if (!el) return;
+    el.classList.add('out'); setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 450);
+  };
   PV.boot = function () {
     var rootEl = document.getElementById('root'); var r = root.ReactDOM.createRoot(rootEl);
     r.render(h(App));
-    PV.store.init().then(function () { PV.estimatio.status().then(function (st) { PV.store.estimatioStatus = st; PV.store.emit(); }); })
-      .catch(function (e) { PV.bootError = e.message || String(e); PV.store.emit(); });
+    PV.bootStatus('Connecting to DEMEX Core…');
+    PV.store.init().then(function () {
+      PV.bootStatus('Opening ' + (PV.store.orgName || 'workspace') + '…');
+      requestAnimationFrame(PV.bootDone);
+      PV.estimatio.status().then(function (st) { PV.store.estimatioStatus = st; PV.store.emit(); });
+    }).catch(function (e) { PV.bootError = e.message || String(e); PV.bootDone(); PV.store.emit(); });
   };
   document.addEventListener('DOMContentLoaded', PV.boot);
 })(window);
 
 </script>
+<script>if(!window.React||!window.ReactDOM){var m=document.getElementById('boot-msg');if(m){m.textContent='Could not load PAVORA’s interface library. Check the internet connection and reload.';m.className='boot-msg err';}document.getElementById('boot').classList.add('stuck');}</script>
 </body>
 </html>
