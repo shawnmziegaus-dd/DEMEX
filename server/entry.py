@@ -9,17 +9,19 @@ DATA.mkdir(parents=True, exist_ok=True)
 (DATA / "projects").mkdir(exist_ok=True)
 
 # Files the bridge reads/writes next to itself -> symlink them into the volume.
+# The root filesystem is reset to the image on every machine start, so this runs each boot: the volume
+# copy always wins, and an image copy is only used to seed a volume that doesn't have the file yet.
 for name in ("demex_records.db", "demex_records.db-wal", "demex_records.db-journal",
              "demex_rate_card.json", "projects"):
     src, dst = ROOT / name, DATA / name
-    if src.is_symlink() or not src.exists():
-        if src.is_symlink():
-            src.unlink()
-        src.symlink_to(dst)
-    elif src.is_file() and not dst.exists():      # first boot: seed the volume
-        shutil.move(str(src), str(dst)); src.symlink_to(dst)
-    elif src.is_dir() and not dst.exists():
-        shutil.move(str(src), str(dst)); src.symlink_to(dst)
+    if src.is_symlink():
+        src.unlink()
+    elif src.exists():
+        if dst.exists() or dst.is_symlink():      # volume already has it: drop the image copy
+            shutil.rmtree(src) if src.is_dir() else src.unlink()
+        else:                                     # first boot: seed the volume
+            shutil.move(str(src), str(dst))
+    src.symlink_to(dst)
 
 os.environ.setdefault("DEMEX_IMPORTS_DIR", str(DATA / "imports"))
 (DATA / "imports").mkdir(exist_ok=True)

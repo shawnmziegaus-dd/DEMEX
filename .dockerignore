@@ -12,3 +12,5 @@ DEMEX.backup-preauto.html
 *.pdf
 __pycache__
 .env
+# runtime data lives on the Fly volume; never bake this computer's database into the image
+demex_records.db*
