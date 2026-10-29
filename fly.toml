@@ -3,8 +3,8 @@
 #   fly volumes create demex_data --size 3
 #   fly secrets set DEMEX_ACCESS_KEY="<pick a strong key>" ANTHROPIC_API_KEY="<your key>" DEMEX_ALLOWED_HOSTS="<app>.fly.dev"
 #   fly deploy
-app = "demex"
-primary_region = "atl"
+app = "demex-ddd"
+primary_region = "iad"
 
 [build]
 
@@ -12,6 +12,7 @@ primary_region = "atl"
   DEMEX_BIND = "0.0.0.0"
   DEMEX_BRIDGE_PORT = "8080"
   DEMEX_DATA_DIR = "/data"
+  DEMEX_ALLOWED_HOSTS = "demex-ddd.fly.dev"
 
 [http_service]
   internal_port = 8080
