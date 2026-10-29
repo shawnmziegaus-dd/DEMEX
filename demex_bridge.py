@@ -129,14 +129,14 @@ ALLOWED_HOSTS |= {h.strip().lower() for h in
                   (os.environ.get("DEMEX_ALLOWED_HOSTS") or "").split(",") if h.strip()}
 ACCESS_KEY = (os.environ.get("DEMEX_ACCESS_KEY") or "").strip()
 # Workspaces: one access key per company. DEMEX_ACCESS_KEYS is a JSON object
-#   {"<key>": {"org": "ddd", "name": "Disassemble Dynamics", "apps": ["hub","demex","estimatio","qualora"]},
-#    "<key>": {"org": "wcp", "name": "Wayne's Carpet Plus",  "apps": ["estimatio"]}}
+#   {"<key>": {"org": "ddd", "name": "Disassemble Dynamics", "apps": ["hub","demex","estimatio","qualora","pavora"]},
+#    "<key>": {"org": "wcp", "name": "Wayne's Carpet Plus",  "apps": ["estimatio","pavora"]}}
 # DEMEX_ACCESS_KEY alone = the Disassemble Dynamics key with every app. Each
 # workspace's data is its own row in app_state (demex is DDD-only; estimatio is
 # stored per workspace), so one company never sees another's bids.
 ORGS = {
-    "ddd": {"name": "Disassemble Dynamics", "apps": ["hub", "demex", "estimatio", "qualora"]},
-    "wcp": {"name": "Wayne's Carpet Plus", "apps": ["estimatio"]},
+    "ddd": {"name": "Disassemble Dynamics", "apps": ["hub", "demex", "estimatio", "qualora", "pavora"]},
+    "wcp": {"name": "Wayne's Carpet Plus", "apps": ["estimatio", "pavora"]},
 }
 def _load_keys() -> dict:
     keys = {}
@@ -751,7 +751,7 @@ button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;backgr
         if match:
             nxt_ok = self._safe_next(nxt)
             first = nxt_ok.strip("/").split("/")[0]
-            if first in ("hub", "demex", "estimatio", "qualora") and first not in match["apps"]:
+            if first in ("hub", "demex", "estimatio", "qualora", "pavora") and first not in match["apps"]:
                 nxt_ok = "/%s/" % match["apps"][0] if match["apps"] else "/hub/"
             self.send_response(303)
             self.send_header("Location", nxt_ok)
@@ -821,7 +821,7 @@ button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;backgr
             return self._logout()
         # App-family public files: manifests, service workers and icons carry no
         # data and must load before sign-in so the home-screen icon is right.
-        app_m = re.fullmatch(r"/(hub|demex|estimatio|qualora)/(manifest\.webmanifest|sw\.js)", u.path)
+        app_m = re.fullmatch(r"/(hub|demex|estimatio|qualora|pavora)/(manifest\.webmanifest|sw\.js)", u.path)
         if app_m:
             key, what = app_m.group(1), app_m.group(2)
             if what == "sw.js":
@@ -835,9 +835,9 @@ button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;backgr
                 return self._json({"ok": False, "error": "sign in required"}, 401)
             return self._login_page(next_path=u.path)
         # Clean app addresses: /demex -> /demex/ -> DEMEX.html with PWA head tags.
-        if re.fullmatch(r"/(hub|demex|estimatio|qualora)", u.path):
+        if re.fullmatch(r"/(hub|demex|estimatio|qualora|pavora)", u.path):
             return self._redirect(u.path + "/" + ("?" + u.query if u.query else ""))
-        app_m = re.fullmatch(r"/(hub|demex|estimatio|qualora)/", u.path)
+        app_m = re.fullmatch(r"/(hub|demex|estimatio|qualora|pavora)/", u.path)
         if app_m:
             if not self._app_allowed(app_m.group(1)):
                 info = self._org_info()

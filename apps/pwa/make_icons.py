@@ -14,6 +14,7 @@ APPS = {
     "demex":     ("DX", "#0B111A", "#2AD1B8"),   # DEMEX operations cockpit
     "estimatio": ("E",  "#0B111A", "#3B9DFF"),   # Estimatio estimating
     "qualora":   ("Q",  "#0B111A", "#F3B23E"),   # Qualora prequalification
+    "pavora":    ("P",  "#1A1404", "#E8D35E"),   # PAVORA flooring operations (Wayne's gold/espresso)
 }
 
 def icon(mark, bg, accent, size, maskable=False):

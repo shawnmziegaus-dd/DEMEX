@@ -38,6 +38,11 @@ APPS = {
         "file": "apps/qualora/app.html", "fallback": "apps/qualora/index.html",
         "desc": "Qualora - subcontractor prequalification and applications",
     },
+    "pavora": {
+        "name": "PAVORA", "short": "PAVORA", "icon": "pavora", "theme": "#BF9C1E",
+        "file": "apps/pavora/app.html",
+        "desc": "PAVORA - flooring business operations (Wayne's Carpet Plus)",
+    },
 }
 
 # Static files the bridge may serve without sign-in (icons/manifests are not sensitive
@@ -95,6 +100,7 @@ def manifest(key: str) -> str:
             {"name": "DEMEX", "url": "/demex/", "icons": [{"src": "/apps/pwa/icons/demex-192.png", "sizes": "192x192"}]},
             {"name": "Estimatio", "url": "/estimatio/", "icons": [{"src": "/apps/pwa/icons/estimatio-192.png", "sizes": "192x192"}]},
             {"name": "Qualora", "url": "/qualora/", "icons": [{"src": "/apps/pwa/icons/qualora-192.png", "sizes": "192x192"}]},
+            {"name": "PAVORA", "url": "/pavora/", "icons": [{"src": "/apps/pwa/icons/pavora-192.png", "sizes": "192x192"}]},
         ]
     return json.dumps(m, indent=1)
 
