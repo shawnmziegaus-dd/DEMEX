@@ -1,0 +1,216 @@
+{
+ "schema": "demex_takeoff_markup/v1",
+ "source_pdf": "Apple_R111_Demo_Markup.pdf",
+ "pages": 9,
+ "extracted_at": "2026-11-05T18:19:51.567807+00:00",
+ "legend_version": "1.1",
+ "legend_profile": "interior",
+ "counts": {
+  "measurements": 19,
+  "needs_review": 19
+ },
+ "rollup": [
+  {
+   "svc": "demo_floor",
+   "unit": "SF",
+   "scope": "demo_floor",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 2838,
+   "annotations": 1,
+   "bid_part": "base"
+  },
+  {
+   "svc": "demo_base",
+   "unit": "LF",
+   "scope": "demo_base",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 423,
+   "annotations": 1,
+   "bid_part": "base"
+  },
+  {
+   "svc": null,
+   "unit": "SF",
+   "scope": "Backstage wall finishes - wainscot / FRP / corner guards (x ~4')",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 836,
+   "annotations": 1,
+   "bid_part": "base"
+  },
+  {
+   "svc": "demo_walls",
+   "unit": "LF",
+   "scope": "demo_walls",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 37.4,
+   "annotations": 1,
+   "bid_part": "base"
+  },
+  {
+   "svc": "doors",
+   "unit": "EA",
+   "scope": "doors",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 1,
+   "annotations": 1,
+   "bid_part": "base"
+  },
+  {
+   "svc": null,
+   "unit": "BAY",
+   "scope": "Backstage steel shelving fixtures",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 40,
+   "annotations": 1,
+   "bid_part": "base"
+  },
+  {
+   "svc": null,
+   "unit": "LS",
+   "scope": "Backstage work benches / workstations / tables",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 1,
+   "annotations": 1,
+   "bid_part": "base"
+  },
+  {
+   "svc": null,
+   "unit": "LS",
+   "scope": "Break room lockers, tables, kitchenette millwork; manager office equipment",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 1,
+   "annotations": 1,
+   "bid_part": "base"
+  },
+  {
+   "svc": "plumb_fixture",
+   "unit": "EA",
+   "scope": "plumb_fixture",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 1,
+   "annotations": 1,
+   "bid_part": "base"
+  },
+  {
+   "svc": "demo_ceiling",
+   "unit": "SF",
+   "scope": "demo_ceiling",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 127,
+   "annotations": 1,
+   "bid_part": "base"
+  },
+  {
+   "svc": "light_fixture",
+   "unit": "EA",
+   "scope": "light_fixture",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 39,
+   "annotations": 1,
+   "bid_part": "base"
+  },
+  {
+   "svc": null,
+   "unit": "LS",
+   "scope": "Diffusers / grilles + 8-10in branch duct & flex (M-141)",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 1,
+   "annotations": 1,
+   "bid_part": "base"
+  },
+  {
+   "svc": null,
+   "unit": "LF",
+   "scope": "Remote chain link fencing / storage cages (AD-152)",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 143,
+   "annotations": 1,
+   "bid_part": "base"
+  },
+  {
+   "svc": "demo_floor",
+   "unit": "SF",
+   "scope": "demo_floor",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 1062,
+   "annotations": 1,
+   "bid_part": "base"
+  },
+  {
+   "svc": "light_fixture",
+   "unit": "EA",
+   "scope": "light_fixture",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 8,
+   "annotations": 1,
+   "bid_part": "base"
+  },
+  {
+   "svc": null,
+   "unit": "LS",
+   "scope": "Remote supply duct (M-142) + floor drain body (P-140)",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 1,
+   "annotations": 1,
+   "bid_part": "base"
+  },
+  {
+   "svc": "concrete_trench",
+   "unit": "LF",
+   "scope": "concrete_trench",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 40,
+   "annotations": 1,
+   "bid_part": "alt1"
+  },
+  {
+   "svc": "concrete_grind",
+   "unit": "SF",
+   "scope": "concrete_grind",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 113,
+   "annotations": 1,
+   "bid_part": "alt2"
+  },
+  {
+   "svc": "concrete_grind",
+   "unit": "SF",
+   "scope": "concrete_grind",
+   "in_scope": true,
+   "confidence": "probable",
+   "qty": 2838,
+   "annotations": 1,
+   "bid_part": "alt3"
+  }
+ ],
+ "sheets": [
+  "AD-151",
+  "AD-171",
+  "M-141",
+  "P-140",
+  "AD-152",
+  "AD-172",
+  "M-142",
+  "P-151",
+  "photo key"
+ ],
+ "method": "floor area from vector hatch (AD-151 'area of floor finish demo') rasterized + closed; lines scaled at 18 pt/ft"
+}
