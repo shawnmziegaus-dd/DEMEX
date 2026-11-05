@@ -702,26 +702,9 @@ button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;backgr
         self.wfile.write(body)
 
     def _login_page_estimatio(self, bad=False, next_path="/estimatio/"):
-        nxt = self._safe_next(next_path).replace("'", "").replace('"', "")
-        tiles = "".join('<div class="ws"><b>%s</b><span>%s</span></div>' % (n, t) for n, t in
-                        (("Disassemble Dynamics", "Commercial selective demolition"), ("Wayne&#39;s Carpet Plus", "Flooring · tile · bathroom remodels")))
-        body = ("""<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>estimatio — sign in</title><link rel="icon" href="/apps/pwa/icons/estimatio-192.png"><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0B111A;color:#fff;font-family:Inter,system-ui,sans-serif}
-.card{background:#141C28;border:1px solid rgba(138,153,173,.2);border-radius:16px;padding:28px;width:min(400px,92vw);box-shadow:0 8px 24px rgba(0,0,0,.45)}
-.brand{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:600;letter-spacing:-.02em;margin-bottom:4px}.brand img{width:30px;height:30px;border-radius:50%;box-shadow:0 0 20px rgba(10,132,255,.5)}
-p{color:#8A99AD;margin:0 0 16px;font-size:14px}.ws{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid rgba(138,153,173,.2);border-radius:8px;margin-bottom:8px;font-size:13px}.ws b{color:#fff}.ws span{color:#8A99AD;text-align:right}
-label{display:block;font-size:12px;color:#8A99AD;margin:14px 0 6px}input{width:100%;box-sizing:border-box;padding:11px;border-radius:8px;border:1px solid rgba(138,153,173,.35);background:#1E2837;color:#fff;font:inherit}
-button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;background:#0A84FF;color:#fff;font:600 14px Inter,system-ui;cursor:pointer}.err{color:#FF5C5C;font-size:13px;margin-top:8px}.foot{font-size:11px;color:#566476;margin-top:14px}</style></head>
-<body><form class="card" method="post" action="/api/login"><div class="brand"><img src="/apps/pwa/icons/estimatio-192.png" alt="">estimatio</div><p>AI-driven estimating. Your access key opens your company&#39;s workspace.</p>"""
-        + tiles + """<input type="hidden" name="next" value='""" + nxt + """'><label for="key">Access key</label><input id="key" type="password" name="key" placeholder="Access key" autofocus autocomplete="current-password">"""
-        + ('<div class="err">That key is not correct.</div>' if bad else "") +
-        """<button type="submit">Sign in</button><div class="foot">Each company&#39;s bids and settings stay in its own workspace.</div></form></body></html>""").encode()
-        self.send_response(200)
-        self.send_header("Content-Type", "text/html; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
-        self.end_headers()
-        self.wfile.write(body)
+        """Estimatio signs in on its own public page (/estimatio/#login), which posts
+        the key to /api/login like the other apps."""
+        return self._redirect("/estimatio/#login" + ("-bad" if bad else ""), 303)
 
     def _logout(self):
         ref = self.headers.get("Referer") or ""
@@ -830,6 +813,14 @@ button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;backgr
             return self._raw(demex_apps.manifest(key).encode(), "application/manifest+json; charset=utf-8")
         if u.path.startswith(demex_apps.PUBLIC_PREFIX) and self._static_allowed(u):
             return super().do_GET()
+        # Estimatio's page is public: signed out it shows its main page, pricing and
+        # sign-in form. Its data (/api/state and the rest) still needs the session.
+        if u.path == "/api/mode":
+            return self._json({"ok": True, "server": SERVER_MODE, "signedIn": self._signed_in()})
+        if u.path == "/estimatio" and not self._signed_in():
+            return self._redirect("/estimatio/")
+        if u.path == "/estimatio/" and not self._signed_in():
+            return self._app_page("estimatio")
         if not self._signed_in():
             if u.path.startswith("/api/"):
                 return self._json({"ok": False, "error": "sign in required"}, 401)
