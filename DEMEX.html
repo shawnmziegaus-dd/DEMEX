@@ -5799,8 +5799,14 @@ function EstimatorWorkspace(props) {
   };
   const ext = l => (+l.qty || 0) * (l.rate != null && l.rate !== '' ? +l.rate : rOf(l.svc));
   const direct = lines.reduce((s, l) => s + ext(l), 0);
-  const oh = direct * ((db.company.overheadPct || 0) / 100);
-  const profit = (direct + oh) * ((db.company.profitPct || 0) / 100);
+  // A project priced outside this builder (e.g. DDD's estimate workbook: travel + contingency + per-crew-night
+  // profit) carries its overhead and profit as fixed dollars. Keep them unless the user switches to company %.
+  const savedFixed = proj && proj.estimate && proj.estimate.fixedMarkup || null;
+  const [usePct, setUsePct] = useState(false);
+  useEffect(() => setUsePct(false), [pid]);
+  const fixed = savedFixed && !usePct ? savedFixed : null;
+  const oh = fixed ? +fixed.oh || 0 : direct * ((db.company.overheadPct || 0) / 100);
+  const profit = fixed ? +fixed.profit || 0 : (direct + oh) * ((db.company.profitPct || 0) / 100);
   const sell = direct + oh + profit;
   const upd = (i, k, v) => setLines(ls => ls.map((l, j) => j === i ? Object.assign({}, l, {
     [k]: v
@@ -5822,6 +5828,7 @@ function EstimatorWorkspace(props) {
       sell: sell,
       savedAt: new Date().toISOString()
     };
+    if (fixed) est.fixedMarkup = fixed;
     const r = DX.commit({
       type: 'saveEstimate',
       id: pid,
@@ -6013,7 +6020,7 @@ function EstimatorWorkspace(props) {
       color: C.t3,
       marginBottom: 10
     }
-  }, "BID SUMMARY"), [['Direct cost', direct], ['Overhead (' + (db.company.overheadPct || 0) + '%)', oh], ['Profit (' + (db.company.profitPct || 0) + '%)', profit]].map(row => /*#__PURE__*/React.createElement("div", {
+  }, "BID SUMMARY"), [['Direct cost', direct], [fixed ? fixed.ohLabel || 'Overhead (fixed)' : 'Overhead (' + (db.company.overheadPct || 0) + '%)', oh], [fixed ? fixed.profitLabel || 'Profit (fixed)' : 'Profit (' + (db.company.profitPct || 0) + '%)', profit]].map(row => /*#__PURE__*/React.createElement("div", {
     key: row[0],
     style: {
       display: 'flex',
@@ -6048,7 +6055,13 @@ function EstimatorWorkspace(props) {
       fontSize: 18,
       color: C.gold
     }
-  }, m(sell))), /*#__PURE__*/React.createElement("div", {
+  }, m(sell))), savedFixed ? /*#__PURE__*/React.createElement("div", {
+    style: { fontSize: 11, color: C.t3, marginTop: 6, lineHeight: 1.4 }
+  }, fixed ? 'Markup is fixed dollars from ' + (savedFixed.source || 'the saved estimate') + '. ' : 'Using company overhead / profit %. Save to drop the fixed markup. ', /*#__PURE__*/React.createElement("button", {
+    type: 'button',
+    onClick: () => setUsePct(!usePct),
+    style: { background: 'none', border: 'none', padding: 0, color: C.teal, cursor: 'pointer', font: 'inherit', textDecoration: 'underline' }
+  }, fixed ? 'Use company % instead' : 'Back to fixed markup')) : null, /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 14,
       display: 'flex',
