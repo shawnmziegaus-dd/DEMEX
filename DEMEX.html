@@ -117,6 +117,120 @@ try{var __t=localStorage.getItem('demex_theme');if(__t==='light'||__t==='dark')d
     .dx-hbar{grid-template-columns:78px minmax(0,1fr) auto;}
     .dx-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;flex-basis:100%!important;}
   }
+  /* ---- dashboard: briefing hero, decision queue, rail ---- */
+  :root{--hero-bg:#141416;--hero-fg:#f4f4f5;--hero-dim:rgba(244,244,245,.62);--hero-card:rgba(255,255,255,.06);--hero-line:rgba(255,255,255,.12);}
+  :root[data-theme="light"]{--hero-bg:#17181d;--hero-fg:#f7f7f8;--hero-dim:rgba(247,247,248,.62);--hero-card:rgba(255,255,255,.07);--hero-line:rgba(255,255,255,.14);}
+  @media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--hero-bg:#17181d;--hero-fg:#f7f7f8;--hero-dim:rgba(247,247,248,.62);--hero-card:rgba(255,255,255,.07);--hero-line:rgba(255,255,255,.14);}}
+  .dx-dash{padding:18px 22px 90px;max-width:1480px;margin:0 auto;}
+  .dx-hero{position:relative;overflow:hidden;border-radius:18px;background:var(--hero-bg);color:var(--hero-fg);padding:22px 26px 22px;margin-bottom:18px;border:1px solid var(--hero-line);}
+  .dx-hero::before{content:"";position:absolute;inset:-40% -10% auto auto;width:62%;height:180%;background:radial-gradient(closest-side,color-mix(in srgb,var(--red) 38%,transparent),transparent 72%);pointer-events:none;}
+  .dx-hero::after{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--red),var(--teal));}
+  .dx-hero>*{position:relative;}
+  .dx-hero-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:13px;color:var(--hero-dim);}
+  .dx-hero-stamp{font-size:10.5px;letter-spacing:.4px;}
+  .dx-hero-line{margin:8px 0 0;font-weight:800;font-size:clamp(20px,2.3vw,30px);line-height:1.18;letter-spacing:-.3px;max-width:22em;}
+  .dx-hero-dim{color:var(--hero-dim);font-weight:700;}
+  .dx-hero-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:18px;}
+  .dx-hero-card{position:relative;background:var(--hero-card);border:1px solid var(--hero-line);border-radius:12px;padding:11px 32px 11px 13px;min-width:0;}
+  .dx-hero-card.dx-click:hover{background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.22)!important;}
+  .dx-hero-card-t{font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dx-hero-card-s{font-size:11.5px;color:var(--hero-dim);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dx-hero-card-arrow{position:absolute;right:13px;top:50%;transform:translateY(-50%);font-size:20px;color:var(--hero-dim);}
+  .dx-dash-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start;}
+  .dx-dash-main{min-width:0;display:grid;gap:16px;}
+  .dx-dash-rail{min-width:0;display:grid;gap:14px;position:sticky;top:64px;}
+  .dx-dash-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+  .dx-h2{font-weight:800;font-size:16px;margin:0;display:flex;align-items:center;gap:8px;letter-spacing:-.1px;}
+  .dx-count{font-size:11px;font-weight:500;color:var(--t2);background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:1px 8px;line-height:1.6;}
+  .dx-link{background:none;border:0;color:var(--teal);font-weight:700;font-size:12.5px;cursor:pointer;padding:6px 8px;border-radius:8px;}
+  .dx-link:hover{background:var(--hover);}
+  .dx-queue{padding:16px 18px 10px;}
+  .dx-queue-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px;}
+  .dx-queue-sub{font-size:12px;color:var(--t3);margin-top:3px;}
+  .dx-queue-empty{padding:28px 10px 20px;text-align:center;color:var(--t2);font-size:13px;display:grid;gap:8px;justify-items:center;}
+  .dx-dec-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:14px;padding:10px 10px 10px 12px;margin:0 -8px;border-radius:12px;border:1px solid transparent;transition:background-color .15s ease,border-color .15s ease;}
+  .dx-dec-row:hover,.dx-dec-row.on{background:var(--hover);border-color:var(--line);}
+  .dx-dec-row+.dx-dec-row{margin-top:2px;}
+  .dx-dec-main{min-width:0;cursor:pointer;border-radius:8px;}
+  .dx-dec-title{font-size:14px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dx-dec-sub{display:flex;align-items:center;gap:10px;margin-top:3px;min-width:0;}
+  .dx-dec-subtext{font-size:12px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+  .dx-policy{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;border-radius:999px;padding:2px 9px 2px 7px;white-space:nowrap;flex:0 0 auto;}
+  .dx-policy i{width:6px;height:6px;border-radius:50%;display:inline-block;}
+  .dx-dec-when{font-size:11px;color:var(--t3);white-space:nowrap;min-width:44px;text-align:right;}
+  .dx-dec-done{display:inline-flex;align-items:center;justify-content:center;min-width:92px;padding:7px 14px;border-radius:9px;font-weight:700;font-size:12px;color:var(--onaccent);background:var(--green);animation:fadein .25s ease;}
+  /* review drawer */
+  .dx-drawer-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;display:flex;justify-content:flex-end;}
+  .dx-drawer{width:min(460px,100%);height:100%;overflow:auto;background:var(--ink);border-left:1px solid var(--line2);box-shadow:var(--shadow-lg);padding:18px 22px 26px;animation:dxslide .22s cubic-bezier(.2,.8,.2,1);}
+  @keyframes dxslide{from{transform:translateX(24px);opacity:0;}to{transform:none;opacity:1;}}
+  .dx-drawer-head{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .dx-drawer-x{width:32px;height:32px;border-radius:9px;border:1px solid var(--line2);background:transparent;color:var(--t2);cursor:pointer;font-size:13px;}
+  .dx-drawer-title{font-weight:800;font-size:20px;line-height:1.2;margin:14px 0 4px;letter-spacing:-.2px;}
+  .dx-drawer-sub{font-size:12.5px;color:var(--t2);}
+  .dx-drawer-why{margin:14px 0;padding:11px 13px;border-radius:10px;background:var(--panel);border:1px solid var(--line);font-size:13px;line-height:1.45;color:var(--t1);}
+  .dx-facts{display:grid;gap:0;border-top:1px solid var(--line);margin-bottom:6px;}
+  .dx-fact{display:grid;grid-template-columns:118px minmax(0,1fr);gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px;}
+  .dx-fact span{color:var(--t3);}
+  .dx-fact b{font-weight:500;color:var(--t1);overflow-wrap:anywhere;}
+  .dx-drawer-block{margin-top:14px;}
+  .dx-drawer-label{font-size:11.5px;font-weight:600;color:var(--t3);margin-bottom:4px;}
+  .dx-drawer-text{font-size:12.5px;line-height:1.5;color:var(--t2);white-space:pre-wrap;}
+  .dx-drawer-pre{font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.5;white-space:pre-wrap;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--t1);margin:0;max-height:260px;overflow:auto;}
+  .dx-drawer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;padding-top:14px;border-top:1px solid var(--line);position:sticky;bottom:-26px;background:var(--ink);padding-bottom:4px;}
+  /* rail */
+  .dx-rail-card{padding:14px 16px;}
+  .dx-rail-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .dx-rail-meta{font-size:10.5px;color:var(--t3);}
+  .dx-week{display:grid;gap:2px;}
+  .dx-week-day{display:grid;grid-template-columns:76px minmax(0,1fr);gap:8px;padding:6px 0;border-top:1px solid var(--line);align-items:start;}
+  .dx-week-day:first-child{border-top:0;}
+  .dx-week-day.weekend{opacity:.55;}
+  .dx-week-day.has .dx-week-dow b{color:var(--t1);}
+  .dx-week-dow{display:flex;flex-direction:column;font-size:12px;color:var(--t2);line-height:1.25;padding-top:3px;}
+  .dx-week-dow b{font-weight:600;}
+  .dx-week-dow .mono{font-size:10px;color:var(--t3);}
+  .dx-week-items{display:grid;gap:3px;min-width:0;}
+  .dx-week-bid{display:grid;grid-template-columns:8px minmax(0,1fr);column-gap:8px;align-items:center;padding:4px 6px;border-radius:8px;border:1px solid transparent;min-width:0;}
+  .dx-week-dot{width:8px;height:8px;border-radius:50%;grid-row:span 2;}
+  .dx-week-name{font-size:12px;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dx-week-gc{font-size:10.5px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dx-week-none{font-size:11px;color:var(--t3);padding:5px 6px;display:block;}
+  .dx-pulse{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;}
+  .dx-pulse-donut{display:flex;align-items:center;gap:10px;border-radius:12px;padding:4px;border:1px solid transparent;}
+  .dx-pulse-donut-l{font-size:12px;color:var(--t2);display:flex;flex-direction:column;}
+  .dx-pulse-donut-l span{font-size:10.5px;color:var(--t3);}
+  .dx-pulse-stats{display:grid;gap:4px;}
+  .dx-pulse-stat{display:flex;align-items:baseline;gap:8px;padding:4px 8px;border-radius:8px;border:1px solid transparent;min-width:0;white-space:nowrap;}
+  .dx-pulse-stat b{font-weight:800;font-size:16px;flex:0 0 auto;}
+  .dx-pulse-stat span{font-size:11.5px;color:var(--t3);min-width:0;overflow:hidden;text-overflow:ellipsis;}
+  .dx-ask{position:fixed;right:22px;bottom:20px;z-index:800;display:inline-flex;align-items:center;gap:8px;padding:10px 14px 10px 12px;border-radius:999px;border:1px solid var(--line2);background:var(--panel);color:var(--t1);font-weight:700;font-size:13px;cursor:pointer;box-shadow:var(--shadow-lg);}
+  .dx-ask:hover{border-color:var(--teal);}
+  .dx-ask span{color:var(--teal);}
+  .dx-ask kbd{font-size:10px;color:var(--t3);border:1px solid var(--line2);border-radius:5px;padding:1px 5px;}
+  /* command palette */
+  .dx-pal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9500;display:flex;align-items:flex-start;justify-content:center;padding:90px 16px 16px;}
+  .dx-pal{width:min(640px,100%);background:var(--ink);border:1px solid var(--line2);border-radius:16px;box-shadow:var(--shadow-lg);overflow:hidden;animation:fadein .2s ease;}
+  .dx-pal-input{display:flex;align-items:center;gap:10px;padding:6px 14px 6px 16px;border-bottom:1px solid var(--line);}
+  .dx-pal-spark{color:var(--teal);font-size:15px;}
+  .dx-pal-input input{flex:1;background:transparent;border:0;outline:none;color:var(--t1);font-size:15px;padding:12px 0;box-shadow:none!important;}
+  .dx-pal-input kbd{font-size:10px;color:var(--t3);border:1px solid var(--line2);border-radius:5px;padding:2px 6px;}
+  .dx-pal-answer{padding:12px 16px 14px;border-bottom:1px solid var(--line);background:var(--panel);}
+  .dx-pal-from{font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--teal);margin-bottom:6px;}
+  .dx-pal-text{font-size:13.5px;line-height:1.5;white-space:pre-wrap;color:var(--t1);max-height:240px;overflow:auto;}
+  .dx-pal-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .dx-pal-actions:empty{display:none;}
+  .dx-pal-sugg{display:flex;gap:6px;flex-wrap:wrap;padding:12px 16px 4px;}
+  .dx-pal-label{font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--t3);padding:12px 16px 4px;}
+  .dx-pal-list{max-height:320px;overflow:auto;padding:0 8px 8px;}
+  .dx-pal-item{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:10px;cursor:pointer;}
+  .dx-pal-item:hover,.dx-pal-item:focus-visible{background:var(--hover);}
+  .dx-pal-item-t{font-size:13.5px;color:var(--t1);min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dx-pal-item-s{font-size:11.5px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dx-pal-tag{font-size:10px;color:var(--t3);border:1px solid var(--line);border-radius:6px;padding:2px 7px;}
+  .dx-pal-empty{padding:14px 10px 18px;font-size:12.5px;color:var(--t3);}
+  .dx-pal-foot{display:flex;gap:16px;padding:8px 16px;border-top:1px solid var(--line);font-size:10.5px;color:var(--t3);}
+  @media (max-width:1100px){.dx-dash-grid{grid-template-columns:minmax(0,1fr);}.dx-dash-rail{position:static;}}
+  @media (max-width:820px){.dx-dash{padding:14px 14px 90px;}.dx-dash-charts{grid-template-columns:minmax(0,1fr);}.dx-dec-row{grid-template-columns:minmax(0,1fr) auto;}.dx-dec-when{display:none;}.dx-hero{padding:18px 16px;}.dx-ask kbd{display:none;}.dx-drawer{width:100%;}}
   .mono{font-family:'JetBrains Mono',monospace;}
   .syne{font-family:'Syne',sans-serif;}
   /* boot */
@@ -770,7 +884,7 @@ function seed(){ return JSON.parse(JSON.stringify(__SEED__)); }
     if(!direct&&p.estimate&&(+p.estimate.direct>0)){return{direct:+p.estimate.direct||0,oh:+p.estimate.oh||0,profit:+p.estimate.profit||0,sell:+p.estimate.sell||((+p.estimate.direct||0)+(+p.estimate.oh||0)+(+p.estimate.profit||0))};}
     var oh=direct*((DB.company.overheadPct||0)/100);var profit=(direct+oh)*((DB.company.profitPct||0)/100);return{direct:direct,oh:oh,profit:profit,sell:direct+oh+profit};}
   function actualTotal(pid){var rows=(DB.actuals||[]).filter(function(a){return a.project_id===pid;});var sum=rows.reduce(function(s,a){return s+(a.amount||0);},0);var hrs=rows.reduce(function(s,a){return s+(a.hours||0);},0);var byCat={};rows.forEach(function(a){byCat[a.category]=(byCat[a.category]||0)+(a.amount||0);});return{sum:sum,hrs:hrs,byCat:byCat,rows:rows};}
-  function winRate(){var d=DB.projects.filter(function(p){return p.status==='won'||p.status==='lost';});if(!d.length)return null;return Math.round(d.filter(function(p){return p.status==='won';}).length/d.length*100);}
+  function winRate(){var d=DB.projects.filter(function(p){return (p.status==='won'||p.status==='lost')&&!p.noBid;});if(!d.length)return null;return Math.round(d.filter(function(p){return p.status==='won';}).length/d.length*100);}
   var BASE_RATES={demo_walls:{base:[4,9],unit:'LF',label:'Demo walls'},demo_floor:{base:[.6,1.5],unit:'SF',label:'Demo flooring'},demo_ceiling:{base:[.8,1.75],unit:'SF',label:'Demo ceiling'},exterior_demo:{base:[2,5],unit:'SF',label:'Exterior demo'},mep:{base:[1,2.5],unit:'SF',label:'MEP removal'},count:{base:[85,250],unit:'EA',label:'Count item'}};
   function computeIntel(){
     var completed=DB.projects.filter(function(p){return p.completed;});var agg={};
@@ -1401,11 +1515,18 @@ function syncItbImports(opts) {
     var newP = [], moved = 0;
     (pl.projects || []).forEach(function (p) {
       var ex = haveId[p.id] || byName[itbKey(p.name)];
-      if (!ex) { newP.push(p); return; }
+      if (!ex) {
+        p.inbox = { decision: 'pending', at: new Date().toISOString() };
+        newP.push(p);
+        var gcN = ((pl.clients || []).filter(function (c) { return c.id === p.client_id; })[0] || {}).name || '';
+        dxHandled('New invitation: ' + String(p.name || '').split(',')[0] + (gcN ? ' from ' + gcN.split(/[—(]/)[0].trim() : '') + (p.dueAt ? ', due ' + p.dueAt : ''), 'inbox', { pid: p.id });
+        return;
+      }
       var open = !ex.status || ex.status === 'invited' || ex.status === 'estimating';
       if (open && p.dueAt && p.dueAt !== ex.dueAt) {
         DX.commit({ type: 'updateProject', id: ex.id, patch: { dueAt: p.dueAt, notes: ex.notes || p.notes } });
         moved++;
+        dxHandled('Due date moved to ' + p.dueAt + ': ' + String(ex.name || '').split(',')[0], 'inbox', { pid: ex.id });
       }
     });
     var newC = (pl.clients || []).filter(function (c) { return !haveC[c.id]; });
@@ -2205,7 +2326,7 @@ function Boot({
 }
 
 /* ════════ COMMAND PALETTE (⌘K) ════════ */
-function CommandPalette({
+function CommandPaletteLegacy({
   open,
   onClose,
   onRun,
@@ -2687,7 +2808,7 @@ function AgentDock({
 }
 
 /* ════════ DASHBOARD (triage hero + pipeline + pulse + agent) ════════ */
-function Dashboard({
+function DashboardLegacy({
   nav,
   onNew,
   onOpen
@@ -3127,6 +3248,436 @@ function Dashboard({
     nav: nav,
     onNew: onNew
   })));
+}
+
+/* ════════ DECISIONS: the approval layer ════════
+   Everything DEMEX wants to do on Shawn's behalf lands here first. Nothing is
+   sent, moved or re-priced until a row is approved. Each item carries a policy
+   verdict so the one-click "Approve" only appears where the standing rules say
+   it is safe; everything else gets "Review" and a drawer with the facts. */
+const DEC_LOG_KEY = 'demex_decisions_v1';   // what Shawn decided, when
+const HANDLED_KEY = 'demex_handled_v1';     // what DEMEX did on its own
+const LASTVISIT_KEY = 'demex_last_visit_v1';
+function dxLsGet(k, fb) { try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? fb : v; } catch (e) { return fb; } }
+function dxLsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function dxHandled(text, kind, meta) {
+  var log = dxLsGet(HANDLED_KEY, []);
+  log.unshift({ ts: new Date().toISOString(), text: text, kind: kind || 'sync', meta: meta || null });
+  if (log.length > 300) log.length = 300;
+  dxLsSet(HANDLED_KEY, log);
+  window.dispatchEvent(new CustomEvent('dx-handled'));
+}
+function dxDecided(item, action) {
+  var log = dxLsGet(DEC_LOG_KEY, []);
+  log.unshift({ ts: new Date().toISOString(), id: item.id, kind: item.kind, title: item.title, action: action, oneClick: !!item.primary && action === item.primary.label });
+  if (log.length > 500) log.length = 500;
+  dxLsSet(DEC_LOG_KEY, log);
+}
+function dxDaysLeft(iso) { if (!iso) return null; var t = new Date(); t.setHours(0, 0, 0, 0); return Math.round((localDate(iso) - t) / 864e5); }
+/* Shawn does not work bids on weekends: a Monday due date is a Friday build deadline. */
+function dxWorkDaysLeft(iso) {
+  var dl = dxDaysLeft(iso); if (dl == null) return null; if (dl <= 0) return dl;
+  var n = 0, d = new Date(); d.setHours(0, 0, 0, 0);
+  for (var i = 0; i < dl; i++) { d.setDate(d.getDate() + 1); var w = d.getDay(); if (w !== 0 && w !== 6) n++; }
+  return n;
+}
+function dxAgo(iso) {
+  if (!iso) return '';
+  var ms = Date.now() - new Date(iso).getTime(), m = Math.round(ms / 6e4);
+  if (m < 1) return 'just now'; if (m < 60) return m + ' min'; var h = Math.round(m / 60); if (h < 24) return h + ' h';
+  var d = Math.round(h / 24); return d + ' d';
+}
+function dxFirstName(s) { return String(s || '').trim().split(/\s+/)[0] || 'there'; }
+function dxShortName(n) { return String(n || '').split(',')[0].split(' - ')[0].trim(); }
+function dxGcName(p) { var c = DX.client(p.client_id); return c && c.name ? c.name.split(/[—(]/)[0].trim() : 'Unknown GC'; }
+function dxBidPolicy(p, db) {
+  var cl = DX.client(p.client_id) || {};
+  var who = (cl.name || '') + ' ' + (cl.email || '') + ' ' + (p.source || '');
+  var wd = dxWorkDaysLeft(p.dueAt), dl = dxDaysLeft(p.dueAt);
+  if (/summit/i.test(who)) return { tone: 'low', label: 'Low priority', why: 'Summit Construction flat-number bid. Your rule: last priority regardless of deadline, so a missed date is not flagged as urgent.', urgency: 0 };
+  if (/planhub/i.test(who) && !/direct/i.test(p.source || '')) return { tone: 'low', label: 'Paywalled lead', why: 'PlanHub broadcast. Project files and the GC are behind the paywall, so this is informational unless the GC also reaches out directly.', urgency: 0 };
+  var hist = db.projects.filter(function (x) { return x.client_id === p.client_id && x.id !== p.id && ['submitted', 'won', 'lost'].indexOf(x.status) >= 0; });
+  var won = hist.filter(function (x) { return x.status === 'won'; }).length;
+  if (dl != null && dl < 0) return { tone: 'alert', label: 'Past due', why: 'Due date passed ' + Math.abs(dl) + ' day' + (Math.abs(dl) === 1 ? '' : 's') + ' ago. Decide whether to ask for an extension or pass.', urgency: 3 };
+  if (wd != null && wd <= 1) return { tone: 'alert', label: dl === 0 ? 'Due today' : 'Due tomorrow', why: 'Only ' + wd + ' working day left. Estimating has to start now or this becomes a pass.', urgency: 3 };
+  if (wd != null && wd <= 3) return { tone: 'warn', label: wd + ' work days', why: 'Tight window: ' + wd + ' working days to build the estimate (weekends excluded).', urgency: 2 };
+  if (hist.length) return { tone: 'ok', label: 'Within policy', why: 'Known GC: ' + hist.length + ' prior bid' + (hist.length === 1 ? '' : 's') + (won ? ', ' + won + ' won' : '') + '. Due in ' + wd + ' working days. Approve moves it to Estimating.', urgency: 1 };
+  return { tone: 'warn', label: 'New GC', why: 'No bid history with this GC yet. Worth a look at who they are before committing estimating time.', urgency: 1 };
+}
+/* Build the queue from live store data. Returns items sorted by urgency, then due date. */
+function dxBuildDecisions(db) {
+  var items = [], today = DX.todayISO();
+  // 1. Bid or pass on every open invitation that still has a live due date
+  db.projects.filter(function (p) { return p.status === 'invited' && (p.dueAt || '') >= today || (p.inbox && p.inbox.decision === 'pending' && p.status === 'invited'); }).forEach(function (p) {
+    var pol = dxBidPolicy(p, db), gc = dxGcName(p), wd = dxWorkDaysLeft(p.dueAt);
+    items.push({
+      id: 'bid:' + p.id, kind: 'bid', pid: p.id, p: p,
+      title: 'Bid or pass: ' + dxShortName(p.name),
+      sub: 'Intake agent · ' + gc + (p.dueAt ? ' · due ' + p.dueAt : ' · no due date'),
+      when: p.dueAt ? (wd != null && wd < 0 ? Math.abs(wd) + 'd over' : wd === 0 ? 'today' : wd + ' wd') : '',
+      policy: pol, urgency: pol.urgency, sortKey: p.dueAt || '9999',
+      primary: pol.tone === 'ok' ? { label: 'Approve', done: 'Estimating', run: function () { DX.commit({ type: 'setStatus', id: p.id, status: 'estimating' }); } } : null
+    });
+  });
+  // 2. Follow-ups waiting on a send
+  db.followups.filter(function (f) { return !f.done; }).forEach(function (f) {
+    var dl = dxDaysLeft(f.due), over = dl != null && dl < 0;
+    items.push({
+      id: 'fup:' + f.id, kind: 'followup', pid: f.project_id, f: f,
+      title: 'Send follow-up: ' + dxShortName(f._proj || 'project'),
+      sub: 'Follow-up agent · ' + f.note,
+      when: dl == null ? '' : over ? Math.abs(dl) + 'd late' : dl === 0 ? 'today' : 'in ' + dl + 'd',
+      policy: over ? { tone: 'alert', label: 'Overdue', why: 'This follow-up was due ' + f.due + '. The draft uses your standard follow-up wording.' } : { tone: 'ok', label: 'Within policy', why: 'Standard follow-up template, addressed to the GC contact on file. Send opens the draft in your mail app and marks this done.' },
+      urgency: over ? 3 : dl === 0 ? 2 : 1, sortKey: f.due || '9999',
+      primary: { label: 'Send draft', done: 'Drafted', run: function () { dxOpenDraft(f); DX.commit({ type: 'toggleFollowup', id: f.id }); } }
+    });
+  });
+  // 3. Estimates finished but the bid never marked submitted
+  db.projects.filter(function (p) { return p.status === 'estimating' && p.proposal && p.estimate && +p.estimate.sell > 0; }).forEach(function (p) {
+    items.push({
+      id: 'submit:' + p.id, kind: 'submit', pid: p.id, p: p,
+      title: 'Mark submitted: ' + dxShortName(p.name) + ' at ' + money(p.estimate.sell),
+      sub: 'Proposal agent · ' + dxGcName(p) + ' · proposal saved',
+      when: p.dueAt ? 'due ' + p.dueAt : '',
+      policy: { tone: 'ok', label: 'Within policy', why: 'Estimate and proposal are both saved. Approve moves the bid to Submitted and sets the bid amount to ' + money(p.estimate.sell) + '.' },
+      urgency: 1, sortKey: p.dueAt || '9999',
+      primary: { label: 'Approve', done: 'Submitted', run: function () { DX.commit({ type: 'updateProject', id: p.id, patch: { bidAmount: +p.estimate.sell } }); DX.commit({ type: 'setStatus', id: p.id, status: 'submitted' }); } }
+    });
+  });
+  // 4. Bids due inside a week with no estimate started
+  db.projects.filter(function (p) { return p.status === 'estimating' && !(p.estimate && +p.estimate.sell > 0) && p.dueAt && p.dueAt >= today && dxWorkDaysLeft(p.dueAt) <= 5; }).forEach(function (p) {
+    var wd = dxWorkDaysLeft(p.dueAt);
+    items.push({
+      id: 'start:' + p.id, kind: 'start', pid: p.id, p: p,
+      title: 'Start the estimate: ' + dxShortName(p.name),
+      sub: 'Estimating agent · ' + dxGcName(p) + ' · due ' + p.dueAt,
+      when: wd === 0 ? 'today' : wd + ' wd',
+      policy: wd <= 1 ? { tone: 'alert', label: 'Due ' + (dxDaysLeft(p.dueAt) === 0 ? 'today' : 'tomorrow'), why: 'No estimate on file and the bid is due. Open it to run the takeoff or pass.' } : { tone: 'warn', label: wd + ' work days', why: 'No estimate on file yet. ' + wd + ' working days left to take off and price it.' },
+      urgency: wd <= 1 ? 3 : 2, sortKey: p.dueAt
+    });
+  });
+  // 5. Submitted bids older than 30 days: resolve so the pricing bands learn
+  var now = new Date(); now.setHours(0, 0, 0, 0);
+  var stale = db.projects.map(function (p) { return { p: p, age: p.status === 'submitted' && (p.submittedAt || p.dueAt) ? Math.floor((now - localDate(p.submittedAt || p.dueAt)) / 864e5) : -1 }; })
+    .filter(function (x) { return x.age >= 30; }).sort(function (a, b) { return b.age - a.age; });
+  if (stale.length > 3) {
+    var sv = stale.reduce(function (s, x) { return s + DX.revenueOf(x.p); }, 0);
+    items.push({ id: 'closeMany', kind: 'closeMany', title: 'Close out ' + stale.length + ' old bids: won or lost?', sub: 'Pipeline agent · submitted 30+ days ago · ' + money(sv) + ' still showing as out for award',
+      when: stale[0].age + 'd+', policy: { tone: 'low', label: 'Award decisions', why: stale.length + ' bids have sat at Submitted for a month or more. Resolving them in the Pipeline review panel teaches the win/loss price bands; anything still live stays open.' }, urgency: 0, sortKey: '9998' });
+  }
+  stale.slice(0, stale.length > 3 ? 0 : 3).forEach(function (x) {
+    var p = x.p, age = x.age;
+    items.push({
+      id: 'close:' + p.id, kind: 'close', pid: p.id, p: p,
+      title: 'Won or lost? ' + dxShortName(p.name),
+      sub: 'Pipeline agent · ' + dxGcName(p) + (p.bidAmount ? ' · ' + money(p.bidAmount) : ''),
+      when: age + 'd out',
+      policy: { tone: 'low', label: 'Award decision', why: 'Submitted ' + age + ' days ago with no result. Resolving it feeds the win/loss price bands; "Still open" keeps it in the pipeline.' },
+      urgency: age >= 90 ? 1 : 0, sortKey: '9998-' + String(100000 - age)
+    });
+  });
+  // 6. Pricing IQ rate adjustments with enough evidence
+  try {
+    var intel = DX.computeIntel();
+    (intel.recs || []).filter(function (r) { return Math.abs(r.delta) >= 5 && r.conf !== 'Low' && !((db.rateOverrides || {})[r.svc]); }).forEach(function (r) {
+      var up = r.delta > 0;
+      items.push({
+        id: 'rate:' + r.svc, kind: 'rate', rec: r,
+        title: (up ? 'Raise ' : 'Lower ') + r.label + ' rate ' + (up ? '+' : '') + r.delta.toFixed(1) + '%',
+        sub: 'Pricing IQ · ' + r.n + ' completed job' + (r.n === 1 ? '' : 's') + ' · ' + r.conf + ' confidence',
+        when: '',
+        policy: r.conf === 'High' ? { tone: 'ok', label: 'Within policy', why: 'High confidence (' + r.n + ' jobs). Realized cost averaged ' + money(r.avgAct) + '/' + r.unit + ' against ' + money(r.avgEst) + ' estimated. Approve nudges the live rate card.' } : { tone: 'warn', label: 'Medium confidence', why: 'Only ' + r.n + ' jobs behind this. Realized ' + money(r.avgAct) + '/' + r.unit + ' vs ' + money(r.avgEst) + ' estimated.' },
+        urgency: 1, sortKey: '9997',
+        primary: r.conf === 'High' ? { label: 'Approve', done: 'Applied', run: function () { DX.commit({ type: 'applyRec', svc: r.svc, delta: r.delta }); } } : null
+      });
+    });
+  } catch (e) {}
+  return items.sort(function (a, b) { return b.urgency - a.urgency || String(a.sortKey).localeCompare(String(b.sortKey)); });
+}
+const POLICY_TONE = { ok: C.green, warn: C.gold, alert: C.red2, low: C.t3 };
+function PolicyChip(props) {
+  var col = POLICY_TONE[props.tone] || C.t3;
+  return ce("span", { className: "dx-policy", style: { color: col, background: dxAlpha(col, props.tone === 'low' ? 10 : 13) } },
+    ce("i", { style: { background: col } }), props.label);
+}
+/* One queue row: title, agent + context, policy chip, how long, and the single right action. */
+function DecisionRow(props) {
+  var it = props.item, done = props.done;
+  var primary = it.primary && !done;
+  return ce("div", { className: "dx-dec-row" + (props.active ? ' on' : ''), role: "group", 'aria-label': it.title },
+    ce("div", { className: "dx-dec-main", role: "button", tabIndex: 0, onClick: function () { props.onReview(it); }, onKeyDown: function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); props.onReview(it); } } },
+      ce("div", { className: "dx-dec-title" }, it.title),
+      ce("div", { className: "dx-dec-sub" }, ce("span", { className: "dx-dec-subtext" }, it.sub), ce(PolicyChip, { tone: it.policy.tone, label: it.policy.label }))),
+    ce("div", { className: "dx-dec-when mono" }, it.when),
+    done ? ce("span", { className: "dx-dec-done syne" }, "✓ " + done)
+      : primary ? ce(Btn, { primary: true, onClick: function () { props.onApprove(it); }, style: { padding: '7px 16px', minWidth: 92 }, title: it.policy.why }, it.primary.label)
+      : ce(Btn, { ghost: true, onClick: function () { props.onReview(it); }, style: { padding: '7px 16px', minWidth: 92 } }, "Review"));
+}
+function DrawerFact(props) { return ce("div", { className: "dx-fact" }, ce("span", null, props.k), ce("b", null, props.v)); }
+/* Review drawer: the facts behind one decision and every way to resolve it. */
+function DecisionDrawer(props) {
+  var it = props.item, db = useStore();
+  useEffect(function () { var f = function (e) { if (e.key === 'Escape') props.onClose(); }; window.addEventListener('keydown', f); return function () { window.removeEventListener('keydown', f); }; }, []);
+  if (!it) return null;
+  var p = it.p || (it.pid ? DX.proj(it.pid) : null), cl = p ? DX.client(p.client_id) : (it.f ? DX.client(it.f.client_id) : null);
+  var finish = function (label, fn) { try { fn && fn(); } catch (e) { DX.toast((e && e.message) || 'Could not apply', 'err'); return; } dxDecided(it, label); props.onResolved(it, label); };
+  var facts = [];
+  if (p) {
+    facts.push({ k: 'General contractor', v: dxGcName(p) + (cl && cl.contactName ? ' · ' + cl.contactName : '') });
+    if (cl && cl.email) facts.push({ k: 'Contact', v: cl.email + (cl.phone ? ' · ' + cl.phone : '') });
+    if (p.address) facts.push({ k: 'Site', v: p.address });
+    if (p.dueAt) { var wd = dxWorkDaysLeft(p.dueAt); facts.push({ k: 'Bid due', v: p.dueAt + (wd == null ? '' : wd < 0 ? ' · ' + Math.abs(wd) + ' days past' : ' · ' + wd + ' working days') }); }
+    if (p.bidAmount || (p.estimate && p.estimate.sell)) facts.push({ k: 'Bid value', v: money(p.bidAmount || p.estimate.sell) });
+    if (p.source) facts.push({ k: 'Source', v: p.source });
+    if (p.type) facts.push({ k: 'Type', v: p.type });
+  }
+  if (it.rec) { facts.push({ k: 'Estimated', v: money(it.rec.avgEst) + ' / ' + it.rec.unit }); facts.push({ k: 'Realized', v: money(it.rec.avgAct) + ' / ' + it.rec.unit }); facts.push({ k: 'Evidence', v: it.rec.n + ' completed jobs · ' + it.rec.conf + ' confidence' }); }
+  var draft = it.kind === 'followup' ? decodeURIComponent((dxBuildDraft(it.f).split('&body=')[1] || '')).replace(/\r/g, '') : null;
+  var actions = [];
+  var openProj = p ? ce(Btn, { key: 'open', ghost: true, onClick: function () { props.onOpen(p.id); } }, "Open project") : null;
+  if (it.kind === 'bid') {
+    actions = [ce(Btn, { key: 'bid', primary: true, onClick: function () { finish('Bid', function () { DX.commit({ type: 'setStatus', id: p.id, status: 'estimating' }); }); } }, "Bid it"),
+      ce(Btn, { key: 'pass', ghost: true, style: { color: C.red2, borderColor: dxAlpha(C.red2, 45) }, onClick: function () { finish('Pass', function () { DX.commit({ type: 'updateProject', id: p.id, patch: { status: 'lost', probability: 0, win_loss_status: 'lost', noBid: true, passedAt: DX.todayISO(), notes: 'NO BID — passed ' + DX.todayISO() + (p.notes ? '\n' + p.notes : '') } }); }); } }, "Pass"), openProj];
+  } else if (it.kind === 'followup') {
+    actions = [ce(Btn, { key: 's', primary: true, onClick: function () { finish('Send draft', it.primary.run); } }, "Send draft"),
+      ce(Btn, { key: 'd', ghost: true, onClick: function () { finish('Mark done', function () { DX.commit({ type: 'toggleFollowup', id: it.f.id }); }); } }, "Mark done"), openProj];
+  } else if (it.kind === 'submit') {
+    actions = [ce(Btn, { key: 'a', primary: true, onClick: function () { finish('Approve', it.primary.run); } }, "Mark submitted"), openProj];
+  } else if (it.kind === 'start') {
+    actions = [ce(Btn, { key: 'o', primary: true, onClick: function () { props.onOpen(p.id); props.onClose(); } }, "Open and estimate"),
+      ce(Btn, { key: 'pass', ghost: true, style: { color: C.red2, borderColor: dxAlpha(C.red2, 45) }, onClick: function () { finish('Pass', function () { DX.commit({ type: 'updateProject', id: p.id, patch: { status: 'lost', probability: 0, win_loss_status: 'lost', noBid: true, passedAt: DX.todayISO() } }); }); } }, "Pass")];
+  } else if (it.kind === 'close') {
+    actions = [ce(Btn, { key: 'w', primary: true, style: { background: C.green, boxShadow: 'none' }, onClick: function () { finish('Won', function () { DX.commit({ type: 'setStatus', id: p.id, status: 'won' }); }); } }, "Won"),
+      ce(Btn, { key: 'l', ghost: true, style: { color: C.red2, borderColor: dxAlpha(C.red2, 45) }, onClick: function () { finish('Lost', function () { DX.commit({ type: 'setStatus', id: p.id, status: 'lost' }); }); } }, "Lost"),
+      ce(Btn, { key: 'k', ghost: true, onClick: function () { finish('Still open', function () { DX.commit({ type: 'updateProject', id: p.id, patch: { submittedAt: DX.todayISO() } }); }); } }, "Still open"), openProj];
+  } else if (it.kind === 'closeMany') {
+    actions = [ce(Btn, { key: 'o', primary: true, onClick: function () { props.nav('pipeline/submitted'); props.onClose(); } }, "Review in Pipeline")];
+  } else if (it.kind === 'rate') {
+    actions = [ce(Btn, { key: 'a', primary: true, onClick: function () { finish('Approve', function () { DX.commit({ type: 'applyRec', svc: it.rec.svc, delta: it.rec.delta }); }); } }, "Apply to rate card"),
+      ce(Btn, { key: 'r', ghost: true, onClick: function () { props.nav('performance'); props.onClose(); } }, "Open Pricing IQ")];
+  }
+  return ce("div", { className: "dx-drawer-bg", onClick: function (e) { if (e.target === e.currentTarget) props.onClose(); } },
+    ce("aside", { className: "dx-drawer", role: "dialog", 'aria-modal': true, 'aria-label': it.title },
+      ce("div", { className: "dx-drawer-head" },
+        ce(PolicyChip, { tone: it.policy.tone, label: it.policy.label }),
+        ce("button", { type: "button", className: "dx-btn ghost dx-drawer-x", onClick: props.onClose, 'aria-label': 'Close' }, "✕")),
+      ce("h2", { className: "syne dx-drawer-title" }, it.title),
+      ce("div", { className: "dx-drawer-sub" }, it.sub),
+      ce("div", { className: "dx-drawer-why" }, it.policy.why),
+      facts.length ? ce("div", { className: "dx-facts" }, facts.map(function (f, i) { return ce(DrawerFact, { key: i, k: f.k, v: f.v }); })) : null,
+      p && p.scope ? ce("div", { className: "dx-drawer-block" }, ce("div", { className: "dx-drawer-label" }, "Scope"), ce("div", { className: "dx-drawer-text" }, String(p.scope).slice(0, 600))) : null,
+      p && p.notes ? ce("div", { className: "dx-drawer-block" }, ce("div", { className: "dx-drawer-label" }, "Notes from intake"), ce("div", { className: "dx-drawer-text" }, String(p.notes).slice(0, 700))) : null,
+      draft ? ce("div", { className: "dx-drawer-block" }, ce("div", { className: "dx-drawer-label" }, "Draft that will open"), ce("pre", { className: "dx-drawer-pre" }, draft)) : null,
+      ce("div", { className: "dx-drawer-actions" }, actions)));
+}
+/* ════════ DASHBOARD: morning briefing + decision queue + week + pulse ════════ */
+function dxGreeting(name) {
+  var h = new Date().getHours();
+  return (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + ', ' + dxFirstName(name);
+}
+function dxSinceLabel(ts) {
+  if (!ts) return 'since yesterday';
+  var h = (Date.now() - new Date(ts).getTime()) / 36e5;
+  if (h < 1) return 'in the last hour'; if (h < 20) return 'since you were here'; if (h < 36) return 'overnight';
+  return 'since ' + new Date(ts).toLocaleDateString(undefined, { weekday: 'long' });
+}
+function BriefingHero(props) {
+  var handled = props.handled, urgent = props.urgent, total = props.total;
+  var line1 = handled.length ? handled.length + (handled.length === 1 ? ' thing' : ' things') + ' handled ' + props.since + '.' : 'Inbox swept, nothing new ' + props.since + '.';
+  var hr = new Date().getHours(), slot = hr < 11 ? 'before noon' : hr < 16 ? 'today' : 'before tomorrow';
+  var line2 = urgent ? urgent + ' need' + (urgent === 1 ? 's' : '') + ' you ' + slot + '.' : total ? total + ' waiting on you, none urgent.' : 'Nothing waiting on you.';
+  var cards = handled.slice(0, 3).map(function (h) { return { t: h.text, s: dxAgo(h.ts) + ' ago' + (h.kind ? ' · ' + h.kind : ''), go: h.meta && h.meta.pid ? function () { props.onOpen(h.meta.pid); } : null }; });
+  if (!cards.length) cards = props.upcoming.slice(0, 3).map(function (b) { return { t: dxShortName(b.p.name) + ' is due ' + b.p.dueAt, s: dxGcName(b.p) + ' · ' + (b.wd <= 0 ? 'today' : b.wd + ' working days'), go: function () { props.onOpen(b.p.id); } }; });
+  return ce("section", { className: "dx-hero" },
+    ce("div", { className: "dx-hero-top" }, ce("span", { className: "dx-hero-greet" }, dxGreeting(props.name)), ce("span", { className: "dx-hero-stamp mono" }, "Briefing · " + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }))),
+    ce("h1", { className: "syne dx-hero-line" }, ce("span", { className: "dx-hero-dim" }, line1 + ' '), line2),
+    cards.length ? ce("div", { className: "dx-hero-cards" }, cards.map(function (c, i) {
+      return ce("div", { key: i, className: "dx-hero-card" + (c.go ? ' dx-click' : ''), role: c.go ? 'button' : undefined, tabIndex: c.go ? 0 : undefined, onClick: c.go || undefined, onKeyDown: c.go ? function (e) { if (e.key === 'Enter') c.go(); } : undefined },
+        ce("div", { className: "dx-hero-card-t" }, c.t), ce("div", { className: "dx-hero-card-s" }, c.s), c.go ? ce("span", { className: "dx-hero-card-arrow", 'aria-hidden': true }, "›") : null);
+    })) : null);
+}
+function DxDonut(props) {
+  var pct = Math.max(0, Math.min(100, props.pct || 0)), r = 34, cx = 44, c = 2 * Math.PI * r;
+  return ce("svg", { width: 88, height: 88, viewBox: "0 0 88 88", role: "img", 'aria-label': props.label + ' ' + pct + '%' },
+    ce("circle", { cx: cx, cy: cx, r: r, fill: "none", stroke: "var(--panel3)", strokeWidth: 9 }),
+    ce("circle", { cx: cx, cy: cx, r: r, fill: "none", stroke: props.color || C.teal, strokeWidth: 9, strokeLinecap: "round", strokeDasharray: (c * pct / 100) + ' ' + c, transform: "rotate(-90 44 44)", style: { transition: 'stroke-dasharray .6s cubic-bezier(.2,.8,.2,1)' } }),
+    ce("text", { x: cx, y: cx + 1, textAnchor: "middle", dominantBaseline: "middle", className: "syne", style: { fill: 'var(--t1)', fontSize: 19, fontWeight: 800 } }, props.na ? '—' : pct + '%'));
+}
+function Dashboard(props) {
+  var nav = props.nav, onNew = props.onNew, onOpen = props.onOpen;
+  var db = useStore();
+  var st = useState(null), review = st[0], setReview = st[1];
+  var ds = useState({}), doneMap = ds[0], setDone = ds[1];
+  var sa = useState(false), showAll = sa[0], setShowAll = sa[1];
+  var hk = useState(0), bumpHandled = hk[1];
+  var lv = useState(function () { return dxLsGet(LASTVISIT_KEY, null); }), lastVisit = lv[0];
+  var pk = useState({ stage: null, month: null }), pick = pk[0], setPick = pk[1];
+  useEffect(function () {
+    var f = function () { bumpHandled(function (x) { return x + 1; }); };
+    window.addEventListener('dx-handled', f);
+    var stamp = function () { dxLsSet(LASTVISIT_KEY, new Date().toISOString()); };
+    window.addEventListener('beforeunload', stamp);
+    return function () { window.removeEventListener('dx-handled', f); window.removeEventListener('beforeunload', stamp); stamp(); };
+  }, []);
+  var items = dxBuildDecisions(db).filter(function (it) { return !doneMap[it.id]; });
+  // rows just resolved stay in place for a moment showing their outcome, then slide out
+  Object.keys(doneMap).forEach(function (id) { var d = doneMap[id]; if (d.keep && d.item) items.splice(Math.min(d.index, items.length), 0, d.item); });
+  var urgent = items.filter(function (it) { return it.urgency >= 2; }).length;
+  var sinceTs = lastVisit || new Date(Date.now() - 24 * 36e5).toISOString();
+  var handled = dxLsGet(HANDLED_KEY, []).filter(function (h) { return h.ts > sinceTs; });
+  var today = DX.todayISO();
+  var upcoming = db.projects.filter(function (p) { return ['invited', 'estimating'].indexOf(p.status) >= 0 && p.dueAt && p.dueAt >= today; })
+    .map(function (p) { return { p: p, wd: dxWorkDaysLeft(p.dueAt), dl: dxDaysLeft(p.dueAt) }; }).sort(function (a, b) { return a.p.dueAt.localeCompare(b.p.dueAt); });
+  var resolve = function (it, label) {
+    var index = items.indexOf(it);
+    setDone(function (m) { var n = Object.assign({}, m); n[it.id] = { label: label, keep: true, item: it, index: index < 0 ? 0 : index }; return n; });
+    setReview(null);
+    DX.toast(it.title.split(':')[0] + ' — ' + label.toLowerCase(), 'ok');
+    setTimeout(function () { setDone(function (m) { var n = Object.assign({}, m); if (n[it.id]) n[it.id] = { label: label, keep: false }; return n; }); }, 1600);
+  };
+  var approve = function (it) { try { it.primary.run(); } catch (e) { DX.toast((e && e.message) || 'Could not apply', 'err'); return; } dxDecided(it, it.primary.label); resolve(it, it.primary.done); };
+  var shown = showAll ? items : items.slice(0, 7);
+  // --- week rail: next 7 days, working days first-class, weekends dimmed ---
+  var week = [], d0 = new Date(); d0.setHours(0, 0, 0, 0);
+  for (var i = 0; i < 7; i++) { var d = new Date(d0.getTime() + i * 864e5); var iso = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+    week.push({ iso: iso, dow: i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()], ds: (d.getMonth() + 1) + '/' + d.getDate(), weekend: d.getDay() === 0 || d.getDay() === 6, bids: upcoming.filter(function (b) { return b.p.dueAt === iso; }) }); }
+  // --- pulse ---
+  var open = db.projects.filter(function (p) { return ['invited', 'estimating', 'submitted'].indexOf(p.status) >= 0; });
+  var submitted = db.projects.filter(function (p) { return p.status === 'submitted'; });
+  var outForAward = submitted.reduce(function (s, p) { return s + DX.revenueOf(p); }, 0);
+  var wr = DX.winRate();
+  var decided = db.projects.filter(function (p) { return (p.status === 'won' || p.status === 'lost') && !p.noBid; });
+  // --- decisions this week (from the local decision log) ---
+  var log = dxLsGet(DEC_LOG_KEY, []);
+  var days7 = [];
+  for (var k = 6; k >= 0; k--) { var dd = new Date(d0.getTime() - k * 864e5); var key = dd.toISOString().slice(0, 10);
+    var rows = log.filter(function (l) { return l.ts.slice(0, 10) === key; });
+    var oneClick = rows.filter(function (l) { return l.oneClick; }).length;
+    days7.push({ key: key, label: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dd.getDay()] + ' ' + (dd.getMonth() + 1) + '/' + dd.getDate(), short: ['S', 'M', 'T', 'W', 'T', 'F', 'S'][dd.getDay()], value: rows.length, parts: [{ value: oneClick, color: 'var(--teal)' }, { value: rows.length - oneClick, color: 'var(--purple)' }], sub: oneClick + ' one-click · ' + (rows.length - oneClick) + ' reviewed' }); }
+  var weekTotal = days7.reduce(function (s, x) { return s + x.value; }, 0), weekOne = days7.reduce(function (s, x) { return s + x.parts[0].value; }, 0);
+  var STAGES = [['invited', 'Invited'], ['estimating', 'Estimating'], ['submitted', 'Submitted'], ['won', 'Won'], ['lost', 'Lost']];
+  var stageData = STAGES.map(function (s) { var list = db.projects.filter(function (p) { return p.status === s[0]; }); var val = list.reduce(function (a, p) { return a + DX.revenueOf(p); }, 0); return { key: s[0], label: s[1], value: list.length, display: list.length + ' · ' + moneyShort(val), sub: money(val) + ' total bid value', color: STPILL[s[0]] }; });
+  var months = lastMonths(12), pMonth = function (p) { return monthKey(p.dueAt || p.submittedAt || p.createdAt); };
+  var monthData = months.map(function (mk) { var list = db.projects.filter(function (p) { return pMonth(p) === mk; }); var by = function (s) { return list.filter(function (p) { return p.status === s; }).length; }; var val = list.reduce(function (a, p) { return a + DX.revenueOf(p); }, 0);
+    return { key: mk, label: monthLabel(mk), short: MONTHS[+mk.slice(5) - 1], value: list.length, parts: [{ value: by('won'), color: 'var(--green)' }, { value: by('submitted'), color: 'var(--purple)' }, { value: by('estimating') + by('invited'), color: 'var(--gold)' }, { value: by('lost'), color: 'var(--red2)' }], sub: money(val) + ' · won ' + by('won') + ' · lost ' + by('lost') }; });
+  var pipeHash = function () { return 'pipeline/' + [pick.stage, pick.month ? 'm' + pick.month : null].filter(Boolean).join('+'); };
+  useEffect(function () { if (pick.stage || pick.month) nav(pipeHash()); }, [pick.stage, pick.month]);
+  return ce("div", { className: "dx-dash dx-pad" },
+    ce(BriefingHero, { name: db.company && db.company.contact, handled: handled, since: dxSinceLabel(lastVisit), urgent: urgent, total: items.length, upcoming: upcoming, onOpen: onOpen }),
+    ce("div", { className: "dx-dash-grid" },
+      ce("div", { className: "dx-dash-main" },
+        ce("section", { className: "dx-card dx-queue", 'aria-label': 'Needs your decision' },
+          ce("div", { className: "dx-queue-head" },
+            ce("div", null, ce("h2", { className: "syne dx-h2" }, "Needs your decision", ce("span", { className: "dx-count mono" }, items.length)),
+              ce("div", { className: "dx-queue-sub" }, "Sorted by urgency. Nothing is sent, moved or re-priced until you approve it.")),
+            items.length > 7 ? ce("button", { type: "button", className: "dx-link syne", onClick: function () { setShowAll(!showAll); } }, showAll ? 'Show fewer' : 'View all ' + items.length + ' ›') : null),
+          shown.length ? shown.map(function (it) { return ce(DecisionRow, { key: it.id, item: it, done: doneMap[it.id] ? doneMap[it.id].label : null, active: review && review.id === it.id, onApprove: approve, onReview: setReview }); })
+            : ce("div", { className: "dx-queue-empty" }, ce("div", { className: "syne", style: { fontSize: 15, fontWeight: 700, color: C.t1 } }, "Queue is clear."), ce("div", null, "New invitations, follow-ups and pricing changes will line up here as the agents find them."), ce(IngestInboxBtn, null))),
+        ce("div", { className: "dx-dash-charts" },
+          ce(Card, { title: 'Decisions this week', sub: weekTotal ? weekTotal + ' decided · ' + weekOne + ' one-click' : 'Approvals and reviews you make land here' },
+            ce(DxColumns, { data: days7, stack: true, height: 140, ariaLabel: 'Decisions per day', empty: 'No decisions logged yet this week', fmt: function (v, axis) { return axis ? String(Math.round(v)) : v + ' decisions'; } })),
+          ce(Card, { title: 'Bids by month', sub: 'Last 12 months by due date · click a month to list its bids' },
+            ce(DxColumns, { data: monthData, stack: true, height: 140, active: pick.month, ariaLabel: 'Bids by month', empty: 'No bids with dates in the last 12 months', fmt: function (v, axis) { return axis ? String(Math.round(v)) : v + ' bids'; }, onPick: function (k) { setPick({ stage: null, month: k }); } })))),
+      ce("aside", { className: "dx-dash-rail" },
+        ce("section", { className: "dx-card dx-rail-card", 'aria-label': 'This week' },
+          ce("div", { className: "dx-rail-head" }, ce("h2", { className: "syne dx-h2" }, "This week"), ce("span", { className: "dx-rail-meta mono" }, upcoming.filter(function (b) { return b.dl <= 6; }).length + " due")),
+          ce("div", { className: "dx-week" }, week.map(function (w) {
+            return ce("div", { key: w.iso, className: "dx-week-day" + (w.weekend ? ' weekend' : '') + (w.bids.length ? ' has' : '') },
+              ce("div", { className: "dx-week-dow" }, ce("b", null, w.dow), ce("span", { className: "mono" }, w.ds)),
+              ce("div", { className: "dx-week-items" }, w.bids.length ? w.bids.map(function (b) {
+                return ce("div", { key: b.p.id, className: "dx-week-bid dx-click", role: "button", tabIndex: 0, onClick: function () { onOpen(b.p.id); }, onKeyDown: function (e) { if (e.key === 'Enter') onOpen(b.p.id); } },
+                  ce("span", { className: "dx-week-dot", style: { background: STPILL[b.p.status] } }), ce("span", { className: "dx-week-name" }, dxShortName(b.p.name)), ce("span", { className: "dx-week-gc" }, dxGcName(b.p)));
+              }) : ce("span", { className: "dx-week-none" }, w.weekend ? 'Weekend' : '—')));
+          }))),
+        ce("section", { className: "dx-card dx-rail-card", 'aria-label': 'Pulse' },
+          ce("div", { className: "dx-rail-head" }, ce("h2", { className: "syne dx-h2" }, "Pulse"), ce("span", { className: "dx-rail-meta mono" }, "live")),
+          ce("div", { className: "dx-pulse" },
+            ce("div", { className: "dx-click dx-pulse-donut", role: "button", tabIndex: 0, title: "Open the won and lost bids", onClick: function () { nav('pipeline/decided'); }, onKeyDown: function (e) { if (e.key === 'Enter') nav('pipeline/decided'); } },
+              ce(DxDonut, { pct: wr == null ? 0 : wr, na: wr == null, color: C.teal, label: 'Win rate' }), ce("div", { className: "dx-pulse-donut-l" }, "win rate", ce("span", null, decided.length ? decided.length + ' decided' : 'no decided bids'))),
+            ce("div", { className: "dx-pulse-stats" },
+              [{ v: open.length, l: 'open bids', go: 'pipeline/open' }, { v: moneyShort(outForAward), l: 'out for award', go: 'pipeline/submitted', color: C.gold }, { v: db.followups.filter(function (f) { return !f.done; }).length, l: 'follow-ups due', go: 'clients', color: C.red2 }].map(function (s) {
+                return ce("div", { key: s.l, className: "dx-pulse-stat dx-click", role: "button", tabIndex: 0, onClick: function () { nav(s.go); }, onKeyDown: function (e) { if (e.key === 'Enter') nav(s.go); } },
+                  ce("b", { className: "syne", style: { color: s.color || C.t1 } }, s.v), ce("span", null, s.l));
+              })))),
+        ce(Card, { title: 'Pipeline by stage', sub: 'Click a stage to list its bids' },
+          ce(DxHBars, { data: stageData, active: pick.stage, onPick: function (k) { setPick({ stage: k, month: null }); } })))),
+    review ? ce(DecisionDrawer, { item: review, nav: nav, onOpen: function (id) { setReview(null); onOpen(id); }, onClose: function () { setReview(null); }, onResolved: resolve }) : null,
+    ce("button", { type: "button", className: "dx-ask syne", onClick: props.onPalette, title: "Search or ask your agents (⌘K)" }, ce("span", { 'aria-hidden': true }, "✦"), " Ask DEMEX", ce("kbd", { className: "mono" }, "⌘K")));
+}
+/* ════════ COMMAND PALETTE: search or ask your agents ════════ */
+/* Answers the orchestrator can give straight from the store, with jump links. */
+function dxLocalAnswer(q, db) {
+  var c = q.toLowerCase(), today = DX.todayISO();
+  if (/\b(due|deadline|this week|today|tomorrow|coming up|upcoming)\b/.test(c)) {
+    var horizon = /today/.test(c) ? 0 : /tomorrow/.test(c) ? 1 : 7;
+    var list = db.projects.filter(function (p) { return ['invited', 'estimating'].indexOf(p.status) >= 0 && p.dueAt && p.dueAt >= today && dxDaysLeft(p.dueAt) <= horizon; }).sort(function (a, b) { return a.dueAt.localeCompare(b.dueAt); });
+    if (!list.length) return { text: 'Nothing is due ' + (horizon === 0 ? 'today' : horizon === 1 ? 'tomorrow' : 'in the next 7 days') + '.', go: 'pipeline/open' };
+    return { text: list.length + ' bid' + (list.length === 1 ? ' is' : 's are') + ' due ' + (horizon === 0 ? 'today' : horizon === 1 ? 'by tomorrow' : 'this week') + '. Weekends are skipped in the working-day counts.',
+      items: list.slice(0, 8).map(function (p) { var wd = dxWorkDaysLeft(p.dueAt); return { t: dxShortName(p.name), s: dxGcName(p) + ' · due ' + p.dueAt + ' · ' + (wd === 0 ? 'today' : wd + ' working days'), tag: p.status, pid: p.id }; }), go: 'pipeline/open' };
+  }
+  if (/\b(need|needs|decision|decisions|approve|approvals|waiting on me|queue|what should i do)\b/.test(c)) {
+    var items = dxBuildDecisions(db), urgent = items.filter(function (i) { return i.urgency >= 2; });
+    return { text: items.length + ' decision' + (items.length === 1 ? '' : 's') + ' waiting, ' + urgent.length + ' urgent. The one-click approvals are the rows marked within policy.',
+      items: items.slice(0, 6).map(function (i) { return { t: i.title, s: i.sub, tag: i.policy.label, pid: i.pid }; }), go: 'dashboard' };
+  }
+  return null;
+}
+function CommandPalette(props) {
+  var open = props.open, onClose = props.onClose, nav = props.nav, onOpen = props.onOpen, onNew = props.onNew;
+  var qs = useState(''), q = qs[0], setQ = qs[1];
+  var as = useState(null), ans = as[0], setAns = as[1];
+  var bs = useState(false), busy = bs[0], setBusy = bs[1];
+  var ref = useRef();
+  useEffect(function () { if (open) { setQ(''); setAns(null); setTimeout(function () { if (ref.current) ref.current.focus(); }, 30); } }, [open]);
+  if (!open) return null;
+  var db = DX.get(), qn = dxNorm(q.trim());
+  var pages = [['dashboard', 'Dashboard'], ['pipeline', 'Pipeline'], ['estimating', 'Estimates'], ['takeoff', 'Takeoff'], ['estimator', 'Estimate'], ['proposals', 'Proposals'], ['rates', 'Rates'], ['clients', 'Clients'], ['performance', 'Performance']];
+  var jumps = [];
+  if (qn) {
+    db.projects.filter(function (p) { return dxNorm(p.name + ' ' + (p.bidNo || '') + ' ' + (p.address || '') + ' ' + dxGcName(p)).indexOf(qn) >= 0; }).slice(0, 5).forEach(function (p) { jumps.push({ t: p.name, s: dxGcName(p) + (p.dueAt ? ' · due ' + p.dueAt : ''), tag: p.status, go: function () { onOpen(p.id); } }); });
+    db.clients.filter(function (c) { return dxNorm(c.name + ' ' + (c.contactName || '')).indexOf(qn) >= 0; }).slice(0, 3).forEach(function (c) { jumps.push({ t: c.name, s: c.contactName || c.email || 'client', tag: 'GC', go: function () { nav('clients'); } }); });
+    pages.filter(function (pg) { return pg[1].toLowerCase().indexOf(qn) >= 0; }).forEach(function (pg) { jumps.push({ t: 'Go to ' + pg[1], s: 'page', tag: 'page', go: function () { nav(pg[0]); } }); });
+  } else {
+    jumps = [{ t: 'Review what needs you', s: 'decision queue on the dashboard', tag: 'action', go: function () { nav('dashboard'); } },
+      { t: 'Ingest inbox', s: 'pull new invitations from mail now', tag: 'action', go: function () { syncItbImports({}); } },
+      { t: 'New project', s: 'add a bid by hand', tag: 'action', go: function () { onNew(); } },
+      { t: 'Go to Pipeline', s: 'every bid and job', tag: 'page', go: function () { nav('pipeline'); } },
+      { t: 'Go to Performance', s: 'job cost, profit, Pricing IQ', tag: 'page', go: function () { nav('performance'); } }];
+  }
+  var ask = function () {
+    if (!q.trim()) return;
+    var r = dxLocalAnswer(q, db) || agentRoute(q);
+    if (r) { setAns(r); if (r.openNew) { onNew(); onClose(); } return; }
+    setBusy(true); setAns({ text: 'Thinking…' });
+    var ctx = JSON.stringify({ projects: DX.projects().slice(0, 150).map(function (p) { return { name: p.name, status: p.status, value: DX.revenueOf(p), due: p.dueAt }; }), winRate: DX.winRate(), rateSettings: DX.rateSettings() });
+    DX.callAI('You are the DEMEX orchestrator for Disassemble Dynamics, a commercial selective-demolition contractor. Answer briefly from this data only; never invent status. Data: ' + ctx + '\n\nQuestion: ' + q, 500)
+      .then(function (t) { setAns({ text: t || 'No answer.' }); }).catch(function (e) { var m = (e && e.message) || 'AI error'; if (/Failed to fetch|NetworkError|Bridge offline/i.test(m)) m = 'The AI needs the bridge: start run_demex.bat and open localhost:8765.'; setAns({ text: m }); }).then(function () { setBusy(false); });
+  };
+  var suggestions = ['Which bids are due this week?', 'Who needs follow-up?', 'Show my pipeline', "What's my most profitable job?", 'Prequal status'];
+  return ce("div", { className: "dx-pal-bg", onClick: function (e) { if (e.target === e.currentTarget) onClose(); } },
+    ce("div", { className: "dx-pal", role: "dialog", 'aria-modal': true, 'aria-label': 'Search or ask your agents' },
+      ce("div", { className: "dx-pal-input" }, ce("span", { 'aria-hidden': true, className: "dx-pal-spark" }, "✦"),
+        ce("input", { ref: ref, value: q, onChange: function (e) { setQ(e.target.value); setAns(null); }, placeholder: "Search or ask your agents…", onKeyDown: function (e) { if (e.key === 'Enter') { if (jumps.length && qn && !ans && e.metaKey) { jumps[0].go(); onClose(); } else ask(); } if (e.key === 'Escape') onClose(); } }),
+        ce("kbd", { className: "mono" }, "esc")),
+      ans ? ce("div", { className: "dx-pal-answer" },
+        ce("div", { className: "dx-pal-from mono" }, busy ? 'Orchestrator is thinking' : 'Answer from the orchestrator'),
+        ce("div", { className: "dx-pal-text" }, ans.text),
+        ans.pre ? ce("pre", { className: "dx-drawer-pre" }, ans.pre) : null,
+        ans.items ? ce("div", { className: "dx-pal-list", style: { padding: '6px 0 0', maxHeight: 220 } }, ans.items.map(function (j, i) {
+          return ce("div", { key: i, className: "dx-pal-item", role: "button", tabIndex: 0, onClick: function () { if (j.pid) onOpen(j.pid); else nav(ans.go || 'dashboard'); onClose(); }, onKeyDown: function (e) { if (e.key === 'Enter') { if (j.pid) onOpen(j.pid); else nav(ans.go || 'dashboard'); onClose(); } } },
+            ce("div", { className: "dx-pal-item-t" }, j.t, ce("div", { className: "dx-pal-item-s" }, j.s)), ce("span", { className: "dx-pal-tag mono" }, j.tag));
+        })) : null,
+        ce("div", { className: "dx-pal-actions" },
+          ans.go ? ce(Btn, { primary: true, onClick: function () { nav(ans.go); onClose(); }, style: { padding: '6px 12px' } }, 'Open ' + (function (g) { var b = g.split('/')[0]; return ({ estimator: 'Estimate', estimating: 'Estimates' })[b] || b.charAt(0).toUpperCase() + b.slice(1); })(ans.go)) : null,
+          ans.mailto ? ce(Btn, { ghost: true, onClick: function () { window.location.href = ans.mailto; }, style: { padding: '6px 12px' } }, "Open mail draft") : null,
+          ans.href ? ce(Btn, { ghost: true, onClick: function () { window.open(ans.href); }, style: { padding: '6px 12px' } }, ans.hrefLabel || 'Open') : null)) : null,
+      !qn && !ans ? ce("div", { className: "dx-pal-sugg" }, suggestions.map(function (s) { return ce("button", { key: s, type: "button", className: "dx-chip", onClick: function () { setQ(s); setTimeout(function () { var r = agentRoute(s); setAns(r || { text: 'Ask the AI for this one — press Enter.' }); }, 0); } }, s); })) : null,
+      ans && !jumps.length ? null : ce("div", { className: "dx-pal-label mono" }, qn ? 'Jump to' : 'Quick actions'),
+      ans && !jumps.length ? null : ce("div", { className: "dx-pal-list" }, jumps.length ? jumps.map(function (j, i) {
+        return ce("div", { key: i, className: "dx-pal-item", role: "button", tabIndex: 0, onClick: function () { j.go(); onClose(); }, onKeyDown: function (e) { if (e.key === 'Enter') { j.go(); onClose(); } } },
+          ce("div", { className: "dx-pal-item-t" }, j.t, ce("div", { className: "dx-pal-item-s" }, j.s)), ce("span", { className: "dx-pal-tag mono" }, j.tag));
+      }) : ce("div", { className: "dx-pal-empty" }, "No project, client or page matches. Press Enter to ask the agents.")),
+      ce("div", { className: "dx-pal-foot mono" }, ce("span", null, "↵ ask"), ce("span", null, "click to jump"), ce("span", { style: { marginLeft: 'auto' } }, "Answers come from your data"))));
 }
 
 /* ════════ PIPELINE workspace ════════ */
@@ -6020,7 +6571,7 @@ function EstimatorWorkspace(props) {
       color: C.t3,
       marginBottom: 10
     }
-  }, "BID SUMMARY"), [['Direct cost', direct], [fixed ? fixed.ohLabel || 'Overhead (fixed)' : 'Overhead (' + (db.company.overheadPct || 0) + '%)', oh], [fixed ? fixed.profitLabel || 'Profit (fixed)' : 'Profit (' + (db.company.profitPct || 0) + '%)', profit]].map(row => /*#__PURE__*/React.createElement("div", {
+  }, "BID SUMMARY"), [['Direct cost', direct], [fixed ? fixed.ohLabel || 'Overhead (fixed)' : 'Overhead (' + (db.company.overheadPct || 0) + '%)', oh], [fixed ? fixed.profitLabel || 'Profit (fixed)' : 'Profit (' + (db.company.profitPct || 0) + '%)', profit]].map(row =>/*#__PURE__*/React.createElement("div", {
     key: row[0],
     style: {
       display: 'flex',
@@ -7621,6 +8172,8 @@ function TopBar({
   nav,
   onPalette
 }) {
+  const dbTB = useStore();
+  const decN = route === 'dashboard' ? 0 : dxBuildDecisions(dbTB).filter(i => i.urgency >= 2).length;
   // on narrow screens the nav scrolls sideways: keep the current section visible
   useEffect(() => {
     const el = document.querySelector('.dx-nav [aria-current="page"]');
@@ -7680,7 +8233,7 @@ function TopBar({
       background: route === k ? C.panel2 : 'transparent',
       boxShadow: route === k ? 'inset 0 -2px 0 ' + C.red : 'none'
     }
-  }, l))), /*#__PURE__*/React.createElement("div", {
+  }, l, k === 'dashboard' && decN ? /*#__PURE__*/React.createElement("span", { className: "mono", title: decN + ' urgent decision' + (decN === 1 ? '' : 's'), style: { marginLeft: 6, fontSize: 10, fontWeight: 500, color: 'var(--onaccent)', background: C.red, borderRadius: 999, padding: '1px 6px', verticalAlign: 1 } }, decN) : null))), /*#__PURE__*/React.createElement("div", {
     onClick: onPalette,
     role: "button",
     tabIndex: 0,
@@ -7697,7 +8250,7 @@ function TopBar({
       flex: '0 0 auto',
       whiteSpace: 'nowrap'
     }
-  }, "⌘K  command"), /*#__PURE__*/React.createElement(ThemeToggle, null), /*#__PURE__*/React.createElement("span", {
+  }, "⌘K  search or ask"), /*#__PURE__*/React.createElement(ThemeToggle, null), /*#__PURE__*/React.createElement("span", {
     className: "dx-ingest",
     style: { flex: '0 0 auto' }
   }, /*#__PURE__*/React.createElement(IngestInboxBtn, {
@@ -7741,6 +8294,7 @@ function App() {
     onPalette: () => setPal(true)
   }), route === 'dashboard' && /*#__PURE__*/React.createElement(Dashboard, {
     nav: nav,
+    onPalette: () => setPal(true),
     onNew: () => setModal({
       t: 'newproj'
     }),
@@ -7772,7 +8326,9 @@ function App() {
     open: pal,
     onClose: () => setPal(false),
     onRun: runAgent,
-    nav: nav
+    nav: nav,
+    onOpen: id => { setPal(false); setModal({ t: 'proj', id }); },
+    onNew: () => { setPal(false); setModal({ t: 'newproj' }); }
   }), modal && modal.t === 'newproj' && /*#__PURE__*/React.createElement(NewProjectModal, {
     onClose: () => setModal(null)
   }), modal && modal.t === 'proj' && /*#__PURE__*/React.createElement(ProjectModal, {
