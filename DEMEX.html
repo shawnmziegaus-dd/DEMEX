@@ -3968,11 +3968,46 @@ function Performance({
   }, "Audit trail: ", (db.audit || []).length, " events recorded. Latest: ", (db.audit || [])[0] ? db.audit[0].summary + ' · ' + db.audit[0].ts.slice(0, 16).replace('T', ' ') : 'none yet', ".")));
 }
 
-/* ════════ ESTIMATES page: live Estimatio (takeoffs & markups) + DEMEX estimate setup + linked estimates ════════
-   Estimatio runs in an iframe from the same server (/estimatio/), so it shares the sign-in and the shared-state API.
-   Its data is read from GET /api/state?app=estimatio (server mode) or, when the bridge runs in local mode and
-   Estimatio keeps its workspace in this browser, from its localStorage key — same origin, read-only here. */
+/* ════════ ESTIMATES page: DEMEX estimate setup + optional hand-off to Estimatio + linked estimates ════════
+   DEMEX prices bids with its own builder. Any bid can instead be done in Estimatio (the Netlify app): the bid's
+   details are copied as ITB text for Estimatio's "Paste ITB", and Estimatio's "Send demolition bids to DEMEX"
+   file comes back through Import. Linked estimates are read from that import, from GET /api/state?app=estimatio
+   (server mode) or, in local mode, from Estimatio's localStorage key — read-only here. */
 const ESTIMATIO_LS = 'estimatio_db_v1';
+const ESTIMATIO_URL = 'https://estimatio-app.netlify.app/';
+const ESTIMATIO_IMPORT_LS = 'demex_estimatio_import_v1';
+/* Estimatio's export ({clients, projects:[DEMEX-shaped, estimatio_id, estimate{direct,oh,profit,sell}]}) → Estimatio-like bids. */
+function estimatioFromExport(data) {
+  if (!data || !Array.isArray(data.projects)) throw new Error('Not an Estimatio export: choose the file from "Send demolition bids to DEMEX".');
+  const cl = {}; (data.clients || []).forEach(c => { if (c && c.id) cl[c.id] = c; });
+  const back = { submitted: 'sent', won: 'won', lost: 'lost' };
+  const projects = data.projects.filter(p => p && (p.estimatio_id || p.id)).map(p => ({
+    id: String(p.estimatio_id || String(p.id).replace(/^pj_est_/, '')), ws: 'ddd', imported: true,
+    name: p.name || '', address: p.address || '', bidNo: p.bidNo || '', dueAt: p.dueAt || '', scope: p.scope || '',
+    client: { name: (cl[p.client_id] || {}).name || '' }, trade: p.scope_type === 'flooring' ? 'flooring' : 'demolition',
+    status: back[p.status] || 'estimated', createdAt: p.createdAt || data.exportedAt || '',
+    estQty: (p.estQty || []).map(l => ({ svc: l.svc, qty: l.qty, rate: l.rate, mat: l.mat, note: l.note || l.notes || '' })),
+    estimate: p.estimate || null, estCosts: p.estCosts || null
+  }));
+  return { projects, exportedAt: data.exportedAt || null, importedAt: new Date().toISOString() };
+}
+function readEstimatioImport() { try { return JSON.parse(localStorage.getItem(ESTIMATIO_IMPORT_LS) || 'null'); } catch (e) { return null; } }
+/* A DEMEX bid as invitation text for Estimatio's "Paste ITB". */
+function bidAsItb(p) {
+  const c = DX.client(p.client_id) || {};
+  return ['INVITATION TO BID — from DEMEX', 'Project: ' + (p.name || ''), p.bidNo ? 'Bid #: ' + p.bidNo : '',
+    'Client / GC: ' + [c.name, c.contactName, c.email, c.phone].filter(Boolean).join(' · '),
+    p.address ? 'Address: ' + p.address : '', p.dueAt ? 'Bids due: ' + p.dueAt : '', p.sqft ? 'Approx. area: ' + p.sqft + ' SF' : '',
+    '', 'Scope:', p.scope || '(see plans)', p.notes ? '\nNotes:\n' + p.notes : '', '', 'DEMEX ref: ' + p.id].filter(x => x !== '').join('\n');
+}
+function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+  return new Promise((ok, no) => {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy') ? ok() : no(new Error('copy blocked')); } catch (e) { no(e); } finally { document.body.removeChild(ta); }
+  });
+}
 const EST_TIER = { Lean: 0.85, Market: 1.0, Premium: 1.2 };
 /* Same math as Estimatio's calc(): direct = Σ qty × (labor rate + material $/unit); OH on direct; profit on
    direct+OH; tax on materials (or all). A blank line rate falls back to Estimatio's rate library mid × tier × region × override. */
@@ -3991,7 +4026,11 @@ function estimatioInfo(payload, svc) {
   return r || { label: svc, unit: '' };
 }
 function estimatioCalc(payload, p) {
-  const s = Object.assign({ overheadPct: 10, profitPct: 18, taxPct: 0, taxMaterialsOnly: true }, (payload && payload.settings) || {});
+  if (p.imported && p.estimate) {   // imported file: use Estimatio's own totals (its overhead/profit settings aren't in the file)
+    const lines = (p.estQty || []).filter(l => l.svc && +l.qty > 0), e = p.estimate, k = p.estCosts || {};
+    return { lines, labor: +k.labor || 0, mat: +k.material || 0, direct: +e.direct || 0, oh: +e.oh || 0, profit: +e.profit || 0, tax: Math.max(0, (+e.sell || 0) - (+e.direct || 0) - (+e.oh || 0) - (+e.profit || 0)), sell: +e.sell || 0 };
+  }
+  const s =Object.assign({ overheadPct: 10, profitPct: 18, taxPct: 0, taxMaterialsOnly: true }, (payload && payload.settings) || {});
   const lines = (p.estQty || []).filter(l => l.svc && +l.qty > 0);
   let labor = 0, mat = 0;
   lines.forEach(l => { const q = +l.qty || 0, r = (l.rate != null && l.rate !== '') ? +l.rate : estimatioRate(payload, l.svc), m = +l.mat || 0; labor += q * r; mat += q * m; });
@@ -4135,7 +4174,7 @@ const agoText = t => {
   return new Date(t).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 };
 const EST_STATUS_COL = { draft: C.t3, estimated: C.gold, sent: C.purple, won: C.green, lost: C.red2 };
-function LinkedEstimatioPanel({ st, refresh, onFocusPid }) {
+function LinkedEstimatioPanel({ st, refresh, onFocusPid, onImport, onClearImport }) {
   const db = useStore();
   useNowTick(10000);
   const [showAll, setShowAll] = useState(false);
@@ -4182,7 +4221,8 @@ function LinkedEstimatioPanel({ st, refresh, onFocusPid }) {
     DX.toast('Restored the pre-pull estimate', 'ok');
   };
   const byName = React.useMemo(() => db.projects.slice().sort((a, b) => String(a.name).localeCompare(String(b.name))), [db.projects.length]);
-  const srcLabel = st.source === 'server' ? 'DEMEX server (' + st.version + ')' : st.source === 'browser' ? 'Estimatio in this browser (local mode)' : '—';
+  const srcLabel = [st.source === 'server' ? 'DEMEX server (' + st.version + ')' : st.source === 'browser' ? 'Estimatio in this browser (local mode)' : '',
+    st.imported ? 'Estimatio file imported ' + String(st.imported.importedAt || '').slice(0, 16).replace('T', ' ') : ''].filter(Boolean).join(' + ') || '—';
   const rows = eps.map(ep => {
     const c = estimatioCalc(payload, ep);
     const lp = linkedOf(ep);
@@ -4198,12 +4238,14 @@ function LinkedEstimatioPanel({ st, refresh, onFocusPid }) {
     right: [
       ce("span", { key: 'u', className: 'mono', 'aria-live': 'polite', style: { fontSize: 10.5, color: st.changedAt && Date.now() - st.changedAt < 20000 ? C.teal : C.t3 } },
         st.loading ? 'checking…' : st.changedAt ? 'updated ' + agoText(st.changedAt) + (st.checkedAt && st.checkedAt !== st.changedAt ? ' · checked ' + agoText(st.checkedAt) : '') : ''),
+      onImport ? ce(Btn, { key: 'i', primary: true, onClick: onImport, style: { padding: '5px 11px', fontSize: 11 }, title: 'Load the file from Estimatio\'s "Send demolition bids to DEMEX"' }, 'Import from Estimatio') : null,
+      st.imported && onClearImport ? ce(Btn, { key: 'x', ghost: true, onClick: onClearImport, style: { padding: '5px 11px', fontSize: 11 }, title: 'Forget the imported file (pulled numbers stay on the projects)' }, 'Clear import') : null,
       ce(Btn, { key: 'r', ghost: true, onClick: () => refresh(), style: { padding: '5px 11px', fontSize: 11 } }, 'Refresh')
     ]
   },
     st.error && !payload ? ce("div", { style: { fontSize: 12.5, color: C.t2, padding: '6px 0' } }, st.error) : null,
-    !st.loading && payload && !eps.length ? ce(Empty, null, 'No Disassemble Dynamics bids in Estimatio yet. Create one above — it will show up here within 20 seconds of saving.') : null,
-    !st.loading && !payload && !st.error ? ce(Empty, null, 'Estimatio has not saved anything yet. Start a bid in the Estimatio panel above.') : null,
+    !st.loading && payload && !eps.length ? ce(Empty, null, 'No Disassemble Dynamics bids from Estimatio yet. Do a bid in Estimatio, click "Send demolition bids to DEMEX" there, then "Import from Estimatio" here.') : null,
+    !st.loading && !payload && !st.error ? ce(Empty, null, 'No Estimatio estimates yet. Do a bid in Estimatio, click "Send demolition bids to DEMEX" there, then "Import from Estimatio" here.') : null,
     eps.length ? ce("div", { className: 'dx-scroll-x' }, ce("table", { className: 'dx-table', style: { fontSize: 12.5, minWidth: 860 } },
       ce("thead", null, ce("tr", null, ['Estimatio bid', 'Trade / status', 'Lines', 'Sell price', 'DEMEX project', ''].map((h, i) => ce("th", {
         key: i, className: 'mono', style: { textAlign: i === 2 || i === 3 ? 'right' : 'left', fontSize: 10, letterSpacing: 1, textTransform: 'uppercase', color: C.t3, padding: '9px 12px', borderBottom: '1px solid ' + C.line, fontWeight: 500 }
@@ -4250,66 +4292,88 @@ function LinkedEstimatioPanel({ st, refresh, onFocusPid }) {
 function Estimating() {
   const db = useStore();
   const [, nav] = useHashRoute();
-  const [full, setFull] = useState(false);
   const [legacy, setLegacy] = useState(false);
   const [focus, setFocus] = useState({ pid: null, tick: 0 });
-  const [loaded, setLoaded] = useState(false);
-  const ifr = useRef(null);
   const [est, refresh] = useEstimatioState(true);
+  const [imp, setImp] = useState(readEstimatioImport);
+  const fileRef = useRef(null);
   const http = location.protocol !== 'file:';
-  const estUrl = '/estimatio/#projects';
   const legacyUrl = http ? '/demex_v24_os.html#app' : 'demex_v24_os.html#app';
-  // Same-origin iframe: refresh our view of Estimatio's data whenever focus leaves it (the user just worked there).
-  const onLoad = () => {
-    setLoaded(true);
-    try {
-      const w = ifr.current && ifr.current.contentWindow;
-      if (w && !w.__dxHooked) { w.__dxHooked = true; w.addEventListener('blur', () => setTimeout(refresh, 700)); }
-    } catch (e) {}
-  };
-  useEffect(() => {
-    if (!full) return;
-    const k = e => { if (e.key === 'Escape') setFull(false); };
-    window.addEventListener('keydown', k);
-    return () => window.removeEventListener('keydown', k);
-  }, [full]);
+  const open = db.projects.filter(p => ['invited', 'estimating'].indexOf(p.status) >= 0);
+  const openSorted = React.useMemo(() => open.slice().sort((a, b) => String(a.dueAt || '9').localeCompare(String(b.dueAt || '9'))), [db.projects]);
+  const [bidId, setBidId] = useState('');
+  const bid = DX.proj(bidId || focus.pid || '') || openSorted[0] || null;
+  // Estimatio bids from the imported file sit on top of whatever the server (or this browser) holds; the file wins per id.
+  const merged = React.useMemo(() => {
+    if (!imp || !imp.projects || !imp.projects.length) return Object.assign({}, est, { imported: null });
+    const ids = new Set(imp.projects.map(p => p.id));
+    const base = est.payload || {};
+    const payload = Object.assign({}, base, { projects: (base.projects || []).filter(p => !ids.has(p.id)).concat(imp.projects) });
+    return Object.assign({}, est, { payload, imported: imp, error: null, version: (est.version || '') + '+f' + imp.importedAt });
+  }, [est, imp]);
   const focusPid = pid => {
     setFocus(f => ({ pid, tick: f.tick + 1 }));
     setTimeout(() => { const el = document.getElementById('dx-est-builder'); if (el) el.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); }, 60);
   };
-  const open = db.projects.filter(p => ['invited', 'estimating'].indexOf(p.status) >= 0);
+  const doInEstimatio = () => {
+    const w = window.open(ESTIMATIO_URL, '_blank', 'noopener');   // open first, inside the click, so pop-up blockers allow it
+    if (bid) copyText(bidAsItb(bid)).then(
+      () => DX.toast('Bid details copied. In Estimatio click "Paste ITB" and paste (Ctrl+V).', 'ok'),
+      () => DX.toast('Estimatio opened, but the details could not be copied. Use "Copy details", then paste in Paste ITB.', 'err'));
+    if (!w) DX.toast('Allow pop-ups for DEMEX to open Estimatio', 'err');
+  };
+  const copyOnly = () => bid && copyText(bidAsItb(bid)).then(() => DX.toast('Bid details copied', 'ok'), () => DX.toast('Could not copy', 'err'));
+  const onFile = e => {
+    const f = e.target.files && e.target.files[0]; e.target.value = '';
+    if (!f) return;
+    f.text().then(t => {
+      const x = estimatioFromExport(JSON.parse(t));
+      try { localStorage.setItem(ESTIMATIO_IMPORT_LS, JSON.stringify(x)); } catch (er) {}
+      setImp(x);
+      DX.toast('Imported ' + x.projects.length + ' Estimatio estimate' + (x.projects.length === 1 ? '' : 's') + '. Confirm each link, then Pull into DEMEX.', 'ok');
+    }).catch(er => DX.toast(er && er.message && er.message.indexOf('Estimatio') >= 0 ? er.message : 'That file is not an Estimatio export', 'err'));
+  };
+  const clearImport = () => { try { localStorage.removeItem(ESTIMATIO_IMPORT_LS); } catch (e) {} setImp(null); DX.toast('Import cleared. Pulled numbers stay on the projects.', 'ok'); };
   const wp = open.reduce((s, p) => s + DX.revenueOf(p) * (p.probability || 0) / 100, 0);
   const wr = DX.winRate();
   const linkedN = db.projects.filter(p => p.estimatio_id).length;
+  const step = (n, t) => ce("div", { key: n, style: { display: 'flex', gap: 8, alignItems: 'baseline', fontSize: 12, color: C.t2 } },
+    ce("span", { className: 'mono', style: { color: C.teal, fontSize: 11 } }, n), ce("span", null, t));
   return ce("div", { className: 'dx-pad', style: { padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: 16 } },
     ce("div", { style: { display: 'flex', alignItems: 'flex-end', gap: 14, flexWrap: 'wrap' } },
       ce("div", { style: { minWidth: 0 } },
         ce("div", { className: 'syne', style: { fontWeight: 800, fontSize: 24, letterSpacing: -.2 } }, 'Estimates'),
-        ce("div", { style: { fontSize: 12.5, color: C.t2, maxWidth: 640 } }, 'Take off and mark up plans in Estimatio, then link each estimate to its DEMEX project and pull the quantities and totals in.')),
+        ce("div", { style: { fontSize: 12.5, color: C.t2, maxWidth: 640 } }, 'Price bids with the DEMEX estimate builder, or hand a bid to Estimatio for plan takeoffs and markups and bring its numbers back.')),
       ce("div", { style: { marginLeft: 'auto', display: 'grid', gridTemplateColumns: 'repeat(4,minmax(0,1fr))', gap: 8, minWidth: 0, flex: '1 1 460px', maxWidth: 640 }, className: 'dx-kpis' },
         ce(Stat, { v: open.length, l: 'bids to estimate', onClick: () => nav('pipeline/invited+estimating'), hint: 'Open invited and estimating bids' }),
         ce(Stat, { v: moneyShort(wp), l: 'weighted pipeline', color: C.gold, onClick: () => nav('pipeline/invited+estimating'), hint: 'Probability-weighted value of open bids' }),
         ce(Stat, { v: wr == null ? '—' : wr + '%', l: 'win rate', onClick: () => nav('pipeline/decided'), hint: 'Open the won and lost bids' }),
         ce(Stat, { v: linkedN, l: 'linked to Estimatio', color: C.teal }))),
-    // ---- Estimatio app ----
-    ce("section", { className: 'dx-card' + (full ? ' dx-ifr-full' : ''), style: { background: C.panel, border: '1px solid ' + C.line, borderRadius: 14, overflow: 'hidden', display: 'flex', flexDirection: 'column' } },
-      ce("div", { style: { display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderBottom: '1px solid ' + C.line, flexWrap: 'wrap', background: C.panel2 } },
-        ce("span", { 'aria-hidden': true, style: { width: 8, height: 8, borderRadius: 9, background: loaded ? C.teal : C.t3 }, className: loaded ? '' : 'dx-pulse' }),
-        ce("span", { className: 'syne', style: { fontWeight: 800, fontSize: 13 } }, 'Estimatio — takeoffs & markups'),
-        ce("span", { className: 'mono dx-hide-sm', style: { fontSize: 10.5, color: C.t3 } }, 'saves on its own · linked list below refreshes automatically'),
-        ce("div", { style: { marginLeft: 'auto', display: 'flex', gap: 8 } },
-          ce(Btn, { ghost: true, onClick: () => { try { ifr.current.contentWindow.location.reload(); } catch (e) { ifr.current.src = estUrl; } }, style: { padding: '5px 10px', fontSize: 11 }, title: 'Reload Estimatio' }, '↻'),
-          ce(Btn, { ghost: true, onClick: () => setFull(!full), style: { padding: '5px 10px', fontSize: 11 }, title: full ? 'Exit full screen (Esc)' : 'Full screen' }, full ? 'Exit full screen' : 'Full screen'),
-          ce("a", { href: '/estimatio/', target: '_blank', rel: 'noopener', className: 'syne dx-btn ghost', style: { fontWeight: 700, fontSize: 11, border: '1px solid ' + C.line2, borderRadius: 9, padding: '5px 10px', color: C.t1, textDecoration: 'none' } }, 'Open in new tab ↗'))),
-      http ? ce("div", { className: full ? '' : 'dx-resize', style: { height: full ? 'auto' : '72vh', minHeight: 360, flex: full ? 1 : 'none', position: 'relative', background: C.ink } },
-        !loaded ? ce("div", { style: { position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', color: C.t3, fontSize: 12 } }, 'Loading Estimatio…') : null,
-        ce("iframe", { ref: ifr, src: estUrl, title: 'Estimatio estimating app', onLoad, allow: 'clipboard-read; clipboard-write', style: { width: '100%', height: '100%', border: 'none', display: 'block', position: 'relative' } }))
-        : ce("div", { style: { padding: 24, color: C.t2, fontSize: 13 } }, 'Estimatio runs on the DEMEX server. Start run_demex.bat and open http://localhost:8765/demex/ to use it here.')),
-    // ---- linked estimates ----
-    ce(LinkedEstimatioPanel, { st: est, refresh, onFocusPid: focusPid }),
     // ---- DEMEX's own estimate setup (rate-card builder) ----
     ce("section", { className: 'dx-card', style: { background: C.panel, border: '1px solid ' + C.line, borderRadius: 14, padding: '16px 16px 18px' } },
       ce(EstimatorWorkspace, { embedded: true, focusPid: focus.pid, focusTick: focus.tick })),
+    // ---- optional: do the bid in Estimatio ----
+    ce("section", { className: 'dx-card', style: { background: C.panel, border: '1px solid ' + C.line, borderRadius: 14, padding: '14px 16px' } },
+      ce("div", { style: { display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' } },
+        ce("div", { style: { minWidth: 0, flex: '1 1 260px' } },
+          ce("div", { className: 'syne', style: { fontWeight: 800, fontSize: 14 } }, 'Or do this bid in Estimatio'),
+          ce("div", { style: { fontSize: 11.5, color: C.t3 } }, 'For plan takeoffs and markups. Opens ',
+            ce("a", { href: ESTIMATIO_URL, target: '_blank', rel: 'noopener', style: { color: C.teal } }, 'estimatio-app.netlify.app'), " with this bid's details copied.")),
+        ce("select", { value: bid ? bid.id : '', 'aria-label': 'Bid to do in Estimatio', onChange: e => setBidId(e.target.value),
+          style: Object.assign({}, inputStyle, { flex: '1 1 260px', maxWidth: 420, padding: '7px 9px', fontSize: 12.5 }) },
+          !openSorted.length ? ce("option", { value: '' }, 'No open bids') : null,
+          openSorted.map(p => ce("option", { key: p.id, value: p.id }, (p.dueAt ? p.dueAt + ' · ' : '') + p.name)),
+          bid && openSorted.indexOf(bid) < 0 ? ce("option", { value: bid.id }, bid.name) : null),
+        ce("div", { style: { display: 'flex', gap: 8, flexWrap: 'wrap' } },
+          ce(Btn, { primary: true, onClick: doInEstimatio, disabled: !bid, title: 'Copy the bid details and open Estimatio' }, 'Do this bid in Estimatio ↗'),
+          ce(Btn, { ghost: true, onClick: copyOnly, disabled: !bid, title: 'Copy the bid details only' }, 'Copy details'))),
+      ce("div", { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 6, marginTop: 12, paddingTop: 10, borderTop: '1px solid ' + C.line } },
+        step('1', 'In Estimatio, click "Paste ITB" and paste. It drafts the bid.'),
+        step('2', 'Do the takeoff and markups there, then click "Send demolition bids to DEMEX".'),
+        step('3', 'Back here, "Import from Estimatio" below, confirm the link, then Pull into DEMEX.'))),
+    // ---- linked estimates ----
+    ce("input", { ref: fileRef, type: 'file', accept: '.json,application/json', onChange: onFile, style: { display: 'none' } }),
+    ce(LinkedEstimatioPanel, { st: merged, refresh, onFocusPid: focusPid, onImport: () => fileRef.current && fileRef.current.click(), onClearImport: clearImport }),
     ce("section", { className: 'dx-card', style: { background: C.panel, border: '1px solid ' + C.line, borderRadius: 14, overflow: 'hidden' } },
       ce("div", { style: { display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', flexWrap: 'wrap' } },
         ce("div", null,

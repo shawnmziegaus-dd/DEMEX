@@ -29,8 +29,14 @@ $y = Read-Host "Wayne's Carpet Plus Yahoo address for PAVORA (press Enter to ski
 if ($y) { Add-Account 'wcp' $y.Trim() 'imap.mail.yahoo.com' "Wayne's Carpet Plus -> PAVORA" }
 
 if (-not $list.Count) { Write-Host "No inboxes entered; nothing changed."; exit 0 }
-$OutputEncoding = New-Object System.Text.UTF8Encoding $false
-@('DEMEX_MAIL_ACCOUNTS=' + (ConvertTo-Json -InputObject @($list) -Compress)) | & $fly secrets import --app demex-ddd --stage
-if ($LASTEXITCODE -ne 0) { throw "flyctl could not set the secret." }
+# Hand flyctl the secret through a BOM-free temp file via cmd's < redirect: piping from Windows PowerShell
+# can prefix a BOM that corrupts the secret's name. The file is deleted straight after, even on failure.
+$tmp = Join-Path $env:TEMP ('demex_mail_' + [guid]::NewGuid().ToString('N') + '.env')
+try {
+  [IO.File]::WriteAllText($tmp, 'DEMEX_MAIL_ACCOUNTS=' + (ConvertTo-Json -InputObject @($list) -Compress) + "`n", (New-Object System.Text.UTF8Encoding $false))
+  cmd /c "`"$fly`" secrets import --app demex-ddd --stage < `"$tmp`""
+  $code = $LASTEXITCODE
+} finally { Remove-Item -LiteralPath $tmp -Force -ErrorAction SilentlyContinue }
+if ($code -ne 0) { throw "flyctl could not set the secret." }
 Write-Host ""
 Write-Host "Done. $($list.Count) inbox(es) saved; they take effect on the next deploy." -ForegroundColor Green
