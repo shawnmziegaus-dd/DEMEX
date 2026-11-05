@@ -2,7 +2,7 @@
  "schema": "demex_bid_sheet/v1",
  "bid_no": "DDD-2026/1105R1",
  "bid_date": "2026-11-05",
- "status": "estimated - markup + estimate done, proposal not yet drafted",
+ "status": "proposal drafted 2026-11-05 - ready to review and submit by 11/10 12:00 PM",
  "project_name": "Apple R111 - St. Johns Town Center (Backstage + Remote), Jacksonville FL",
  "address": "4835 River City Dr, Jacksonville, FL 32246",
  "gc": "Weekes Construction (Ashlie Shelley, ashelley@weekesconstruction.com; BuildingConnected)",
@@ -71,5 +71,8 @@
   "No site visits - counts from 246 owner photos; shelving/lockers/strip-light counts are allowances",
   "Wall finish type not specified - assumed 4' wainscot / FRP & corner guards",
   "Travel set to commute (no lodging) - toggle on Inputs tab"
- ]
+ ],
+ "linked_proposal": "Disassemble Dynamics - Apple R111 St. Johns Town Center, Jacksonville, Florida - DDD-2026-1105R1 - Proposal.docx",
+ "demex_project_id": "pj_itb_20261029_01",
+ "estimatio_id": "es_ddd_apple_r111_sjtc"
 }
