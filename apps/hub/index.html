@@ -2,15 +2,17 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Disassemble Dynamics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <meta name="description" content="Disassemble Dynamics app launcher — DEMEX, Estimatio and Qualora.">
 <style>
-:root{--bg:#0B111A;--panel:#141C28;--panel2:#1E2837;--line:rgba(138,153,173,.2);--fg:#fff;--fg2:#8A99AD;--blue:#0A84FF;--teal:#2AD1B8;--amber:#F3B23E;--green:#4FD18B;--red:#FF5C5C}
+:root{--bg:#0b0b0c;--panel:#141416;--panel2:#1c1c1f;--line:rgba(255,255,255,.10);--fg:#ececee;--fg2:#a2a2a6;--blue:#e8332a;--teal:#2AD1B8;--amber:#F3B23E;--green:#4FD18B;--red:#FF5C5C}
 *{box-sizing:border-box}html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 Inter,-apple-system,system-ui,sans-serif;
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 "DM Sans",Inter,-apple-system,system-ui,sans-serif;
  padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));display:flex;flex-direction:column}
-header{display:flex;align-items:center;gap:12px;padding:8px 0 20px}
-header img{width:40px;height:40px;border-radius:10px}
-header h1{font-size:20px;margin:0;letter-spacing:-.02em}header small{display:block;color:var(--fg2);font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+header{display:flex;align-items:center;gap:12px;padding:8px 0 20px;max-width:960px;margin:0 auto;width:100%}
+header .mark{display:inline-block;width:12px;height:26px;border-radius:2px;background:var(--red);box-shadow:7px 0 0 var(--teal);margin-right:10px}
+header h1{font-family:Syne,sans-serif;font-weight:800;font-size:24px;margin:0;letter-spacing:.06em;line-height:1}header small{display:block;color:var(--fg2);font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
 main{flex:1;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));align-content:start;max-width:960px;margin:0 auto;width:100%}
 a.tile{display:flex;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;color:inherit;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.45);transition:transform .12s,border-color .12s}
 a.tile:hover,a.tile:focus-visible{transform:translateY(-2px);border-color:var(--blue);outline:none}
@@ -18,7 +20,7 @@ a.tile img{width:56px;height:56px;border-radius:14px;flex:none}
 a.tile b{display:block;font-size:17px;letter-spacing:-.01em}a.tile span{color:var(--fg2);font-size:13px}
 a.tile .st{margin-left:auto;font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--fg2);white-space:nowrap}
 a.tile .st.ok{border-color:var(--green);color:var(--green)}a.tile .st.warn{border-color:var(--amber);color:var(--amber)}
-a.tile.primary{border-color:rgba(42,209,184,.45)}
+a.tile.primary{border-color:rgba(42,209,184,.45)}a.tile b{font-family:Syne,sans-serif;font-weight:700}
 footer{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between;padding:22px 0 4px;color:var(--fg2);font-size:13px;max-width:960px;margin:0 auto;width:100%}
 label{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
 #install{display:none;background:var(--blue);color:#fff;border:0;border-radius:8px;padding:9px 14px;font:600 13px Inter,system-ui;cursor:pointer}
@@ -26,7 +28,7 @@ label{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
 #count button{margin-left:auto;background:none;border:1px solid var(--line);color:var(--fg);border-radius:8px;padding:6px 12px;cursor:pointer;font:inherit}
 </style></head>
 <body>
-<header><img src="/apps/pwa/icons/ddd-192.png" alt=""><div><h1>Disassemble Dynamics</h1><small>Operations apps</small></div></header>
+<header><span class="mark" aria-hidden="true"></span><div><h1>DEMEX</h1><small>Disassemble Dynamics · Operations apps</small></div></header>
 <main>
   <div id="count"><span>Opening <b>DEMEX</b> in <span id="n">2</span>s…</span><button type="button" id="stay">Stay here</button></div>
   <a class="tile primary" href="/demex/" data-app="demex"><img src="/apps/pwa/icons/demex-192.png" alt=""><div><b>DEMEX</b><span>Bids, takeoffs, estimates, proposals, job costs</span></div><em class="st">…</em></a>

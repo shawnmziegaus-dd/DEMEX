@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parent
 
 APPS = {
     "hub": {
-        "name": "Disassemble Dynamics", "short": "DDD", "icon": "ddd", "theme": "#0A84FF",
+        "name": "Disassemble Dynamics", "short": "DDD", "icon": "demex", "theme": "#2AD1B8",
         "file": "apps/hub/index.html", "desc": "Disassemble Dynamics app launcher",
     },
     "demex": {
